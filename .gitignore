@@ -1,3 +1,7 @@
+.vscode
+design
+*.exe
+
 # Prerequisites
 *.d
 

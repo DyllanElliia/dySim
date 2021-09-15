@@ -73,14 +73,14 @@ private:
 		return result;
 	}
 
-	void runSlice(const Index& from, tensor& result, const int& ibegin, Index& ci, int i) {
+	void runCut(const Index& from, tensor& result, const int& ibegin, Index& ci, size_t i) {
 		if (i == ci.size()) {
 			result[ci] = (*this)[addIndex(from, ci, ibegin)];
 			return;
 		}
 		for (int num = 0; num < result.tsShape[i]; num++) {
 			ci[i] = num;
-			runSlice(from, result, ibegin, ci, i + 1);
+			runCut(from, result, ibegin, ci, i + 1);
 		}
 	}
 
@@ -150,16 +150,16 @@ public:
 		return show_(indexS, 0, outBegin, colTabStr);
 	}
 
-	virtual tensor slice(const Index& from, const Index& to) {
+	virtual tensor cut(const Index& from, const Index& to) {
 		tensor<ValueType> result;
 		int ibegin = 0, iend = from.size() - 1;
 		std::cout << "here" << std::endl;
 		while (ibegin < iend) {
-			if (from[ibegin] == to[ibegin]) {
+			if (from[ibegin] + 1 == to[ibegin]) {
 				ibegin++;
 				continue;
 			}
-			if (from[ibegin] > to[ibegin])
+			if (from[ibegin] + 1 > to[ibegin])
 				return result;
 			break;
 		}
@@ -185,7 +185,7 @@ public:
 		result.updateSuffix();
 		result.a.resize(len);
 		Index ci(tsShapeSize, 0);
-		runSlice(from, result, ibegin, ci, 0);
+		runCut(from, result, ibegin, ci, 0);
 		return result;
 	}
 };

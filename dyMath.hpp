@@ -9,6 +9,15 @@ template <typename... Ints>
 inline Index gi(Ints... args) {
 	int i[] = {(args)...};
 	Index a(std::begin(i), std::end(i));
-	// for (auto ai : a) printf("%d ", ai);
 	return a;
+}
+
+// printIndex == pi
+// This function can transform the index to a string.
+std::string pi(const Index index) {
+	std::ostringstream out;
+	out << "( ";
+	for (auto i : index) out << i << " ";
+	out << ")";
+	return out.str();
 }

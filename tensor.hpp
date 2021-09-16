@@ -2,6 +2,7 @@
 #include <functional>
 #include <iostream>
 #include <numeric>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -17,7 +18,7 @@ Index addIndex(const Index& i1, const Index& i2, int i2begin = 0) {
 	return result;
 }
 
-template <typename T>
+template <class T>
 class tensor {
 protected:
 	using ValueType = T;
@@ -33,26 +34,26 @@ protected:
 	// std::vector<int> tsRealShape;
 
 private:
-	virtual bool show_(Index& indexS, size_t indexS_i, std::string& outBegin, const std::string& addStr) {
+	virtual bool show_(Index& indexS, size_t indexS_i, std::string& outBegin, const std::string& addStr, std::ostringstream& out) {
 		if (indexS_i == tsShape.size()) {
-			std::cout << (*this)[indexS] << " ";
+			out << (*this)[indexS] << " ";
 			return true;
 		}
-		std::cout << outBegin;
+		out << outBegin;
 		outBegin += addStr;
-		std::cout << "[ ";
+		out << "[ ";
 		// run
 		if (indexS_i + 1 != tsShape.size())
-			std::cout << "\n";
+			out << "\n";
 		for (int i = 0; i < tsShape[indexS_i]; ++i) {
 			indexS[indexS_i] = i;
-			show_(indexS, indexS_i + 1, outBegin, addStr);
+			show_(indexS, indexS_i + 1, outBegin, addStr, out);
 		}
 
 		outBegin = outBegin.substr(0, outBegin.size() - addStr.size());
 		if (indexS_i + 1 != tsShape.size())
-			std::cout << outBegin;
-		printf("],\n");
+			out << outBegin;
+		out << "],\n";
 	}
 
 	void updateSuffix() {
@@ -84,6 +85,14 @@ private:
 		}
 	}
 
+	std::ostringstream getShowOut() {
+		std::ostringstream out;
+		Index indexS(tsShape.size(), 0);
+		std::string outBegin = "";
+		bool result = show_(indexS, 0, outBegin, "|   ", out);
+		return out;
+	}
+
 public:
 	tensor(const Index& shape, const ValueType defaultValue) {
 		tsShape = shape;
@@ -106,6 +115,11 @@ public:
 		a = creatFun();
 		updateSuffix();
 		// std::cout << a.size() << std::endl;
+	}
+	tensor(tensor<ValueType>&& ts) {
+		tsShape = ts.tsShape;
+		a.assign(ts.a.begin(), ts.a.end());
+		updateSuffix();
 	}
 	tensor(tensor<ValueType>& ts) {
 		tsShape = ts.tsShape;
@@ -140,16 +154,28 @@ public:
 		return computer<std::minus<ValueType>>(first, second);
 	}
 
-	virtual bool show(const std::string& colTabStr = "|   ") {
-		// for (auto i : a) {
-		// 	printf("%d ", i);
-		// }
-		// std::cout << " end" << std::endl;
-		Index indexS(tsShape.size(), 0);
-		std::string outBegin = "";
-		return show_(indexS, 0, outBegin, colTabStr);
+	void operator=(const tensor& in) {
+		a = in.a;
+		tsShape = in.tsShape;
+		tsShapeSuffix = in.tsShapeSuffix;
 	}
 
+	friend std::ostream& operator<<(std::ostream& output, tensor& ts) {
+		output << ts.getShowOut().str();
+		return output;
+	}
+
+	virtual bool show(const std::string& colTabStr = "|   ") {
+		std::ostringstream out;
+		Index indexS(tsShape.size(), 0);
+		std::string outBegin = "";
+		bool result = show_(indexS, 0, outBegin, colTabStr, out);
+		std::cout << out.str();
+		return result;
+	}
+
+	// cutting your tensor!
+	// This function is the bottom function of Slice and Fiber.
 	virtual tensor cut(const Index& from, const Index& to) {
 		tensor<ValueType> result;
 		int ibegin = 0, iend = from.size() - 1;
@@ -187,5 +213,10 @@ public:
 		Index ci(tsShapeSize, 0);
 		runCut(from, result, ibegin, ci, 0);
 		return result;
+	}
+
+	// return tensor's shape
+	Index shape() {
+		return tsShape;
 	}
 };

@@ -18,8 +18,9 @@ int main() {
 	// std::cout << "run" << std::endl;
 	a.show();
 	// b.show();
-	// tensor<int> c(a + b);
-	a.cut(gi(0, 0, 0), gi(3, 2, 1)).show();
+	tensor<int> c = a.cut(gi(0, 0, 0), gi(3, 2, 1));
+	std::cout << c << std::endl
+			  << pi(c.shape()) << std::endl;
 	std::cout << "runPlus" << std::endl;
 	return 0;
 }

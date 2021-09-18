@@ -1,18 +1,10 @@
 #pragma once
-#include <functional>
-#include <iostream>
-#include <numeric>
-#include <sstream>
-#include <string>
-#include <vector>
 
-using Index = std::vector<int>;
-using ll = long long;
-using ull = unsigned long long;
+#include "./Index.hpp"
 
 Index addIndex(const Index& i1, const Index& i2, int i2begin = 0) {
 	Index result(i1);
-	for (int i = 0; i < i2.size(); ++i) {
+	for (size_t i = 0; i < i2.size(); ++i) {
 		result[i2begin++] += i2[i];
 	}
 	return result;
@@ -33,7 +25,6 @@ protected:
 	// // e.g. user want to create [4,5,1], ordering to impress the efficiency, the program would create [5,5,1], and Mapping it to [4,5,1].
 	// std::vector<int> tsRealShape;
 
-private:
 	virtual bool show_(Index& indexS, size_t indexS_i, std::string& outBegin, const std::string& addStr, std::ostringstream& out) {
 		if (indexS_i == tsShape.size()) {
 			out << (*this)[indexS] << " ";
@@ -116,6 +107,19 @@ public:
 		updateSuffix();
 		// std::cout << a.size() << std::endl;
 	}
+	tensor(const Index& shape, std::function<std::vector<ValueType>(const Index& shape)> creatFun) {
+		tsShape = shape;
+		ull sizetsR = 1;
+		for (auto i : tsShape)
+			sizetsR *= i;
+		// for (auto i : tsShape) std::cout << i << " ";
+		// printf("\n");
+		a = creatFun(shape);
+		updateSuffix();
+		// std::cout << a.size() << std::endl;
+		// for (auto i : a) std::cout << i << " ";
+		// std::cout << std::endl;
+	}
 	tensor(tensor<ValueType>&& ts) {
 		tsShape = ts.tsShape;
 		a.assign(ts.a.begin(), ts.a.end());
@@ -140,7 +144,8 @@ public:
 			}
 			indexR += index_[max_];
 			return a[indexR];
-		} catch (char* str) {
+		} catch (const char* str) {
+			std::cout << index_.size() << " " << tsShape.size() << std::endl;
 			std::cerr << str << '\n';
 			return a[0];
 		}
@@ -150,8 +155,26 @@ public:
 		return computer<std::plus<ValueType>>(first, second);
 	}
 
+	tensor operator+(const ValueType& second) {
+		tensor result(*this);
+		for (auto& i : result.a) i = i + second;
+		return result;
+	}
+
 	friend tensor operator-(const tensor& first, const tensor& second) {
 		return computer<std::minus<ValueType>>(first, second);
+	}
+
+	friend tensor operator-(const ValueType& first, const tensor& second) {
+		tensor result(second);
+		for (auto& i : result.a) i = first - i;
+		return result;
+	}
+
+	friend tensor operator-(const tensor& first, const ValueType& second) {
+		tensor result(first);
+		for (auto& i : result.a) i = i - second;
+		return result;
 	}
 
 	void operator=(const tensor& in) {
@@ -160,16 +183,34 @@ public:
 		tsShapeSuffix = in.tsShapeSuffix;
 	}
 
+	tensor operator*(const ValueType& second) {
+		tensor result(*this);
+		for (auto& i : result.a) i = i * second;
+		return result;
+	}
+
+	tensor operator/(const ValueType& second) {
+		tensor result(*this);
+		for (auto& i : result.a) i = i / second;
+		return result;
+	}
+
 	friend std::ostream& operator<<(std::ostream& output, tensor& ts) {
 		output << ts.getShowOut().str();
 		return output;
 	}
 
 	virtual bool show(const std::string& colTabStr = "|   ") {
+		/* 		std::cout << "show!" << std::endl;
+		std::cout << tsShape[0] << " " << tsShape[1] << std::endl;
+		std::cout << (*this)[gi(0, 0)] << std::endl;
+		for (auto i : a) std::cout << i << " ";
+		std::cout << std::endl; */
 		std::ostringstream out;
 		Index indexS(tsShape.size(), 0);
 		std::string outBegin = "";
 		bool result = show_(indexS, 0, outBegin, colTabStr, out);
+		// std::cout << "show!beg" << std::endl;
 		std::cout << out.str();
 		return result;
 	}

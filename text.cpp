@@ -1,7 +1,13 @@
 #include "./dyMath.hpp"
+#include "./dyPicture.hpp"
 
 int main() {
-	tensor<int> a(
+	std::vector<short> v{0, 2, 3};
+	pixel<3> a(v);
+	pixel<3> b({4, 2, 3});
+	pixel<3> c = a / b;
+	std::cout << c << std::endl;
+	/* 	tensor<int> a(
 		gi(3, 2, 3), []() -> std::vector<int> {
             int x=3,y=4;
             std::vector<int> v(3*2*3,1);
@@ -20,14 +26,6 @@ int main() {
 		return v;
 	});
 
-	/* matrix<int> mb(gi(3, 4), [](const Index& shape) -> std::vector<int> {
-		std::vector<int> v(shape[0] * shape[1]);
-		for (size_t i = 0; i < shape[0]; ++i)
-			for (size_t j = 0; j < shape[1]; ++j)
-				v[i2ti(gi(i, j), shape)] = j + 1;
-		return v;
-	}); */
-
 	std::vector<std::vector<int>> v{
 		{1, 2, 3, 4},
 		{1, 2, 3, 4},
@@ -43,7 +41,7 @@ int main() {
 	(mc * 3).show();
 	(mc / 2).show();
 	(mc + mc + mc - mc / 2).show();
-	((mc + mc + mc - mc / 2) * mc).show();
+	((mc + mc + mc - mc / 2) * mc).show(); */
 
 	// const size_t im = 4, jm = 4, km = 3;
 	// for (size_t i = 0; i < im; ++i)

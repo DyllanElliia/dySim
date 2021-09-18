@@ -1,4 +1,4 @@
-#include <array>
+#pragma once
 
 #include "./dyMath.hpp"
 

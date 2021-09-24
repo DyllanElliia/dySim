@@ -1,6 +1,7 @@
 .vscode
 design
 *.exe
+example/*.exe
 
 # Prerequisites
 *.d

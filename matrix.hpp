@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-17 14:02:29
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-09-23 17:28:56
+ * @LastEditTime: 2021-09-24 16:31:15
  * @Description:
  */
 
@@ -68,6 +68,7 @@ public:
     updateSuffix();
   }
   Matrix(Matrix<ValueType> &ts) : Tensor<ValueType>() {
+    std::cout << "in" << std::endl;
     shapeCheck(ts.tsShape);
     tsShape = ts.tsShape;
     a.assign(ts.a.begin(), ts.a.end());
@@ -110,15 +111,17 @@ public:
 
   friend Matrix operator+(const ValueType &first, Matrix &second) {
     Matrix result(second);
-    for (auto &i : result)
-      i = first + i;
+    auto &a_ = result.a;
+    for (int i = 0; i < a_.size(); ++i)
+      a_[i] = first + a_[i];
     return result;
   }
 
   friend Matrix operator+(Matrix &first, const ValueType &second) {
     Matrix result(first);
-    for (auto &i : result)
-      i = i + second;
+    auto &a_ = result.a;
+    for (int i = 0; i < a_.size(); ++i)
+      a_[i] = a_[i] + second;
     return result;
   }
 
@@ -128,30 +131,54 @@ public:
 
   friend Matrix operator-(const ValueType &first, Matrix &second) {
     Matrix result(second);
-    for (auto &i : result)
-      i = first - i;
+    auto &a_ = result.a;
+    for (int i = 0; i < a_.size(); ++i)
+      a_[i] = first - a_[i];
     return result;
   }
 
   friend Matrix operator-(Matrix &first, const ValueType &second) {
     Matrix result(first);
-    // std::cout << result.begin() << " " << result.end()::endl;
-    for (auto &i : result)
-      i = i - second;
+    auto &a_ = result.a;
+    std::cout << first.a[0] << " c" << std::endl;
+    std::cout << first.a.size() << " " << a_.size() << std::endl;
+    std::cout << a_[0] << std::endl;
+    std::cout << typeid(second).name() << std::endl;
+    for (int i = 0; i < a_.size(); ++i)
+      a_[i] = a_[i] - second;
+    std::cout << a_[0] << std::endl;
     return result;
   }
 
   Matrix operator*(const ValueType &second) {
     Matrix result(*this);
-    for (auto &i : result.a)
-      i = i * second;
+    auto &a_ = result.a;
+    for (int i = 0; i < a_.size(); ++i)
+      a_[i] = a_[i] * second;
+    return result;
+  }
+
+  friend Matrix operator*(const ValueType &first, Matrix &second) {
+    Matrix result(second);
+    auto &a_ = result.a;
+    for (int i = 0; i < a_.size(); ++i)
+      a_[i] = first * a_[i];
     return result;
   }
 
   Matrix operator/(const ValueType &second) {
     Matrix result(*this);
-    for (auto &i : result.a)
-      i = i / second;
+    auto &a_ = result.a;
+    for (int i = 0; i < a_.size(); ++i)
+      a_[i] = a_[i] / second;
+    return result;
+  }
+
+  friend Matrix operator/(const ValueType &first, Matrix &second) {
+    Matrix result(second);
+    auto &a_ = result.a;
+    for (int i = 0; i < a_.size(); ++i)
+      a_[i] = first / a_[i];
     return result;
   }
 
@@ -173,10 +200,20 @@ public:
     return result;
   }
 
-  void operator=(const Matrix &in) {
-    a = in.a;
+  Matrix &operator=(const Matrix &in) {
+    // a = in.a;
+    std::cout << "here=" << std::endl;
+    // std::cout << in.a[0] << std::endl;
+
+    auto &a_ = in.a;
+    a.resize(a_.size());
+    for (int i = 0, j = 0; i < a_.size(); ++i, ++j)
+      a[i] = a_[j];
+    // std::cout << a[0] << std::endl;
+
     tsShape = in.tsShape;
     tsShapeSuffix = in.tsShapeSuffix;
+    return *this;
   }
 
   operator Tensor<ValueType>() { return *((Tensor<ValueType> *)this); }

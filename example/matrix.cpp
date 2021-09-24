@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-22 15:36:00
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-09-23 16:35:27
+ * @LastEditTime: 2021-09-24 16:13:04
  * @Description:
  */
 
@@ -33,6 +33,9 @@ int main() {
   Matrix<float> mc = ma * mb * Matrix<float>(gi(4, 4), 1);
   // You can know the shape.
   std::cout << pi(mc.shape()) << std::endl;
+  mc.show();
+  // mc = ma * mb * Matrix<float>(gi(4, 4), 1);
+  mc = mc - 1;
   mc.show();
   (2 * mc).show();
   (mc / 100).show();

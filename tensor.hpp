@@ -286,5 +286,6 @@ public:
     tsShape = i;
     updateSuffix();
     a.resize(tsShapeSuffix[0]);
+    return true;
   }
 };

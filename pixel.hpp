@@ -1,8 +1,8 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-24 15:03:37
- * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-09-24 17:03:20
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-09-24 19:22:31
  * @Description:
  */
 
@@ -56,7 +56,8 @@ template <typename Type, int color_size> struct Pixel {
 
   friend Pixel operator+(const Pixel &first, const Pixel &second) {
     Pixel<ValueType, color_size> result;
-    auto &r_ = result.color, &f_ = first.color, &s_ = second.color;
+    auto &r_ = result.color;
+    const auto &f_ = first.color, &s_ = second.color;
     for (int i = 0; i < color_size; ++i) {
       r_[i] = f_[i] + s_[i];
     }
@@ -80,7 +81,8 @@ template <typename Type, int color_size> struct Pixel {
     // std::cout << first << second << std::endl;
     // system("pause");
     Pixel<ValueType, color_size> result;
-    auto &r_ = result.color, &f_ = first.color, &s_ = second.color;
+    auto &r_ = result.color;
+    const auto &f_ = first.color, &s_ = second.color;
     for (int i = 0; i < color_size; ++i) {
       r_[i] = f_[i] - s_[i];
     }
@@ -104,7 +106,8 @@ template <typename Type, int color_size> struct Pixel {
 
   friend Pixel operator*(const Pixel &first, const Pixel &second) {
     Pixel<ValueType, color_size> result;
-    auto &r_ = result.color, &f_ = first.color, &s_ = second.color;
+    auto &r_ = result.color;
+    const auto &f_ = first.color, &s_ = second.color;
     for (int i = 0; i < color_size; ++i) {
       r_[i] = f_[i] * s_[i];
     }
@@ -125,7 +128,8 @@ template <typename Type, int color_size> struct Pixel {
 
   friend Pixel operator/(const Pixel &first, const Pixel &second) {
     Pixel<ValueType, color_size> result;
-    auto &r_ = result.color, &f_ = first.color, &s_ = second.color;
+    auto &r_ = result.color;
+    const auto &f_ = first.color, &s_ = second.color;
     for (int i = 0; i < color_size; ++i) {
       r_[i] = f_[i] / s_[i];
     }

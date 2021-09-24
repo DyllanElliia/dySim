@@ -84,7 +84,7 @@ protected:
     std::ostringstream out;
     Index indexS(tsShape.size(), 0);
     std::string outBegin = "";
-    bool result = show_(indexS, 0, outBegin, "|   ", out);
+    show_(indexS, 0, outBegin, "|   ", out);
     return out;
   }
 
@@ -282,5 +282,9 @@ public:
   // return Tensor's shape
   virtual Index shape() { return tsShape; }
 
-  virtual bool reShape(const Index &i) {}
+  virtual bool reShape(const Index &i) {
+    tsShape = i;
+    updateSuffix();
+    a.resize(tsShapeSuffix[0]);
+  }
 };

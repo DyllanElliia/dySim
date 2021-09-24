@@ -1,8 +1,8 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-17 14:02:29
- * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-09-24 16:31:15
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-09-24 19:30:39
  * @Description:
  */
 
@@ -68,7 +68,7 @@ public:
     updateSuffix();
   }
   Matrix(Matrix<ValueType> &ts) : Tensor<ValueType>() {
-    std::cout << "in" << std::endl;
+    // std::cout << "in" << std::endl;
     shapeCheck(ts.tsShape);
     tsShape = ts.tsShape;
     a.assign(ts.a.begin(), ts.a.end());
@@ -140,13 +140,13 @@ public:
   friend Matrix operator-(Matrix &first, const ValueType &second) {
     Matrix result(first);
     auto &a_ = result.a;
-    std::cout << first.a[0] << " c" << std::endl;
-    std::cout << first.a.size() << " " << a_.size() << std::endl;
-    std::cout << a_[0] << std::endl;
-    std::cout << typeid(second).name() << std::endl;
+    // std::cout << first.a[0] << " c" << std::endl;
+    // std::cout << first.a.size() << " " << a_.size() << std::endl;
+    // std::cout << a_[0] << std::endl;
+    // std::cout << typeid(second).name() << std::endl;
     for (int i = 0; i < a_.size(); ++i)
       a_[i] = a_[i] - second;
-    std::cout << a_[0] << std::endl;
+    // std::cout << a_[0] << std::endl;
     return result;
   }
 
@@ -202,7 +202,7 @@ public:
 
   Matrix &operator=(const Matrix &in) {
     // a = in.a;
-    std::cout << "here=" << std::endl;
+    // std::cout << "here=" << std::endl;
     // std::cout << in.a[0] << std::endl;
 
     auto &a_ = in.a;
@@ -219,12 +219,12 @@ public:
   operator Tensor<ValueType>() { return *((Tensor<ValueType> *)this); }
 
   bool reShape(const Index &i) {
-    std::cout << a.size() << " h" << std::endl;
+    // std::cout << a.size() << " h" << std::endl;
     int ar = i[0] * i[1];
-    std::cout << i[0] << " " << i[1] << " " << ar << std::endl;
+    // std::cout << i[0] << " " << i[1] << " " << ar << std::endl;
     a.resize(ar);
     tsShape = i;
-    std::cout << a.size() << " h" << std::endl;
+    // std::cout << a.size() << " h" << std::endl;
     updateSuffix();
     return true;
   }

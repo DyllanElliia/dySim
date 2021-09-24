@@ -18,25 +18,19 @@ public:
 
   void imread_(std::string filename) {
     int x, y;
-    std::cout << "here3" << std::endl;
     unsigned char *data =
         stbi_load(filename.c_str(), &x, &y, &channel, color_size);
-    std::cout << "here" << std::endl;
     try {
       if (channel > color_size)
         throw "imread warning: Picture's color_size must be larger than "
               "picture's channel!";
-      std::cout << "heret" << std::endl;
       if (data == nullptr)
         throw "imread error: Image reading failure.";
     } catch (const char *str) {
       std::cerr << str << '\n';
       exit(EXIT_FAILURE);
     }
-    std::cout << "heref" << std::endl;
     pic.reShape(gi(x, y));
-    std::cout << pic.text() << std::endl;
-    std::cout << "herer" << std::endl;
     int yc = y * channel;
     for (int j = 0; j < y; ++j)
       for (int i = 0; i < x; ++i)
@@ -46,7 +40,6 @@ public:
           pic[gi(i, j)][k] = (ValueType)data[i * yc + j * color_size + k];
           // std::cout << pic[gi(i, j)][k] << std::endl;
         }
-    std::cout << "herei" << std::endl;
     stbi_image_free(data);
   }
 
@@ -62,9 +55,15 @@ public:
         for (int k = 0; k < color_size; ++k) {
           // std::cout << i << " " << j << " " << k << " " << pic[gi(i, j)][k]
           //           << " " << i * yc + j * color_size + k << std::endl;
-          data[i * yc + j * color_size + k] = pic[gi(i, j)][k];
+          auto &datai = data[i * yc + j * color_size + k];
+          auto pici = pic[gi(i, j)][k];
+          if (pici < 0)
+            pici = 0;
+          if (pici > 255)
+            pici = 255;
+          datai = pici;
         }
-    std::cout << "here" << std::endl;
+    // std::cout << "here" << std::endl;
     int fne_r = filename.rfind('.');
     if (fne_r == std::string::npos) {
       std::cout << "imwrite error: failed to write picture to " << filename

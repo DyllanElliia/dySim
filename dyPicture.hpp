@@ -11,7 +11,7 @@
 #include "./tools/str_hash.h"
 
 template <typename T = short, int color_size = 3> class Picture {
-public:
+private:
   using ValueType = T;
   Matrix<Pixel<ValueType, color_size>> pic;
   int channel;
@@ -22,10 +22,10 @@ public:
         stbi_load(filename.c_str(), &x, &y, &channel, color_size);
     try {
       if (channel > color_size)
-        throw "imread warning: Picture's color_size must be larger than "
-              "picture's channel!";
+        throw "\033[1;31mimread warning: Picture's color_size must be larger "
+              "than picture's channel!\033[0m";
       if (data == nullptr)
-        throw "imread error: Image reading failure.";
+        throw "\033[1;31mimread error: Image reading failure.\033[0m";
     } catch (const char *str) {
       std::cerr << str << '\n';
       exit(EXIT_FAILURE);
@@ -47,7 +47,7 @@ public:
     Index size_ = pic.shape();
     int &x = size_[0], &y = size_[1];
     int yc = y * channel, size_i = x * yc;
-    std::cout << "here " << size_i << std::endl;
+    // std::cout << "here " << size_i << std::endl;
     unsigned char *data = new unsigned char[size_i];
 
     for (int j = 0; j < y; ++j)
@@ -65,10 +65,14 @@ public:
         }
     // std::cout << "here" << std::endl;
     int fne_r = filename.rfind('.');
-    if (fne_r == std::string::npos) {
-      std::cout << "imwrite error: failed to write picture to " << filename
+    if (fne_r == std::string::npos || fne_r == filename.size() - 1 ||
+        filename[fne_r + 1] == '/' || filename[fne_r + 1] == '\\') {
+      std::cout << "\033[1;31mimwrite error: failed to write picture to "
+                   "\033[0m\033[4;33m\""
+                << filename
+                << "\"\033[0m\033[1;31m. without picture's type e.g. "
+                   "~/pic.jpg\033[0m"
                 << std::endl;
-      std::cout << "\twithout picture's type e.g. ~/pic.jpg" << std::endl;
       delete[] data;
       return -1;
     }
@@ -88,10 +92,16 @@ public:
     case hash_compile_time("tga"):
       return_ = stbi_write_tga(filename.c_str(), x, y, channel, data);
       break;
-    default:
-      std::cout << "imwrite error: dyPicture does not support write " +
-                       filename_end + "."
+    case hash_compile_time(""):
+      std::cout << "\033[1;31mimwrite error: please specify a file type for "
+                   "writing.\033[0m"
                 << std::endl;
+      break;
+    default:
+      std::cout
+          << "\033[1;31mimwrite error: dyPicture does not support write " +
+                 filename_end + ".\033[0m"
+          << std::endl;
     }
     delete[] data;
     return return_;
@@ -115,6 +125,83 @@ public:
 
   Pixel<ValueType, color_size> &operator[](const Index &index_) {
     return pic[index_];
+  }
+
+  friend Picture operator+(const Picture &first, const Picture &second) {
+    Picture result;
+    result.pic = first.pic + second.pic;
+    return result;
+  }
+
+  /* 	Picture operator+(const ValueType& second) {
+          Picture result(*this);
+          for (auto& i : result.a) i = i + second;
+          return result;
+  } */
+
+  friend Picture operator+(const ValueType &first, Picture &second) {
+    Picture result;
+    result.pic = first + second.pic;
+    return result;
+  }
+
+  friend Picture operator+(Picture &first, const ValueType &second) {
+    Picture result;
+    result.pic = first.pic + second;
+    return result;
+  }
+
+  friend Picture operator-(const Picture &first, const Picture &second) {
+    Picture result;
+    result.pic = first.pic - second.pic;
+    return result;
+  }
+
+  friend Picture operator-(const ValueType &first, Picture &second) {
+    Picture result;
+    result.pic = first - second.pic;
+    return result;
+  }
+
+  friend Picture operator-(Picture &first, const ValueType &second) {
+    Picture result;
+    result.pic = first.pic - second;
+    return result;
+  }
+
+  Picture operator*(const ValueType &second) {
+    Picture result;
+    result.pic = pic * second;
+    return result;
+  }
+
+  friend Picture operator*(const ValueType &first, Picture &second) {
+    Picture result;
+    result.pic = first * second.pic;
+    return result;
+  }
+
+  Picture operator/(const ValueType &second) {
+    Picture result;
+    result.pic = pic / second;
+    return result;
+  }
+
+  friend Picture operator/(const ValueType &first, Picture &second) {
+    Picture result;
+    result.pic = first / second.pic;
+    return result;
+  }
+
+  friend Picture operator*(const Picture &first, const Picture &second) {
+    Picture result;
+    result.pic = first.pic * second.pic;
+    return result;
+  }
+
+  Picture &operator=(const Picture &in) {
+    pic = in.pic;
+    return *this;
   }
 
   void text() {

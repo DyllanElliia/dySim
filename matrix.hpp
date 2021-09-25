@@ -1,8 +1,8 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-17 14:02:29
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-09-24 19:30:39
+ * @LastEditors: DyllanElliia
+ * @LastEditTime: 2021-09-25 17:09:21
  * @Description:
  */
 
@@ -29,7 +29,8 @@ protected:
     // if (shape.size() != 2)std::cout << "asdf" << std::endl;
     try {
       if (shape.size() != 2)
-        throw "Matrix shape must be 2-dimensional!";
+        throw "\033[1;31mMatrix error: Matrix shape must be "
+              "2-dimensional!\033[0m";
     } catch (const char *str) {
       std::cerr << str << '\n';
       exit(EXIT_FAILURE);
@@ -185,7 +186,7 @@ public:
   friend Matrix operator*(const Matrix &first, const Matrix &second) {
     try {
       if (first.tsShape[1] != second.tsShape[0])
-        throw "Matrix multiplication error: shape error!";
+        throw "\033[1;31mMatrix multiplication error: shape error!\033[0m";
     } catch (const char *str) {
       std::cerr << str << '\n';
       exit(EXIT_FAILURE);

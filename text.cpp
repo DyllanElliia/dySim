@@ -1,8 +1,8 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-13 16:40:59
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-09-24 19:39:34
+ * @LastEditors: DyllanElliia
+ * @LastEditTime: 2021-09-25 17:10:47
  * @Description:
  */
 #include "./dyMath.hpp"
@@ -27,14 +27,14 @@ int main() {
   // std::cout << c << std::endl;
 
   Picture<float, 3> pic;
-  pic.imread("./example/image/uestc.png");
+  pic.imread("./example/image/uestc.jpg");
   std::cout << pi(pic.shape()) << std::endl;
   // pic.show();
-  //   std::cout << pic[gi(0, 0)] << std::endl;
+  // std::cout << pic[gi(0, 0)] << std::endl;
   //   std::cout << (pic[gi(100, 0)])[0]<< std::endl;
   pic[gi(100, 0)].text();
-  pic.pic = 3 * pic.pic;
-  //   std::cout << pic[gi(0, 0)] << std::endl;
+  pic = (255 * 1) / pic;
+  // std::cout << pic[gi(0, 0)] << std::endl;
   //   std::cout << (pic[gi(100, 0)])[0] << std::endl;
-  pic.imwrite("./example/image_out/asdf.jpg");
+  pic.imwrite("./example/image_out/asdf2.png");
 }

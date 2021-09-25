@@ -2,13 +2,17 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-22 15:36:00
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-09-24 16:13:04
- * @Description:
+ * @LastEditTime: 2021-09-25 16:52:29
+ * @Description: How to use Matrix.
  */
 
 #include "../dyMath.hpp"
+#include <iostream>
 
 int main() {
+  qprint("\033[1;4;33mMatrix example:", "Author: DyllanElliia",
+         "Description: How to use Matrix.\033[0m");
+
   // Matrix is the subClass of Tensor.
   Matrix<float> ma(gi(4, 3), []() -> std::vector<float> {
     std::vector<float> v(4 * 3);
@@ -25,24 +29,34 @@ int main() {
   Matrix<float> mb(v);
 
   ma[gi(1, 1)] = 0;
-  ma.show();
-  mb.show();
+  qprint(ma, mb);
 
   // Show you how to use Matrix here.
-  std::cout << "operator test!" << std::endl;
+  qprint("operator test!");
   Matrix<float> mc = ma * mb * Matrix<float>(gi(4, 4), 1);
   // You can know the shape.
-  std::cout << pi(mc.shape()) << std::endl;
-  mc.show();
+  qprint(pi(mc.shape()), mc);
+
   // mc = ma * mb * Matrix<float>(gi(4, 4), 1);
   mc = mc - 1;
-  mc.show();
+  qprint(mc);
   (2 * mc).show();
   (mc / 100).show();
   (mc + mc + mc - mc / 2).show();
   ((mc + mc + mc - mc / 2) * mc).show();
 
   mc = Matrix<float>(v);
-  mc.show();
+  qprint(mc);
+
+  // You can use [int] and [Index] to access the Matrix.
+  qprint(mc[2]);
+
+  std::for_each(mc.begin(), mc.end(), [](float &i) { qprint_nlb(i); });
+  qprint();
+
+  for (auto i = mc.begin(); i != mc.end(); ++i)
+    qprint_nlb(*i);
+  qprint();
+
   return 0;
 }

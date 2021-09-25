@@ -2,7 +2,7 @@
 design
 *.exe
 example/*.exe
-build/text
+build/*
 example/build
 
 # Prerequisites

@@ -1,3 +1,11 @@
+/*
+ * @Author: DyllanElliia
+ * @Date: 2021-09-15 14:41:40
+ * @LastEditTime: 2021-09-25 17:08:54
+ * @LastEditors: DyllanElliia
+ * @Description: based-modulus
+ */
+
 #pragma once
 
 #include "./Index.hpp"
@@ -20,6 +28,7 @@ protected:
   // Shape of the Tensor user want to create.
   std::vector<int> tsShape;
   std::vector<ull> tsShapeSuffix;
+
   // // Real Shape of the Tensor.
   // // e.g. user want to create [4,5,1], ordering to impress the efficiency,
   // the program would create [5,5,1], and Mapping it to [4,5,1].
@@ -45,7 +54,7 @@ protected:
     outBegin = outBegin.substr(0, outBegin.size() - addStr.size());
     if (indexS_i + 1 != tsShape.size())
       out << outBegin;
-    out << "],\n";
+    out << (indexS_i == 0 ? "]" : "],\n");
     return true;
   }
 
@@ -141,7 +150,8 @@ public:
   virtual ValueType &operator[](const Index &index_) {
     try {
       if (index_.size() != tsShape.size())
-        throw "Index is not equal to Tensor shape";
+        throw "\033[1;31mTensor error: (Index)Index is not equal to Tensor "
+              "shape!\033[0m";
       ull indexR = 0;
       int max_ = index_.size() - 1;
       for (int i = 0; i < max_; ++i) {
@@ -150,7 +160,21 @@ public:
       indexR += index_[max_];
       return a[indexR];
     } catch (const char *str) {
-      std::cout << index_.size() << " " << tsShape.size() << std::endl;
+      // std::cout << index_.size() << " " << tsShape.size() << std::endl;
+      std::cerr << str << '\n';
+      return a[0];
+    }
+  }
+
+  virtual ValueType &operator[](const int &index_) {
+    try {
+      if (index_ >= tsShapeSuffix[0])
+        throw "\033[1;31mTensor error: (int)Index is larger than Tensor "
+              "shape\033[0m";
+
+      return a[index_];
+    } catch (const char *str) {
+      // std::cout << index_.size() << " " << tsShape.size() << std::endl;
       std::cerr << str << '\n';
       return a[0];
     }
@@ -223,6 +247,33 @@ public:
     return output;
   }
 
+  class iterator {
+  public:
+    ValueType *p;
+
+  public:
+    iterator(ValueType *p = nullptr) : p(p) {}
+
+    ValueType &operator*() { return *p; }
+
+    // std::vector<ValueType> *operator->() const;
+
+    iterator &operator++() {
+      ++p;
+      return *this;
+    }
+
+    iterator operator++(int) { return iterator(p++); }
+
+    bool operator==(const iterator &arg) const { return p == arg.p; }
+
+    bool operator!=(const iterator &arg) const { return p != arg.p; }
+  };
+
+  virtual iterator begin() { return iterator(a.data()); }
+
+  virtual iterator end() { return iterator(a.data() + a.size()); }
+
   virtual bool show(const std::string &colTabStr = "|   ") {
     /* 		std::cout << "show!" << std::endl;
     std::cout << tsShape[0] << " " << tsShape[1] << std::endl;
@@ -234,7 +285,7 @@ public:
     std::string outBegin = "";
     bool result = show_(indexS, 0, outBegin, colTabStr, out);
     // std::cout << "show!beg" << std::endl;
-    std::cout << out.str();
+    std::cout << out.str() << std::endl;
     return result;
   }
 
@@ -243,7 +294,7 @@ public:
   virtual Tensor cut(const Index &from, const Index &to) {
     Tensor<ValueType> result;
     int ibegin = 0, iend = from.size() - 1;
-    std::cout << "here" << std::endl;
+    // std::cout << "here" << std::endl;
     while (ibegin < iend) {
       if (from[ibegin] + 1 == to[ibegin]) {
         ibegin++;

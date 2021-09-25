@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-13 16:40:59
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-09-25 17:10:47
+ * @LastEditTime: 2021-09-25 19:04:16
  * @Description:
  */
 #include "./dyMath.hpp"
@@ -32,7 +32,7 @@ int main() {
   // pic.show();
   // std::cout << pic[gi(0, 0)] << std::endl;
   //   std::cout << (pic[gi(100, 0)])[0]<< std::endl;
-  pic[gi(100, 0)].text();
+  // pic[gi(100, 0)].text();
   pic = (255 * 1) / pic;
   // std::cout << pic[gi(0, 0)] << std::endl;
   //   std::cout << (pic[gi(100, 0)])[0] << std::endl;

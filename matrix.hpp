@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-17 14:02:29
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-09-25 17:09:21
+ * @LastEditTime: 2021-09-25 22:37:14
  * @Description:
  */
 
@@ -205,7 +205,6 @@ public:
     // a = in.a;
     // std::cout << "here=" << std::endl;
     // std::cout << in.a[0] << std::endl;
-
     auto &a_ = in.a;
     a.resize(a_.size());
     for (int i = 0, j = 0; i < a_.size(); ++i, ++j)

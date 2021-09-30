@@ -11,7 +11,7 @@
 int main() {
   // Read Picture
   Picture<float, 1> pic;
-  pic.imread("./image/luna.png");
+  pic.imread("./example/image/luna.png");
 
   Picture<float, 1> pic_L, pic_S;
 
@@ -38,7 +38,7 @@ int main() {
           dym::abs(dym::filter2D(pic, kernel_S2, dym::BORDER_REPLICATE));
 
   // Save Picture
-  pic.imwrite("./image_out/p1.png");
-  pic_L.imwrite("./image_out/p_L.png");
-  pic_S.imwrite("./image_out/p_S.png");
+  pic.imwrite("./example/image_out/p1.png");
+  pic_L.imwrite("./example/image_out/p_L.png");
+  pic_S.imwrite("./example/image_out/p_S.png");
 }

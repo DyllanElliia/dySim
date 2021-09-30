@@ -1,8 +1,8 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-24 15:03:37
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-09-24 19:22:31
+ * @LastEditors: DyllanElliia
+ * @LastEditTime: 2021-09-27 16:50:53
  * @Description:
  */
 
@@ -21,7 +21,10 @@ template <typename Type, int color_size> struct Pixel {
   Pixel(Pixel &p) : color(p.color) {}
   Pixel(Pixel &&p) : color(p.color) {}
 
-  inline int size() const { return color_size; }
+  inline int size() const {
+    // qprint(color_size);
+    return color_size;
+  }
 
   // Pixel computer(const Pixel &first, const Pixel &second,
   //                std::function<ValueType(ValueType, ValueType)> const
@@ -44,13 +47,22 @@ template <typename Type, int color_size> struct Pixel {
     for (auto &i : color)
       i = v;
   }
+  void operator+=(const Pixel &p) {
+    for (size_t i = 0; i < color.size(); ++i)
+      color[i] += p.color[i];
+  }
+  void operator+=(const ValueType &v) {
+    for (auto &i : color)
+      i += v;
+  }
 
   friend std::ostream &operator<<(std::ostream &output, const Pixel &p) {
     // std::cout << p.color[0] << p.color[1] << p.color[2] << std::endl;
-    output << "(";
+    std::string r = "(";
     for (int i = 0; i < p.size(); ++i)
-      output << " " << p.color[i];
-    output << " )";
+      r += " " + std::to_string(p.color[i]);
+    output << r + " )";
+    // std::cout << r + ")" << std::endl;
     return output;
   }
 
@@ -90,17 +102,17 @@ template <typename Type, int color_size> struct Pixel {
   }
   friend Pixel operator-(const ValueType &first, Pixel &second) {
     Pixel<ValueType, color_size> result(second);
-    std::cout << "\t1\t" << result.color[0] << std::endl;
+    // std::cout << "\t1\t" << result.color[0] << std::endl;
     for (auto &i : result.color)
       i = first - i;
     return result;
   }
   friend Pixel operator-(Pixel &first, const ValueType &second) {
     Pixel<ValueType, color_size> result(first);
-    std::cout << "\t1\t" << result.color[0] << std::endl;
+    // std::cout << "\t1\t" << result.color[0] << std::endl;
     for (auto &i : result.color)
       i = i - second;
-    std::cout << "\t2\t" << result.color[0] << std::endl;
+    // std::cout << "\t2\t" << result.color[0] << std::endl;
     return result;
   }
 

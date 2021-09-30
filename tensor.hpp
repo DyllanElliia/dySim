@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2021-09-25 17:08:54
+ * @LastEditTime: 2021-09-30 16:08:12
  * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */
@@ -248,7 +248,7 @@ public:
   }
 
   class iterator {
-  public:
+  private:
     ValueType *p;
 
   public:

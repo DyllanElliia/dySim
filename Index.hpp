@@ -3,6 +3,7 @@
 #include <cmath>
 #include <functional>
 #include <iostream>
+#include <map>
 #include <numeric>
 #include <sstream>
 #include <vector>
@@ -22,42 +23,23 @@ static Index icomputer(const Index &first, const Index &second) {
   return result;
 }
 
-void IndexSizeCheck(const Index &first, const Index &second) {
-  try {
-    if (first.size() != second.size())
-      throw "Index1's shape is not equal to Index2's shape!";
-  } catch (char *str) {
-    std::cerr << str << '\n';
-    exit(EXIT_FAILURE);
-  }
-}
-
-Index operator+(const Index &i1, const Index &i2) {
-  IndexSizeCheck(i1, i2);
-  return icomputer<std::plus<int>>(i1, i2);
-}
-
-Index operator-(const Index &i1, const Index &i2) {
-  IndexSizeCheck(i1, i2);
-  return icomputer<std::minus<int>>(i1, i2);
-}
-
-Index operator*(const Index &i1, const Index &i2) {
-  IndexSizeCheck(i1, i2);
-  return icomputer<std::multiplies<int>>(i1, i2);
-}
-
-Index operator/(const Index &i1, const Index &i2) {
-  IndexSizeCheck(i1, i2);
-  return icomputer<std::divides<int>>(i1, i2);
+// printIndex == pi
+// This function can transform the index to a string.
+std::string pi(const Index index) {
+  std::ostringstream out;
+  out << "( ";
+  for (auto i : index)
+    out << i << " ";
+  out << ")";
+  return out.str();
 }
 
 // getIndex == gi
 // It is a template which can help you packing the long parameters to an Vector.
 template <typename... Ints> inline Index gi(Ints... args) {
   int i[] = {(args)...};
-  Index a(std::begin(i), std::end(i));
-  return a;
+  // Index a(std::begin(i), std::end(i));
+  return Index(std::begin(i), std::end(i));
 }
 
 std::vector<ull> tsShapeSuffix;
@@ -89,13 +71,33 @@ ull i2ti(const Index &index, const Index &shape) {
   return indexR;
 }
 
-// printIndex == pi
-// This function can transform the index to a string.
-std::string pi(const Index index) {
-  std::ostringstream out;
-  out << "( ";
-  for (auto i : index)
-    out << i << " ";
-  out << ")";
-  return out.str();
+void IndexSizeCheck(const Index &first, const Index &second) {
+  try {
+    if (first.size() != second.size())
+      throw "Index1's shape is not equal to Index2's shape!";
+  } catch (const char *str) {
+    qprint(pi(first), pi(second));
+    std::cerr << str << '\n';
+    exit(EXIT_FAILURE);
+  }
+}
+
+Index operator+(const Index &i1, const Index &i2) {
+  IndexSizeCheck(i1, i2);
+  return icomputer<std::plus<int>>(i1, i2);
+}
+
+Index operator-(const Index &i1, const Index &i2) {
+  IndexSizeCheck(i1, i2);
+  return icomputer<std::minus<int>>(i1, i2);
+}
+
+Index operator*(const Index &i1, const Index &i2) {
+  IndexSizeCheck(i1, i2);
+  return icomputer<std::multiplies<int>>(i1, i2);
+}
+
+Index operator/(const Index &i1, const Index &i2) {
+  IndexSizeCheck(i1, i2);
+  return icomputer<std::divides<int>>(i1, i2);
 }

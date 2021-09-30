@@ -2,39 +2,37 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-13 16:40:59
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-09-25 19:04:16
+ * @LastEditTime: 2021-09-30 16:40:50
  * @Description:
  */
 #include "./dyMath.hpp"
-#include "./dyPicture.hpp"
 
 int main() {
-  // std::vector<short> v{0, 4, 6};
-  // Pixel<short, 3> a(v);
-  // Pixel<short, 3> b({4, 2, 3});
-  // std::cout << a << std::endl;
-  // std::cout << b << std::endl;
-  // // a = b;
-  // // std::cout << a << std::endl;
-  // Pixel<short, 3> c = a;
-  // std::cout << c << std::endl;
-  // (a / b).show();
-  // c = c - 2;
-  // std::cout << c << std::endl;
-  // std::cout << c[1] << std::endl;
-  // std::cout << "here1" << std::endl;
-  // c = 0;
-  // std::cout << c << std::endl;
+  Picture<float, 1> pic;
+  pic.imread("./example/image/luna.png");
 
-  Picture<float, 3> pic;
-  pic.imread("./example/image/uestc.jpg");
-  std::cout << pi(pic.shape()) << std::endl;
-  // pic.show();
-  // std::cout << pic[gi(0, 0)] << std::endl;
-  //   std::cout << (pic[gi(100, 0)])[0]<< std::endl;
-  // pic[gi(100, 0)].text();
-  pic = (255 * 1) / pic;
-  // std::cout << pic[gi(0, 0)] << std::endl;
-  //   std::cout << (pic[gi(100, 0)])[0] << std::endl;
-  pic.imwrite("./example/image_out/asdf2.png");
+  Matrix<float> kernel_L(gi(3, 3), -1);
+  kernel_L[gi(1, 1)] = 8;
+  qprint(kernel_L);
+
+  Picture<float, 1> pic_L, pic_S;
+  pic_L = dym::filter2D(pic, kernel_L, dym::BORDER_REPLICATE);
+
+  Matrix<float> kernel_S1(gi(2, 2), []() {
+    std::vector<float> v{-1, 0, 0, 1};
+    return v;
+  });
+  qprint(kernel_S1);
+  Matrix<float> kernel_S2(gi(2, 2), []() {
+    std::vector<float> v{0, -1, 1, 0};
+    return v;
+  });
+  qprint(kernel_S2);
+
+  pic_S = dym::abs(dym::filter2D(pic, kernel_S1, dym::BORDER_REPLICATE)) +
+          dym::abs(dym::filter2D(pic, kernel_S2, dym::BORDER_REPLICATE));
+
+  pic.imwrite("./example/image_out/asdfp1.png");
+  pic_L.imwrite("./example/image_out/asdfp_L.png");
+  pic_S.imwrite("./example/image_out/asdfp_S.png");
 }

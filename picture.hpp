@@ -1,6 +1,7 @@
 #pragma once
 
-#include "./dyMath.hpp"
+// #include "./dyMath.hpp"
+#include "./matrix.hpp"
 #include "./pixel.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -14,12 +15,11 @@ template <typename T = short, int color_size = 3> class Picture {
 private:
   using ValueType = T;
   Matrix<Pixel<ValueType, color_size>> pic;
-  int channel;
 
   void imread_(std::string filename) {
+    int channel = 0;
     int x, y;
-    unsigned char *data =
-        stbi_load(filename.c_str(), &x, &y, &channel, color_size);
+    unsigned char *data = stbi_load(filename.c_str(), &x, &y, &channel, 0);
     try {
       if (channel > color_size)
         throw "\033[1;31mimread warning: Picture's color_size must be larger "
@@ -31,38 +31,55 @@ private:
       exit(EXIT_FAILURE);
     }
     pic.reShape(gi(x, y));
-    int yc = y * channel;
-    for (int j = 0; j < y; ++j)
-      for (int i = 0; i < x; ++i)
-        for (int k = 0; k < color_size; ++k) {
-          // std::cout << (ValueType)data[i * yc + j * color_size + k]
-          //           << std::endl;
-          pic[gi(i, j)][k] = (ValueType)data[i * yc + j * color_size + k];
-          // std::cout << pic[gi(i, j)][k] << std::endl;
-        }
+    int xc = x * channel;
+    std::cout << channel << std::endl;
+    // for (int i = 0; i < y; ++i)
+    //   for (int j = 0; j < x; ++j)
+    //     data[i * x + j] = 255;
+    if (channel < color_size)
+      for (int i = 0; i < y; ++i)
+        for (int j = 0; j < x; ++j)
+          for (int k = 0; k < color_size; ++k) {
+            pic[gi(j, i)][k] = (ValueType)data[i * x + j];
+          }
+    else
+      for (int i = 0; i < y; ++i)
+        for (int j = 0; j < x; ++j)
+          for (int k = 0; k < color_size; ++k) {
+            pic[gi(j, i)][k] = (ValueType)data[i * xc + j * channel + k];
+          }
     stbi_image_free(data);
   }
 
   int imwrite_(std::string filename) {
     Index size_ = pic.shape();
     int &x = size_[0], &y = size_[1];
-    int yc = y * channel, size_i = x * yc;
+    int xc = x * color_size, size_i = y * xc;
     // std::cout << "here " << size_i << std::endl;
     unsigned char *data = new unsigned char[size_i];
 
-    for (int j = 0; j < y; ++j)
-      for (int i = 0; i < x; ++i)
+    for (int i = 0; i < y; ++i)
+      for (int j = 0; j < x; ++j)
         for (int k = 0; k < color_size; ++k) {
           // std::cout << i << " " << j << " " << k << " " << pic[gi(i, j)][k]
           //           << " " << i * yc + j * color_size + k << std::endl;
-          auto &datai = data[i * yc + j * color_size + k];
-          auto pici = pic[gi(i, j)][k];
+          auto &datai = data[i * xc + j * color_size + k];
+          auto pici = pic[gi(j, i)][k];
           if (pici < 0)
             pici = 0;
           if (pici > 255)
             pici = 255;
           datai = pici;
         }
+
+    // for (int j = 0; j < y; ++j) {
+    //   auto &datai = data[j * yc + j * color_size];
+    //   // if (pici < 0)
+    //   //   pici = 0;
+    //   // if (pici > 255)
+    //   //   pici = 255;
+    //   datai = 255;
+    // }
     // std::cout << "here" << std::endl;
     int fne_r = filename.rfind('.');
     if (fne_r == std::string::npos || fne_r == filename.size() - 1 ||
@@ -81,16 +98,16 @@ private:
 
     switch (hash_(filename_end.c_str())) {
     case hash_compile_time("jpg"):
-      return_ = stbi_write_jpg(filename.c_str(), x, y, channel, data, 0);
+      return_ = stbi_write_jpg(filename.c_str(), x, y, color_size, data, 0);
       break;
     case hash_compile_time("png"):
-      return_ = stbi_write_png(filename.c_str(), x, y, channel, data, 0);
+      return_ = stbi_write_png(filename.c_str(), x, y, color_size, data, 0);
       break;
     case hash_compile_time("bmp"):
-      return_ = stbi_write_bmp(filename.c_str(), x, y, channel, data);
+      return_ = stbi_write_bmp(filename.c_str(), x, y, color_size, data);
       break;
     case hash_compile_time("tga"):
-      return_ = stbi_write_tga(filename.c_str(), x, y, channel, data);
+      return_ = stbi_write_tga(filename.c_str(), x, y, color_size, data);
       break;
     case hash_compile_time(""):
       std::cout << "\033[1;31mimwrite error: please specify a file type for "
@@ -109,9 +126,12 @@ private:
 
 public:
   Picture() {}
+  Picture(const Index &i) { pic.reShape(i); }
+  Picture(Picture &p) : pic(p.pic) {}
+  Picture(Picture &&p) : pic(p.pic) {}
   ~Picture() {}
 
-  inline int getChannel() const { return channel; }
+  inline int getChannel() const { return color_size; }
   inline void imread(std::string filename) { imread_(filename); }
   inline int imwrite(std::string filename) { return imwrite_(filename); }
   inline bool show(const std::string &colTabStr = "|   ") {
@@ -119,9 +139,11 @@ public:
   }
   Index shape() {
     Index i_ = pic.shape();
-    i_.push_back(getChannel());
+    i_.push_back(color_size);
     return i_;
   }
+
+  void reShape(const Index &shape) { pic.reShape(shape); }
 
   Pixel<ValueType, color_size> &operator[](const Index &index_) {
     return pic[index_];
@@ -202,6 +224,10 @@ public:
   Picture &operator=(const Picture &in) {
     pic = in.pic;
     return *this;
+  }
+
+  void for_each(std::function<void(Pixel<ValueType, color_size> &)> func) {
+    std::for_each(pic.begin(), pic.end(), func);
   }
 
   void text() {

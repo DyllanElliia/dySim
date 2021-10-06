@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2021-09-30 16:08:12
+ * @LastEditTime: 2021-10-06 16:35:29
  * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */
@@ -21,12 +21,10 @@ Index addIndex(const Index &i1, const Index &i2, int i2begin = 0) {
 template <class T> class Tensor {
 protected:
   using ValueType = T;
-  using ValueUse = T &;
-  using ValuePtr = T *;
 
   std::vector<ValueType> a;
   // Shape of the Tensor user want to create.
-  std::vector<int> tsShape;
+  Index tsShape;
   std::vector<ull> tsShapeSuffix;
 
   // // Real Shape of the Tensor.
@@ -66,14 +64,28 @@ protected:
     }
   }
 
+  static void shapeCheck(const Index &shape1, const Index &shape2) {
+    // std::cout << "run sc!" << std::endl;
+    // std::cout << shape.size() << std::endl;
+    // if (shape.size() != 2)std::cout << "asdf" << std::endl;
+    try {
+      if (shape1 != shape2)
+        throw "\033[1;31mTensor error: Tensors must be equal in shape!\033[0m";
+    } catch (const char *str) {
+      std::cerr << str << '\n';
+      exit(EXIT_FAILURE);
+    }
+  }
+
   template <class tranFun>
   static Tensor computer(const Tensor &first, const Tensor &second) {
+    shapeCheck(first.tsShape, second.tsShape);
     Tensor result;
     result.tsShape = first.tsShape;
     result.updateSuffix();
     result.a.reserve(first.a.size());
-    std::transform(first.a.begin(), first.a.end(), second.a.begin(),
-                   std::back_inserter(result.a), tranFun());
+    std::transform(first.a.begin(), first.a.begin() + first.a.size(),
+                   second.a.begin(), std::back_inserter(result.a), tranFun());
     return result;
   }
 
@@ -144,6 +156,7 @@ public:
     a.assign(ts.a.begin(), ts.a.end());
     updateSuffix();
   }
+  Tensor(const ValueType &v) {}
   Tensor() {}
   ~Tensor() {}
 
@@ -180,9 +193,41 @@ public:
     }
   }
 
-  friend Tensor operator+(const Tensor &first, const Tensor &second) {
-    return computer<std::plus<ValueType>>(first, second);
+  virtual Tensor operator+(const Tensor &ts) {
+    return computer<std::plus<ValueType>>(*this, ts);
   }
+
+  virtual Tensor operator-(const Tensor &ts) {
+    return computer<std::minus<ValueType>>(*this, ts);
+  }
+
+  virtual Tensor operator*(const Tensor &ts) {
+    return computer<std::multiplies<ValueType>>(*this, ts);
+  }
+
+  virtual Tensor operator/(const Tensor &ts) {
+    return computer<std::divides<ValueType>>(*this, ts);
+  }
+
+  virtual Tensor operator=(const Tensor &in) {
+    // a = in.a;
+    // tsShape = in.tsShape;
+    // tsShapeSuffix = in.tsShapeSuffix;
+
+    auto &a_ = in.a;
+    a.resize(a_.size());
+    for (int i = 0, j = 0; i < a_.size(); ++i, ++j)
+      a[i] = a_[j];
+    // std::cout << a[0] << std::endl;
+
+    tsShape = in.tsShape;
+    tsShapeSuffix = in.tsShapeSuffix;
+    return *this;
+  }
+
+  // friend Tensor operator+(const Tensor &first, const Tensor &second) {
+  //   return computer<std::plus<ValueType>>(first, second);
+  // }
 
   friend Tensor operator+(const ValueType &first, Tensor &second) {
     Tensor result(second);
@@ -198,9 +243,9 @@ public:
     return result;
   }
 
-  friend Tensor operator-(const Tensor &first, const Tensor &second) {
-    return computer<std::minus<ValueType>>(first, second);
-  }
+  // friend Tensor operator-(const Tensor &first, const Tensor &second) {
+  //   return computer<std::minus<ValueType>>(first, second);
+  // }
 
   friend Tensor operator-(const ValueType &first, Tensor &second) {
     Tensor result(second);
@@ -216,11 +261,11 @@ public:
     return result;
   }
 
-  void operator=(const Tensor &in) {
-    a = in.a;
-    tsShape = in.tsShape;
-    tsShapeSuffix = in.tsShapeSuffix;
-  }
+  // void operator=(const Tensor &in) {
+  //   a = in.a;
+  //   tsShape = in.tsShape;
+  //   tsShapeSuffix = in.tsShapeSuffix;
+  // }
 
   Tensor operator*(const ValueType &second) {
     Tensor result(*this);

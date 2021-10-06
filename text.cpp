@@ -2,10 +2,10 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-13 16:40:59
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-09-30 16:40:50
+ * @LastEditTime: 2021-10-06 17:01:23
  * @Description:
  */
-#include "./dyMath.hpp"
+#include "./dyPicture.hpp"
 
 int main() {
   Picture<float, 1> pic;
@@ -16,7 +16,7 @@ int main() {
   qprint(kernel_L);
 
   Picture<float, 1> pic_L, pic_S;
-  pic_L = dym::filter2D(pic, kernel_L, dym::BORDER_REPLICATE);
+  pic_L = dyp::filter2D(pic, kernel_L, dyp::BORDER_REPLICATE);
 
   Matrix<float> kernel_S1(gi(2, 2), []() {
     std::vector<float> v{-1, 0, 0, 1};
@@ -29,8 +29,8 @@ int main() {
   });
   qprint(kernel_S2);
 
-  pic_S = dym::abs(dym::filter2D(pic, kernel_S1, dym::BORDER_REPLICATE)) +
-          dym::abs(dym::filter2D(pic, kernel_S2, dym::BORDER_REPLICATE));
+  pic_S = dyp::abs(dyp::filter2D(pic, kernel_S1, dyp::BORDER_REPLICATE)) +
+          dyp::abs(dyp::filter2D(pic, kernel_S2, dyp::BORDER_REPLICATE));
 
   pic.imwrite("./example/image_out/asdfp1.png");
   pic_L.imwrite("./example/image_out/asdfp_L.png");

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-17 14:02:29
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-09-25 22:37:14
+ * @LastEditTime: 2021-10-06 16:57:00
  * @Description:
  */
 
@@ -23,7 +23,7 @@ protected:
   // template <class tranFun, class comValue>
   // using computer = Tensor<ValueType>::computer<tranFun, comValue>;
 
-  inline void shapeCheck(const Index &shape) {
+  static void shapeCheck(const Index &shape) {
     // std::cout << "run sc!" << std::endl;
     // std::cout << shape.size() << std::endl;
     // if (shape.size() != 2)std::cout << "asdf" << std::endl;
@@ -76,15 +76,27 @@ public:
     updateSuffix();
   }
   Matrix(Tensor<ValueType> &&ts) : Tensor<ValueType>() {
-    shapeCheck(ts.tsShape);
-    tsShape = ts.tsShape;
-    a.assign(ts.a.begin(), ts.a.end());
+    auto ts_Shape = ts.shape();
+    shapeCheck(ts_Shape);
+    tsShape = ts_Shape;
+    a.resize(ts_Shape[0] * ts_Shape[1]);
+    int ai = 0;
+    for (auto &i : ts)
+      a[ai++] = i;
+    // a.assign(ts.begin(), ts.end());
     updateSuffix();
   }
   Matrix(Tensor<ValueType> &ts) : Tensor<ValueType>() {
-    shapeCheck(ts.tsShape);
-    tsShape = ts.tsShape;
-    a.assign(ts.a.begin(), ts.a.end());
+    auto ts_Shape = ts.shape();
+    shapeCheck(ts_Shape);
+    tsShape = ts_Shape;
+    a.resize(ts_Shape[0] * ts_Shape[1]);
+    int ai = 0;
+    for (auto &i : ts)
+      a[ai++] = i;
+    // shapeCheck(ts.shape());
+    // tsShape = ts.shape();
+    // a.assign(ts.begin(), ts.end());
     updateSuffix();
   }
   Matrix(std::vector<std::vector<ValueType>> &v) : Tensor<ValueType>() {
@@ -100,9 +112,9 @@ public:
   Matrix() : Tensor<ValueType>() {}
   ~Matrix() {}
 
-  friend Matrix operator+(const Matrix &first, const Matrix &second) {
-    return computer<std::plus<ValueType>>(first, second);
-  }
+  // friend Matrix operator+(const Matrix &first, const Matrix &second) {
+  //   return computer<std::plus<ValueType>>(first, second);
+  // }
 
   /* 	Matrix operator+(const ValueType& second) {
           Matrix result(*this);
@@ -126,9 +138,9 @@ public:
     return result;
   }
 
-  friend Matrix operator-(const Matrix &first, const Matrix &second) {
-    return computer<std::minus<ValueType>>(first, second);
-  }
+  // friend Matrix operator-(const Matrix &first, const Matrix &second) {
+  //   return computer<std::minus<ValueType>>(first, second);
+  // }
 
   friend Matrix operator-(const ValueType &first, Matrix &second) {
     Matrix result(second);
@@ -183,7 +195,11 @@ public:
     return result;
   }
 
-  friend Matrix operator*(const Matrix &first, const Matrix &second) {
+  Matrix operator*(const Matrix &ts) {
+    auto &first = *this;
+    auto &second = ts;
+    // auto &first_tsShape = first.shape();
+    // auto &second_tsShape = second.shape();
     try {
       if (first.tsShape[1] != second.tsShape[0])
         throw "\033[1;31mMatrix multiplication error: shape error!\033[0m";
@@ -218,7 +234,7 @@ public:
 
   operator Tensor<ValueType>() { return *((Tensor<ValueType> *)this); }
 
-  bool reShape(const Index &i) {
+  virtual bool reShape(const Index &i) {
     // std::cout << a.size() << " h" << std::endl;
     int ar = i[0] * i[1];
     // std::cout << i[0] << " " << i[1] << " " << ar << std::endl;

@@ -149,7 +149,7 @@ public:
     return pic[index_];
   }
 
-  friend Picture operator+(const Picture &first, const Picture &second) {
+  friend Picture operator+(Picture first, Picture second) {
     Picture result;
     result.pic = first.pic + second.pic;
     return result;
@@ -173,7 +173,7 @@ public:
     return result;
   }
 
-  friend Picture operator-(const Picture &first, const Picture &second) {
+  friend Picture operator-(Picture first, Picture second) {
     Picture result;
     result.pic = first.pic - second.pic;
     return result;

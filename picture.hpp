@@ -10,6 +10,7 @@
 #include "./stb/stb_image_write.h"
 
 #include "./tools/str_hash.h"
+namespace dym {
 
 template <typename T = short, int color_size = 3> class Picture {
 private:
@@ -32,7 +33,7 @@ private:
     }
     pic.reShape(gi(x, y));
     int xc = x * channel;
-    std::cout << channel << std::endl;
+    // std::cout << channel << std::endl;
     // for (int i = 0; i < y; ++i)
     //   for (int j = 0; j < x; ++j)
     //     data[i * x + j] = 255;
@@ -234,3 +235,4 @@ public:
     // std::cout << pic.end() << std::endl;
   }
 };
+}

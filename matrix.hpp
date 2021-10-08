@@ -2,13 +2,14 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-17 14:02:29
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-10-06 16:57:00
+ * @LastEditTime: 2021-10-08 16:51:04
  * @Description:
  */
 
 #pragma once
 #include "./Tensor.hpp"
 
+namespace dym {
 template <class T> class Matrix : public Tensor<T> {
 protected:
   using ValueType = T;
@@ -247,3 +248,4 @@ public:
 
   int text() { return a.size(); }
 };
+} // namespace dym

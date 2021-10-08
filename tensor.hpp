@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2021-10-06 16:35:29
+ * @LastEditTime: 2021-10-08 16:50:02
  * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */
@@ -9,7 +9,7 @@
 #pragma once
 
 #include "./Index.hpp"
-
+namespace dym {
 Index addIndex(const Index &i1, const Index &i2, int i2begin = 0) {
   Index result(i1);
   for (size_t i = 0; i < i2.size(); ++i) {
@@ -385,3 +385,4 @@ public:
     return true;
   }
 };
+} // namespace dym

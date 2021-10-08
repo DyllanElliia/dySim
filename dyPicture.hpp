@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-13 16:50:00
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-10-06 17:01:33
+ * @LastEditTime: 2021-10-08 16:50:30
  * @Description:
  */
 #pragma once
@@ -10,7 +10,7 @@
 #include "./picture.hpp"
 // #include "./matrix.hpp"
 
-namespace dyp {
+namespace dym {
 
 enum BorderType { BORDER_CONSTANT = 1, BORDER_REFLECT, BORDER_REPLICATE };
 
@@ -94,4 +94,4 @@ Picture<InputType, color_size> abs(Picture<InputType, color_size> in) {
   return result;
 }
 
-} // namespace dyp
+} // namespace dym

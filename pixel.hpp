@@ -2,13 +2,13 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-24 15:03:37
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-09-27 16:50:53
+ * @LastEditTime: 2021-10-08 16:51:20
  * @Description:
  */
 
 #pragma once
 #include "./Index.hpp"
-
+namespace dym {
 template <typename Type, int color_size> struct Pixel {
   using ValueType = Type;
   // #define color_size 3
@@ -300,3 +300,4 @@ template <typename Type, int color_size> struct Pixel {
 //     i = i / second;
 //   return result;
 // }
+}

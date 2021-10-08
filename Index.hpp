@@ -10,6 +10,7 @@
 
 #include "./tools/sugar.hpp"
 
+namespace dym {
 using Index = std::vector<int>;
 using ll = long long;
 using ull = unsigned long long;
@@ -81,23 +82,24 @@ void IndexSizeCheck(const Index &first, const Index &second) {
     exit(EXIT_FAILURE);
   }
 }
+} // namespace dym
 
-Index operator+(const Index &i1, const Index &i2) {
-  IndexSizeCheck(i1, i2);
-  return icomputer<std::plus<int>>(i1, i2);
+dym::Index operator+(const dym::Index &i1, const dym::Index &i2) {
+  dym::IndexSizeCheck(i1, i2);
+  return dym::icomputer<std::plus<int>>(i1, i2);
 }
 
-Index operator-(const Index &i1, const Index &i2) {
-  IndexSizeCheck(i1, i2);
-  return icomputer<std::minus<int>>(i1, i2);
+dym::Index operator-(const dym::Index &i1, const dym::Index &i2) {
+  dym::IndexSizeCheck(i1, i2);
+  return dym::icomputer<std::minus<int>>(i1, i2);
 }
 
-Index operator*(const Index &i1, const Index &i2) {
-  IndexSizeCheck(i1, i2);
-  return icomputer<std::multiplies<int>>(i1, i2);
+dym::Index operator*(const dym::Index &i1, const dym::Index &i2) {
+  dym::IndexSizeCheck(i1, i2);
+  return dym::icomputer<std::multiplies<int>>(i1, i2);
 }
 
-Index operator/(const Index &i1, const Index &i2) {
-  IndexSizeCheck(i1, i2);
-  return icomputer<std::divides<int>>(i1, i2);
+dym::Index operator/(const dym::Index &i1, const dym::Index &i2) {
+  dym::IndexSizeCheck(i1, i2);
+  return dym::icomputer<std::divides<int>>(i1, i2);
 }

@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-25 16:01:48
- * @LastEditTime: 2021-10-08 17:28:33
+ * @LastEditTime: 2021-10-10 16:57:51
  * @LastEditors: DyllanElliia
  * @Description: Syntactic sugar!
  */
@@ -37,26 +37,36 @@ inline void qprint() { std::cout << std::endl; }
 namespace dym {
 class TimeLog {
 private:
-  time_t timep;
-  std::vector<unsigned int> timeLogs;
+  double timep;
+  std::vector<std::pair<double, double>> timeLogs;
   bool flag;
 
 public:
-  TimeLog() {
-    timep = time(0);
-    flag = true;
-  }
-  ~TimeLog() {
-    if (flag) {
-      std::cout << "Run time: " << time(0) - timep << "s" << std::endl;
-    }
-  }
-
   void record() {
     flag = false;
-    std::cout << "Run time: " << time(0) - timep << "s" << std::endl;
+    std::cout << "Run time: " << (clock() - timep) / 1000 << "s" << std::endl;
   }
 
-  void start() { timep = time(0); }
+  void start() { timep = clock(); }
+
+  void saveLog() {
+    timeLogs.push_back(
+        std::make_pair(timeLogs.size(), (clock() - timep) / 1000));
+  }
+
+  void saveLog(double tag) {
+    timeLogs.push_back(std::make_pair(tag, (clock() - timep) / 1000));
+  }
+
+  TimeLog() {
+    timep = clock();
+    flag = true;
+  }
+
+  ~TimeLog() {
+    if (flag) {
+      record();
+    }
+  }
 };
 } // namespace dym

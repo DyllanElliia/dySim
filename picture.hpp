@@ -32,18 +32,28 @@ private:
       exit(EXIT_FAILURE);
     }
     pic.reShape(gi(x, y));
+    // qprint_nlb(x, y, pi(pic.shape()));
     int xc = x * channel;
+    // int rEnd = x * y;
     // std::cout << channel << std::endl;
     // for (int i = 0; i < y; ++i)
     //   for (int j = 0; j < x; ++j)
     //     data[i * x + j] = 255;
     if (channel < color_size)
+      // for (int i = 0; i < rEnd; ++i)
+      //   for (int k = 0; k < color_size; ++k) {
+      //     pic[i][k] = (ValueType)data[i];
+      //   }
       for (int i = 0; i < y; ++i)
         for (int j = 0; j < x; ++j)
           for (int k = 0; k < color_size; ++k) {
             pic[gi(j, i)][k] = (ValueType)data[i * x + j];
           }
     else
+      // for (int i = 0; i < rEnd; ++i)
+      //   for (int k = 0; k < color_size; ++k) {
+      //     pic[i][k] = (ValueType)data[i * channel + k];
+      //   }
       for (int i = 0; i < y; ++i)
         for (int j = 0; j < x; ++j)
           for (int k = 0; k < color_size; ++k) {
@@ -235,4 +245,4 @@ public:
     // std::cout << pic.end() << std::endl;
   }
 };
-}
+} // namespace dym

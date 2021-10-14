@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-25 16:01:48
- * @LastEditTime: 2021-10-10 16:57:51
+ * @LastEditTime: 2021-10-13 17:58:38
  * @LastEditors: DyllanElliia
  * @Description: Syntactic sugar!
  */
@@ -20,7 +20,9 @@ template <typename T, typename... Ts> void qprint_nlb(T v, Ts... vl) {
   std::cout << v << " ";
   if constexpr (sizeof...(vl) > 0) {
     qprint_nlb(vl...);
+    return;
   }
+  std::cout << std::endl;
 }
 
 // Print the values with line break.
@@ -47,7 +49,7 @@ public:
     std::cout << "Run time: " << (clock() - timep) / 1000 << "s" << std::endl;
   }
 
-  void start() { timep = clock(); }
+  void reStart() { timep = clock(); }
 
   void saveLog() {
     timeLogs.push_back(

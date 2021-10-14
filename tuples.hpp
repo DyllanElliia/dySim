@@ -2,34 +2,34 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-24 15:03:37
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-10-08 16:51:20
+ * @LastEditTime: 2021-10-14 17:04:35
  * @Description:
  */
 
 #pragma once
 #include "./Index.hpp"
 namespace dym {
-template <typename Type, int color_size> struct Pixel {
+template <typename Type, int color_size> struct Tuples {
   using ValueType = Type;
   // #define color_size 3
   std::vector<ValueType> color;
-  Pixel(std::vector<ValueType> color_) {
+  Tuples(std::vector<ValueType> color_) {
     color.assign(color_.begin(), color_.begin() + color_size);
   }
-  Pixel() { color.resize(color_size, 0); }
-  Pixel(ValueType v) { color.resize(color_size, v); }
-  Pixel(Pixel &p) : color(p.color) {}
-  Pixel(Pixel &&p) : color(p.color) {}
+  Tuples() { color.resize(color_size, 0); }
+  Tuples(ValueType v) { color.resize(color_size, v); }
+  Tuples(Tuples &p) : color(p.color) {}
+  Tuples(Tuples &&p) : color(p.color) {}
 
   inline int size() const {
     // qprint(color_size);
     return color_size;
   }
 
-  // Pixel computer(const Pixel &first, const Pixel &second,
+  // Tuples computer(const Tuples &first, const Tuples &second,
   //                std::function<ValueType(ValueType, ValueType)> const
   //                tranFun) {
-  //   Pixel<ValueType, color_size>result;
+  //   Tuples<ValueType, color_size>result;
   //   for (int i = 0; i<color_size; ++i) {
   //     result[i] = tranFun(first[i], second[i]);
   //   }
@@ -42,12 +42,12 @@ template <typename Type, int color_size> struct Pixel {
   //   return result;
   // }
 
-  void operator=(const Pixel &p) { color = p.color; }
+  void operator=(const Tuples &p) { color = p.color; }
   void operator=(const ValueType &v) {
     for (auto &i : color)
       i = v;
   }
-  void operator+=(const Pixel &p) {
+  void operator+=(const Tuples &p) {
     for (size_t i = 0; i < color.size(); ++i)
       color[i] += p.color[i];
   }
@@ -56,7 +56,7 @@ template <typename Type, int color_size> struct Pixel {
       i += v;
   }
 
-  friend std::ostream &operator<<(std::ostream &output, const Pixel &p) {
+  friend std::ostream &operator<<(std::ostream &output, const Tuples &p) {
     // std::cout << p.color[0] << p.color[1] << p.color[2] << std::endl;
     std::string r = "(";
     for (int i = 0; i < p.size(); ++i)
@@ -66,8 +66,8 @@ template <typename Type, int color_size> struct Pixel {
     return output;
   }
 
-  friend Pixel operator+(const Pixel &first, const Pixel &second) {
-    Pixel<ValueType, color_size> result;
+  friend Tuples operator+(const Tuples &first, const Tuples &second) {
+    Tuples<ValueType, color_size> result;
     auto &r_ = result.color;
     const auto &f_ = first.color, &s_ = second.color;
     for (int i = 0; i < color_size; ++i) {
@@ -75,24 +75,24 @@ template <typename Type, int color_size> struct Pixel {
     }
     return result;
   }
-  friend Pixel operator+(const ValueType &first, Pixel &second) {
-    Pixel<ValueType, color_size> result(second);
+  friend Tuples operator+(const ValueType &first, Tuples &second) {
+    Tuples<ValueType, color_size> result(second);
     for (auto &i : result.color)
       i = first + i;
     return result;
   }
-  friend Pixel operator+(Pixel &first, const ValueType &second) {
-    Pixel<ValueType, color_size> result(first);
+  friend Tuples operator+(Tuples &first, const ValueType &second) {
+    Tuples<ValueType, color_size> result(first);
     for (auto &i : result.color)
       i = i + second;
     return result;
   }
 
-  friend Pixel operator-(const Pixel &first, const Pixel &second) {
+  friend Tuples operator-(const Tuples &first, const Tuples &second) {
     // std::cout << 111 << std::endl;
     // std::cout << first << second << std::endl;
     // system("pause");
-    Pixel<ValueType, color_size> result;
+    Tuples<ValueType, color_size> result;
     auto &r_ = result.color;
     const auto &f_ = first.color, &s_ = second.color;
     for (int i = 0; i < color_size; ++i) {
@@ -100,15 +100,15 @@ template <typename Type, int color_size> struct Pixel {
     }
     return result;
   }
-  friend Pixel operator-(const ValueType &first, Pixel &second) {
-    Pixel<ValueType, color_size> result(second);
+  friend Tuples operator-(const ValueType &first, Tuples &second) {
+    Tuples<ValueType, color_size> result(second);
     // std::cout << "\t1\t" << result.color[0] << std::endl;
     for (auto &i : result.color)
       i = first - i;
     return result;
   }
-  friend Pixel operator-(Pixel &first, const ValueType &second) {
-    Pixel<ValueType, color_size> result(first);
+  friend Tuples operator-(Tuples &first, const ValueType &second) {
+    Tuples<ValueType, color_size> result(first);
     // std::cout << "\t1\t" << result.color[0] << std::endl;
     for (auto &i : result.color)
       i = i - second;
@@ -116,8 +116,8 @@ template <typename Type, int color_size> struct Pixel {
     return result;
   }
 
-  friend Pixel operator*(const Pixel &first, const Pixel &second) {
-    Pixel<ValueType, color_size> result;
+  friend Tuples operator*(const Tuples &first, const Tuples &second) {
+    Tuples<ValueType, color_size> result;
     auto &r_ = result.color;
     const auto &f_ = first.color, &s_ = second.color;
     for (int i = 0; i < color_size; ++i) {
@@ -125,21 +125,21 @@ template <typename Type, int color_size> struct Pixel {
     }
     return result;
   }
-  friend Pixel operator*(const ValueType &first, Pixel &second) {
-    Pixel<ValueType, color_size> result(second);
+  friend Tuples operator*(const ValueType &first, Tuples &second) {
+    Tuples<ValueType, color_size> result(second);
     for (auto &i : result.color)
       i = first * i;
     return result;
   }
-  friend Pixel operator*(Pixel &first, const ValueType &second) {
-    Pixel<ValueType, color_size> result(first);
+  friend Tuples operator*(Tuples &first, const ValueType &second) {
+    Tuples<ValueType, color_size> result(first);
     for (auto &i : result.color)
       i = i * second;
     return result;
   }
 
-  friend Pixel operator/(const Pixel &first, const Pixel &second) {
-    Pixel<ValueType, color_size> result;
+  friend Tuples operator/(const Tuples &first, const Tuples &second) {
+    Tuples<ValueType, color_size> result;
     auto &r_ = result.color;
     const auto &f_ = first.color, &s_ = second.color;
     for (int i = 0; i < color_size; ++i) {
@@ -147,14 +147,14 @@ template <typename Type, int color_size> struct Pixel {
     }
     return result;
   }
-  friend Pixel operator/(const ValueType &first, Pixel &second) {
-    Pixel<ValueType, color_size> result(second);
+  friend Tuples operator/(const ValueType &first, Tuples &second) {
+    Tuples<ValueType, color_size> result(second);
     for (auto &i : result.color)
       i = first / i;
     return result;
   }
-  friend Pixel operator/(Pixel &first, const ValueType &second) {
-    Pixel<ValueType, color_size> result(first);
+  friend Tuples operator/(Tuples &first, const ValueType &second) {
+    Tuples<ValueType, color_size> result(first);
     for (auto &i : result.color)
       i = i / second;
     return result;
@@ -175,11 +175,11 @@ template <typename Type, int color_size> struct Pixel {
 };
 
 // template <class ValueType, int color_size>
-// using Pixel = std::array<ValueType, color_size>;
+// using Tuples = std::array<ValueType, color_size>;
 
 // template <class ValueType, int color_size>
 // std::ostream &operator<<(std::ostream &output,
-//                          Pixel<ValueType, color_size> &p) {
+//                          Tuples<ValueType, color_size> &p) {
 //   // std::cout << p[0] << p[1] << p[2] << std::endl;
 //   output << "(";
 //   for (int i = 0; i < color_size; ++i)
@@ -189,38 +189,38 @@ template <typename Type, int color_size> struct Pixel {
 // }
 
 // template <class ValueType, int color_size>
-// Pixel<ValueType, color_size>
-// operator+(const Pixel<ValueType, color_size> &first,
-//           const Pixel<ValueType, color_size> &second) {
-//   Pixel<ValueType, color_size> result = first;
+// Tuples<ValueType, color_size>
+// operator+(const Tuples<ValueType, color_size> &first,
+//           const Tuples<ValueType, color_size> &second) {
+//   Tuples<ValueType, color_size> result = first;
 //   int sn = 0;
 //   for (auto &i : result.color)
 //     i = i + second[sn++];
 //   return result;
 // }
 // template <class ValueType, int color_size>
-// Pixel<ValueType, color_size> operator+(const int &first,
-//                                        Pixel<ValueType, color_size> &second)
+// Tuples<ValueType, color_size> operator+(const int &first,
+//                                        Tuples<ValueType, color_size> &second)
 //                                        {
-//   Pixel<ValueType, color_size> result = second;
+//   Tuples<ValueType, color_size> result = second;
 //   for (auto &i : result.color)
 //     i = first + i;
 //   return result;
 // }
 // template <class ValueType, int color_size>
-// Pixel<ValueType, color_size> operator+(Pixel<ValueType, color_size> &first,
+// Tuples<ValueType, color_size> operator+(Tuples<ValueType, color_size> &first,
 //                                        const int &second) {
-//   Pixel<ValueType, color_size> result = first;
+//   Tuples<ValueType, color_size> result = first;
 //   for (auto &i : result.color)
 //     i = i + second;
 //   return result;
 // }
 
 // template <class ValueType, int color_size>
-// Pixel<ValueType, color_size>
-// operator-(const Pixel<ValueType, color_size> &first,
-//           const Pixel<ValueType, color_size> &second) {
-//   Pixel<ValueType, color_size> result = first;
+// Tuples<ValueType, color_size>
+// operator-(const Tuples<ValueType, color_size> &first,
+//           const Tuples<ValueType, color_size> &second) {
+//   Tuples<ValueType, color_size> result = first;
 //   int sn = 0;
 //   for (auto &i : result.color)
 //     i = i - second[sn++];
@@ -228,74 +228,74 @@ template <typename Type, int color_size> struct Pixel {
 // }
 
 // template <class ValueType, int color_size>
-// Pixel<ValueType, color_size> operator-(const int &first,
-//                                        Pixel<ValueType, color_size> &second)
+// Tuples<ValueType, color_size> operator-(const int &first,
+//                                        Tuples<ValueType, color_size> &second)
 //                                        {
-//   Pixel<ValueType, color_size> result = second;
+//   Tuples<ValueType, color_size> result = second;
 //   for (auto &i : result.color)
 //     i = first - i;
 //   return result;
 // }
 // template <class ValueType, int color_size>
-// Pixel<ValueType, color_size> operator-(Pixel<ValueType, color_size> &first,
+// Tuples<ValueType, color_size> operator-(Tuples<ValueType, color_size> &first,
 //                                        const int &second) {
-//   Pixel<ValueType, color_size> result = first;
+//   Tuples<ValueType, color_size> result = first;
 //   for (auto &i : result.color)
 //     i = i - second;
 //   return result;
 // }
 
 // template <class ValueType, int color_size>
-// Pixel<ValueType, color_size>
-// operator*(const Pixel<ValueType, color_size> &first,
-//           const Pixel<ValueType, color_size> &second) {
-//   Pixel<ValueType, color_size> result = first;
+// Tuples<ValueType, color_size>
+// operator*(const Tuples<ValueType, color_size> &first,
+//           const Tuples<ValueType, color_size> &second) {
+//   Tuples<ValueType, color_size> result = first;
 //   int sn = 0;
 //   for (auto &i : result.color)
 //     i = i * second[sn++];
 //   return result;
 // }
 // template <class ValueType, int color_size>
-// Pixel<ValueType, color_size> operator*(const int &first,
-//                                        Pixel<ValueType, color_size> &second)
+// Tuples<ValueType, color_size> operator*(const int &first,
+//                                        Tuples<ValueType, color_size> &second)
 //                                        {
-//   Pixel<ValueType, color_size> result = second;
+//   Tuples<ValueType, color_size> result = second;
 //   for (auto &i : result.color)
 //     i = first * i;
 //   return result;
 // }
 // template <class ValueType, int color_size>
-// Pixel<ValueType, color_size> operator*(Pixel<ValueType, color_size> &first,
+// Tuples<ValueType, color_size> operator*(Tuples<ValueType, color_size> &first,
 //                                        const int &second) {
-//   Pixel<ValueType, color_size> result = first;
+//   Tuples<ValueType, color_size> result = first;
 //   for (auto &i : result.color)
 //     i = i * second;
 //   return result;
 // }
 
 // template <class ValueType, int color_size>
-// Pixel<ValueType, color_size>
-// operator/(const Pixel<ValueType, color_size> &first,
-//           const Pixel<ValueType, color_size> &second) {
-//   Pixel<ValueType, color_size> result = first;
+// Tuples<ValueType, color_size>
+// operator/(const Tuples<ValueType, color_size> &first,
+//           const Tuples<ValueType, color_size> &second) {
+//   Tuples<ValueType, color_size> result = first;
 //   int sn = 0;
 //   for (auto &i : result.color)
 //     i = i / second[sn++];
 //   return result;
 // }
 // template <class ValueType, int color_size>
-// Pixel<ValueType, color_size> operator/(const int &first,
-//                                        Pixel<ValueType, color_size> &second)
+// Tuples<ValueType, color_size> operator/(const int &first,
+//                                        Tuples<ValueType, color_size> &second)
 //                                        {
-//   Pixel<ValueType, color_size> result = second;
+//   Tuples<ValueType, color_size> result = second;
 //   for (auto &i : result.color)
 //     i = first / i;
 //   return result;
 // }
 // template <class ValueType, int color_size>
-// Pixel<ValueType, color_size> operator/(Pixel<ValueType, color_size> &first,
+// Tuples<ValueType, color_size> operator/(Tuples<ValueType, color_size> &first,
 //                                        const int &second) {
-//   Pixel<ValueType, color_size> result = first;
+//   Tuples<ValueType, color_size> result = first;
 //   for (auto &i : result.color)
 //     i = i / second;
 //   return result;

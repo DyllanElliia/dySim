@@ -2,7 +2,7 @@
 
 // #include "./dyMath.hpp"
 #include "./matrix.hpp"
-#include "./pixel.hpp"
+#include "./tuples.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "./stb/stb_image.h"
@@ -15,7 +15,7 @@ namespace dym {
 template <typename T = short, int color_size = 3> class Picture {
 private:
   using ValueType = T;
-  Matrix<Pixel<ValueType, color_size>> pic;
+  Matrix<Tuples<ValueType, color_size>> pic;
 
   void imread_(std::string filename) {
     int channel = 0;
@@ -156,7 +156,7 @@ public:
 
   void reShape(const Index &shape) { pic.reShape(shape); }
 
-  Pixel<ValueType, color_size> &operator[](const Index &index_) {
+  Tuples<ValueType, color_size> &operator[](const Index &index_) {
     return pic[index_];
   }
 
@@ -237,7 +237,7 @@ public:
     return *this;
   }
 
-  void for_each(std::function<void(Pixel<ValueType, color_size> &)> func) {
+  void for_each(std::function<void(Tuples<ValueType, color_size> &)> func) {
     std::for_each(pic.begin(), pic.end(), func);
   }
 

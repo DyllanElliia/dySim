@@ -6,6 +6,7 @@
 #include <map>
 #include <numeric>
 #include <sstream>
+#include <thread>
 #include <vector>
 
 #include "./tools/sugar.hpp"

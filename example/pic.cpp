@@ -2,14 +2,17 @@
  * @Author: DyllanElliia
  * @Date: 2021-10-08 17:03:31
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-10-08 17:07:04
+ * @LastEditTime: 2021-10-17 16:30:29
  * @Description: How to use Picture.
  */
 #include "../dyPicture.hpp"
 
 int main() {
-  qprint("\033[1;4;33mPicture example:", "Author: DyllanElliia",
-         "Description: How to use Picture.\033[0m");
+  qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::YELLOW);
+  qprint("Picture example:");
+  qprint("Author: DyllanElliia");
+  qprint("Description: How to use Picture.");
+  qp_ctrl();
 
   dym::Picture<float, 1> pic;
   pic.imread("./image/luna.png");

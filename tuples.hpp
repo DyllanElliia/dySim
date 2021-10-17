@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-24 15:03:37
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-10-14 17:04:35
+ * @LastEditTime: 2021-10-17 16:51:46
  * @Description:
  */
 
@@ -18,8 +18,8 @@ template <typename Type, int color_size> struct Tuples {
   }
   Tuples() { color.resize(color_size, 0); }
   Tuples(ValueType v) { color.resize(color_size, v); }
-  Tuples(Tuples &p) : color(p.color) {}
-  Tuples(Tuples &&p) : color(p.color) {}
+  Tuples(const Tuples &p) : color(p.color) {}
+  Tuples(const Tuples &&p) : color(p.color) {}
 
   inline int size() const {
     // qprint(color_size);

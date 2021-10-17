@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-17 14:02:29
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-10-08 16:51:04
+ * @LastEditTime: 2021-10-15 15:15:29
  * @Description:
  */
 
@@ -52,33 +52,33 @@ protected:
 public:
   Matrix(const Index &shape, ValueType defaultValue = 0)
       : Tensor<ValueType>(shape, defaultValue) {
-    shapeCheck(shape);
+    // shapeCheck(shape);
   }
   Matrix(const Index &shape, std::function<std::vector<ValueType>()> creatFun)
       : Tensor<ValueType>(shape, creatFun) {
-    shapeCheck(shape);
+    // shapeCheck(shape);
   }
   Matrix(const Index &shape,
          std::function<std::vector<ValueType>(const Index &shape)> creatFun)
       : Tensor<ValueType>(shape, creatFun) {
-    shapeCheck(shape);
+    // shapeCheck(shape);
   }
   Matrix(Matrix<ValueType> &&ts) : Tensor<ValueType>() {
-    shapeCheck(ts.tsShape);
+    // shapeCheck(ts.tsShape);
     tsShape = ts.tsShape;
     a.assign(ts.a.begin(), ts.a.end());
     updateSuffix();
   }
   Matrix(Matrix<ValueType> &ts) : Tensor<ValueType>() {
     // std::cout << "in" << std::endl;
-    shapeCheck(ts.tsShape);
+    // shapeCheck(ts.tsShape);
     tsShape = ts.tsShape;
     a.assign(ts.a.begin(), ts.a.end());
     updateSuffix();
   }
   Matrix(Tensor<ValueType> &&ts) : Tensor<ValueType>() {
     auto ts_Shape = ts.shape();
-    shapeCheck(ts_Shape);
+    // shapeCheck(ts_Shape);
     tsShape = ts_Shape;
     a.resize(ts_Shape[0] * ts_Shape[1]);
     int ai = 0;
@@ -196,7 +196,7 @@ public:
     return result;
   }
 
-  Matrix operator*(const Matrix &ts) {
+  virtual Matrix operator*(const Matrix &ts) {
     auto &first = *this;
     auto &second = ts;
     // auto &first_tsShape = first.shape();

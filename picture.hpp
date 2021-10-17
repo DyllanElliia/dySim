@@ -1,7 +1,7 @@
 #pragma once
 
 // #include "./dyMath.hpp"
-#include "./matrix.hpp"
+#include "./tensor.hpp"
 #include "./tuples.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -15,7 +15,7 @@ namespace dym {
 template <typename T = short, int color_size = 3> class Picture {
 private:
   using ValueType = T;
-  Matrix<Tuples<ValueType, color_size>> pic;
+  Tensor<Tuples<ValueType, color_size>> pic;
 
   void imread_(std::string filename) {
     int channel = 0;
@@ -138,8 +138,8 @@ private:
 public:
   Picture() {}
   Picture(const Index &i) { pic.reShape(i); }
-  Picture(Picture &p) : pic(p.pic) {}
-  Picture(Picture &&p) : pic(p.pic) {}
+  Picture(const Picture &p) : pic(p.pic) {}
+  Picture(const Picture &&p) : pic(p.pic) {}
   ~Picture() {}
 
   inline int getChannel() const { return color_size; }

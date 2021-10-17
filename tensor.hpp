@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2021-10-08 16:50:02
+ * @LastEditTime: 2021-10-17 16:53:16
  * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */
@@ -65,9 +65,6 @@ protected:
   }
 
   static void shapeCheck(const Index &shape1, const Index &shape2) {
-    // std::cout << "run sc!" << std::endl;
-    // std::cout << shape.size() << std::endl;
-    // if (shape.size() != 2)std::cout << "asdf" << std::endl;
     try {
       if (shape1 != shape2)
         throw "\033[1;31mTensor error: Tensors must be equal in shape!\033[0m";
@@ -79,13 +76,58 @@ protected:
 
   template <class tranFun>
   static Tensor computer(const Tensor &first, const Tensor &second) {
-    shapeCheck(first.tsShape, second.tsShape);
+    // shapeCheck(first.tsShape, second.tsShape);
+    if (first.tsShape == second.tsShape) {
+      Tensor result;
+      result.tsShape = first.tsShape;
+      result.updateSuffix();
+      result.a.reserve(first.a.size());
+      std::transform(first.a.begin(), first.a.begin() + first.a.size(),
+                     second.a.begin(), std::back_inserter(result.a), tranFun());
+      return result;
+    }
+    Tensor t1, t2;
+    t1 = first, t2 = second;
+    if (t1.tsShape.size() < t2.tsShape.size())
+      std::swap(t1, t2);
+    auto &t1s = t1.tsShape, &t2s = t2.tsShape;
     Tensor result;
-    result.tsShape = first.tsShape;
+    result.tsShape = t1s;
     result.updateSuffix();
-    result.a.reserve(first.a.size());
-    std::transform(first.a.begin(), first.a.begin() + first.a.size(),
-                   second.a.begin(), std::back_inserter(result.a), tranFun());
+    result.a.reserve(t1.a.size());
+    try {
+      for (int i = 0, t1l = t1s.size() - t2s.size(); i < t2s.size(); ++i, ++t1l)
+        if (t1s[t1l] != t2s[i]) {
+          if (t2s[i] == 1) {
+            auto &t1sl = t1s[t1l];
+            Tensor asdf;
+            asdf.tsShape = t2s;
+            asdf.tsShape[i] = t1sl;
+            asdf.updateSuffix();
+            asdf.a.resize(t2.a.size() * t1sl);
+            auto &aa = asdf.a, &t2a = t2.a;
+            auto t2as = t2.a.size();
+            for (unsigned int jj = 0; jj < t2as; ++jj) {
+              for (unsigned int ii = 0; ii < t1sl; ++ii) {
+                aa[ii + jj * t1sl] = t2a[jj];
+              }
+            }
+            t2 = asdf;
+            // qprint("test:", t2);
+          } else
+            throw "\033[1;31mTensor error: Tensors must be equal in "
+                  "shape!\033[0m";
+        }
+    } catch (const char *str) {
+      std::cerr << str << '\n';
+      exit(EXIT_FAILURE);
+    }
+    int t2len = t2.tsShapeSuffix[0];
+    auto &t1end = t1.tsShapeSuffix[0];
+    for (int i = 0, ii = t2len; i < t1end; i += t2len, ii += t2len) {
+      std::transform(t1.a.begin() + i, t1.a.begin() + ii, t2.a.begin(),
+                     std::back_inserter(result.a), tranFun());
+    }
     return result;
   }
 
@@ -105,32 +147,26 @@ protected:
     std::ostringstream out;
     Index indexS(tsShape.size(), 0);
     std::string outBegin = "";
-    show_(indexS, 0, outBegin, "|   ", out);
+    show_(indexS, 0, outBegin, "| ", out);
     return out;
   }
 
 public:
-  Tensor(const Index &shape, ValueType defaultValue) {
+  Tensor(ValueType defaultValue, const Index &shape) {
     tsShape = shape;
     ull sizetsR = 1;
     for (auto i : tsShape)
       sizetsR *= i;
-    // for (auto i : tsShape) std::cout << i << " ";
-    // printf("\n");
     a.resize(sizetsR, defaultValue);
     updateSuffix();
-    // std::cout << a.size() << std::endl;
   }
   Tensor(const Index &shape, std::function<std::vector<ValueType>()> creatFun) {
     tsShape = shape;
     ull sizetsR = 1;
     for (auto i : tsShape)
       sizetsR *= i;
-    // for (auto i : tsShape) std::cout << i << " ";
-    // printf("\n");
     a = creatFun();
     updateSuffix();
-    // std::cout << a.size() << std::endl;
   }
   Tensor(const Index &shape,
          std::function<std::vector<ValueType>(const Index &shape)> creatFun) {
@@ -138,27 +174,115 @@ public:
     ull sizetsR = 1;
     for (auto i : tsShape)
       sizetsR *= i;
-    // for (auto i : tsShape) std::cout << i << " ";
-    // printf("\n");
     a = creatFun(shape);
     updateSuffix();
-    // std::cout << a.size() << std::endl;
-    // for (auto i : a) std::cout << i << " ";
-    // std::cout << std::endl;
   }
-  Tensor(Tensor<ValueType> &&ts) {
+  Tensor(const Tensor<ValueType> &&ts) {
     tsShape = ts.tsShape;
     a.assign(ts.a.begin(), ts.a.end());
     updateSuffix();
   }
-  Tensor(Tensor<ValueType> &ts) {
+  Tensor(const Tensor<ValueType> &ts) {
     tsShape = ts.tsShape;
     a.assign(ts.a.begin(), ts.a.end());
     updateSuffix();
   }
-  Tensor(const ValueType &v) {}
+  Tensor(ValueType v) {
+    tsShape = gi(1);
+    updateSuffix();
+    a.push_back(v);
+  }
+  Tensor(std::vector<std::vector<ValueType>> v) {
+    if (v.size() != 1)
+      tsShape.push_back(v.size());
+    int my = 1e7;
+    for (auto &l : v)
+      my = std::min(my, (int)l.size());
+    tsShape.push_back(my);
+    for (auto &l : v)
+      a.insert(a.end(), l.begin(), l.begin() + my);
+    updateSuffix();
+  }
+  Tensor(std::vector<ValueType> v) {
+    tsShape.push_back(v.size());
+    a.assign(v.begin(), v.end());
+    updateSuffix();
+  }
   Tensor() {}
   ~Tensor() {}
+
+  virtual Tensor t() {
+    auto newShape = tsShape;
+    int im, jm = tsShape[0];
+    try {
+      switch (newShape.size()) {
+      case 1:
+        im = 1;
+        newShape.push_back(1);
+        break;
+      case 2:
+        im = tsShape[1];
+        std::swap(newShape[0], newShape[1]);
+        break;
+      default:
+        qprint(newShape.size());
+        throw "\033[1;31mTensor error: function t can only be applied to "
+              "transposed tensor with dimensions up to 2!\nIf you want to "
+              "transpose this tensor, please use function "
+              "transpose(times)!\033[0m";
+      }
+    } catch (const char *str) {
+      std::cerr << str << '\n';
+      exit(EXIT_FAILURE);
+    }
+    Tensor result(0, newShape);
+    for (int i = 0; i < im; ++i)
+      for (int j = 0; j < jm; ++j) {
+        result[i * jm + j] = a[i + j * im];
+      }
+    return result;
+  }
+
+  virtual Tensor transpose(unsigned int i1 = 0, unsigned int i2 = 1) {
+    auto newShape = tsShape;
+    unsigned int im, jm;
+    if (newShape.size() <= 2)
+      return t();
+    try {
+      if (i1 > i2)
+        std::swap(i1, i2);
+      if (i1 + 1 != i2)
+        throw "\033[1;31mTensor error: function transpose only works when "
+              "both input parameters must be continuous!\033[0m";
+      if (i2 >= tsShape.size())
+        throw "\033[1;31mTensor error: function transpose only works when "
+              "both input parameters are less than shape size!\033[0m";
+      im = newShape[i1], jm = newShape[i2];
+    } catch (const char *str) {
+      std::cerr << str << '\n';
+      exit(EXIT_FAILURE);
+    }
+    std::swap(newShape[i1], newShape[i2]);
+    Tensor result(0, newShape);
+    // qprint("test::::", result);
+    auto &h2ts = result.tsShapeSuffix[i1],
+         &rtails = result.tsShapeSuffix[i2 + 1],
+         &rmids = result.tsShapeSuffix[i2];
+    auto &otails = tsShapeSuffix[i2 + 1], &omids = tsShapeSuffix[i2];
+    auto heads = result.tsShapeSuffix[0] / h2ts;
+    auto &ra = result.a, &oa = a;
+    for (unsigned int h = 0; h < heads; ++h)
+      for (unsigned int i = 0; i < im; ++i) {
+        for (unsigned int j = 0; j < jm; ++j) {
+          ull hh = h * h2ts;
+          ull rbe = hh + i * rtails + j * rmids;
+          ull obe = hh + i * omids + j * otails;
+          for (unsigned int k = 0; k < rtails; ++k)
+            ra[rbe + k] = oa[obe + k];
+        }
+      }
+    return result;
+  }
 
   virtual ValueType &operator[](const Index &index_) {
     try {
@@ -168,9 +292,9 @@ public:
       ull indexR = 0;
       int max_ = index_.size() - 1;
       for (int i = 0; i < max_; ++i) {
-        indexR += index_[i] * tsShapeSuffix[i + 1];
+        indexR += (index_[i]) % tsShape[i] * tsShapeSuffix[i + 1];
       }
-      indexR += index_[max_];
+      indexR += index_[max_] % tsShape[max_];
       return a[indexR];
     } catch (const char *str) {
       // std::cout << index_.size() << " " << tsShape.size() << std::endl;
@@ -189,7 +313,7 @@ public:
     } catch (const char *str) {
       // std::cout << index_.size() << " " << tsShape.size() << std::endl;
       std::cerr << str << '\n';
-      return a[0];
+      return a[index_ % a.size()];
     }
   }
 
@@ -267,7 +391,7 @@ public:
   //   tsShapeSuffix = in.tsShapeSuffix;
   // }
 
-  Tensor operator*(const ValueType &second) {
+  Tensor operator*(ValueType second) {
     Tensor result(*this);
     for (auto &i : result.a)
       i = i * second;
@@ -298,20 +422,14 @@ public:
 
   public:
     iterator(ValueType *p = nullptr) : p(p) {}
-
     ValueType &operator*() { return *p; }
-
     // std::vector<ValueType> *operator->() const;
-
     iterator &operator++() {
       ++p;
       return *this;
     }
-
     iterator operator++(int) { return iterator(p++); }
-
     bool operator==(const iterator &arg) const { return p == arg.p; }
-
     bool operator!=(const iterator &arg) const { return p != arg.p; }
   };
 
@@ -319,12 +437,13 @@ public:
 
   virtual iterator end() { return iterator(a.data() + a.size()); }
 
-  virtual bool show(const std::string &colTabStr = "|   ") {
-    /* 		std::cout << "show!" << std::endl;
-    std::cout << tsShape[0] << " " << tsShape[1] << std::endl;
-    std::cout << (*this)[gi(0, 0)] << std::endl;
-    for (auto i : a) std::cout << i << " ";
-    std::cout << std::endl; */
+  virtual bool show(const std::string &colTabStr = "| ") {
+    // std::cout << "show!" << std::endl;
+    // std::cout << tsShape[0] << " " << tsShape[1] << std::endl;
+    // std::cout << (*this)[gi(0, 0)] << std::endl;
+    // for (auto i : a)
+    //   std::cout << i << " ";
+    // std::cout << std::endl;
     std::ostringstream out;
     Index indexS(tsShape.size(), 0);
     std::string outBegin = "";
@@ -337,6 +456,20 @@ public:
   // cutting your Tensor!
   // This function is the bottom function of Slice and Fiber.
   virtual Tensor cut(const Index &from, const Index &to) {
+    try {
+      if (from.size() != to.size())
+        throw "\033[1;31mTensor error: The function cut accepts two Indexes of "
+              "equal length\033[0m";
+      for (int i = 0; i < from.size(); ++i)
+        if (from[i] >= to[i])
+          throw "\033[1;31mTensor error: The function cut accepts two Indexes "
+                "which Index_from's elements have to be less than Index_to's "
+                "elements\033[0m";
+    } catch (const char *str) {
+      // std::cout << index_.size() << " " << tsShape.size() << std::endl;
+      std::cerr << str << '\n';
+      return a[0];
+    }
     Tensor<ValueType> result;
     int ibegin = 0, iend = from.size() - 1;
     // std::cout << "here" << std::endl;
@@ -358,6 +491,7 @@ public:
         return result;
       break;
     }
+    // qprint("here");
     ++iend;
     int tsShapeSize = iend - ibegin;
     if (tsShapeSize <= 0)

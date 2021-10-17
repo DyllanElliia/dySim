@@ -2,16 +2,20 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-22 15:36:00
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-10-08 16:58:05
+ * @LastEditTime: 2021-10-17 16:14:24
  * @Description: How to use Matrix.
  */
 
-#include "../dyMath.hpp"
+#include "../matrix.hpp"
 #include <iostream>
 
 int main() {
-  qprint("\033[1;4;33mMatrix example:", "Author: DyllanElliia",
-         "Description: How to use Matrix.\033[0m");
+  qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::YELLOW);
+  qprint("Matrix example:", "Author: DyllanElliia");
+  qprint("Description: How to use Matrix.");
+  qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::RED);
+  qprint("Note: This library has been abolished.");
+  qp_ctrl();
 
   // Matrix is the subClass of Tensor.
   dym::Matrix<float> ma(dym::gi(4, 3), []() -> std::vector<float> {

@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <functional>
 #include <iostream>
@@ -39,7 +40,7 @@ std::string pi(const Index index) {
 // getIndex == gi
 // It is a template which can help you packing the long parameters to an Vector.
 template <typename... Ints> inline Index gi(Ints... args) {
-  int i[] = {(args)...};
+  std::array i = {int(args)...};
   // Index a(std::begin(i), std::end(i));
   return Index(std::begin(i), std::end(i));
 }

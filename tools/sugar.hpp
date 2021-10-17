@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-25 16:01:48
- * @LastEditTime: 2021-10-17 16:11:03
+ * @LastEditTime: 2021-10-17 21:30:27
  * @LastEditors: DyllanElliia
  * @Description: Syntactic sugar!
  */
@@ -27,7 +27,7 @@ template <typename T, typename... Ts> void qp_ctrl(T v, Ts... vl) {
   std::string ctrl("\033[");
   ctrl += std::string(v);
   if constexpr (sizeof...(vl) > 0) {
-    std::array cl = {(vl)...};
+    std::array cl = {std::string(vl)...};
     for (auto &c : cl)
       ctrl += ";" + c;
   }

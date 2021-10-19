@@ -9,7 +9,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "./stb/stb_image_write.h"
 
-#include "tools/str_hash.hpp"
+#include "../tools/str_hash.hpp"
 namespace dym {
 
 template <typename T = short, int color_size = 3> class Picture {

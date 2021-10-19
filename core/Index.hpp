@@ -10,7 +10,7 @@
 #include <thread>
 #include <vector>
 
-#include "./tools/sugar.hpp"
+#include "../tools/sugar.hpp"
 
 namespace dym {
 using Index = std::vector<int>;

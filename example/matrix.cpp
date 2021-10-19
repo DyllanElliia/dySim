@@ -2,11 +2,11 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-22 15:36:00
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-10-17 16:14:24
+ * @LastEditTime: 2021-10-19 19:24:04
  * @Description: How to use Matrix.
  */
 
-#include "../matrix.hpp"
+#include "../core/matrix.hpp"
 #include <iostream>
 
 int main() {

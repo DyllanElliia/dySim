@@ -21,8 +21,8 @@ int main() {
 
   qprint("1. Create a Tensor");
   qprint("1.1. Directly to create");
-  // First parameter is the shape of the Tensor.
-  // Second parameter is the default value.
+  // First parameter is the default value.
+  // Second parameter is the shape of the Tensor.
   dym::Tensor<int> x(1, dym::gi(2, 2, 2));
   // You can use show to print the Tensor.
   x.show();

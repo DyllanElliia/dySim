@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-25 16:01:48
- * @LastEditTime: 2021-10-17 21:30:27
+ * @LastEditTime: 2021-10-19 15:22:18
  * @LastEditors: DyllanElliia
  * @Description: Syntactic sugar!
  */
@@ -58,33 +58,49 @@ template <typename T, typename... Ts> void qprint(T v, Ts... vl) {
 
 inline void qprint() { printf("\n"); }
 
+#include <chrono>
 #include <ctime>
 namespace dym {
 class TimeLog {
 private:
-  double timep;
-  std::vector<std::pair<double, double>> timeLogs;
+  // double timep;
+  std::chrono::steady_clock::time_point timep;
+  std::vector<std::pair<float, float>> timeLogs;
   bool flag;
+
+  // #if defined(USE_WIN)
+  // #define ONE_SECOND 1000
+  // #elif defined(USE_LINUX)
+  // #define ONE_SECOND 1000000
+  // #endif // USE_WIN
 
 public:
   void record() {
     flag = false;
-    std::cout << "Run time: " << (clock() - timep) / 1000 << "s" << std::endl;
+    auto end = std::chrono::steady_clock::now();
+    auto tt =
+        std::chrono::duration_cast<std::chrono::duration<float>>(end - timep);
+    std::cout << "Run time: " << tt.count() << "s" << std::endl;
   }
 
-  void reStart() { timep = clock(); }
+  void reStart() { timep = std::chrono::steady_clock::now(); }
 
   void saveLog() {
-    timeLogs.push_back(
-        std::make_pair(timeLogs.size(), (clock() - timep) / 1000));
+    auto end = std::chrono::steady_clock::now();
+    auto tt =
+        std::chrono::duration_cast<std::chrono::duration<float>>(end - timep);
+    timeLogs.push_back(std::make_pair(timeLogs.size(), tt.count()));
   }
 
-  void saveLog(double tag) {
-    timeLogs.push_back(std::make_pair(tag, (clock() - timep) / 1000));
+  void saveLog(float tag) {
+    auto end = std::chrono::steady_clock::now();
+    auto tt =
+        std::chrono::duration_cast<std::chrono::duration<float>>(end - timep);
+    timeLogs.push_back(std::make_pair(tag, tt.count()));
   }
 
   TimeLog() {
-    timep = clock();
+    timep = std::chrono::steady_clock::now();
     flag = true;
   }
 

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-13 16:50:00
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-10-14 17:06:19
+ * @LastEditTime: 2021-10-19 15:41:20
  * @Description:
  */
 #pragma once
@@ -80,7 +80,7 @@ filter2D(Picture<InputType, color_size> &in, KernelType &kernel,
   std::vector<std::thread> t_pool;
   for (unsigned int i = 0; i < t_num; ++i) {
     unsigned int ib = i * t_step, ie = (i + 1) * t_step;
-    if (ie >= vShapeX)
+    if (ie > vShapeX)
       ie = vShapeX;
     t_pool.push_back(std::thread(forI, ib, ie));
   }

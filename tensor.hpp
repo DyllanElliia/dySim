@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2021-10-17 16:53:16
+ * @LastEditTime: 2021-10-19 17:13:43
  * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */
@@ -436,6 +436,137 @@ public:
   virtual iterator begin() { return iterator(a.data()); }
 
   virtual iterator end() { return iterator(a.data() + a.size()); }
+
+  virtual void for_each(std::function<void(ValueType &)> func) {
+    auto &ts = *this;
+    auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
+      for (unsigned int i = ib; i < ie; ++i) {
+        auto &tsi = ts[i];
+        func(tsi);
+      }
+    };
+    const unsigned int t_num = std::thread::hardware_concurrency() / 3;
+    const unsigned int t_step = (tsShapeSuffix[0] + t_num) / t_num;
+    std::vector<std::thread> t_pool;
+    for (unsigned int i = 0; i < t_num; ++i) {
+      unsigned int ib = i * t_step, ie = (i + 1) * t_step;
+      if (ie > tsShapeSuffix[0])
+        ie = tsShapeSuffix[0];
+      t_pool.push_back(std::thread(forI, ib, ie));
+    }
+    std::for_each(t_pool.begin(), t_pool.end(),
+                  [](std::thread &t) { t.join(); });
+  }
+
+  virtual void for_each(std::function<void(ValueType &, int i)> func) {
+    auto &ts = *this;
+    auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
+      for (unsigned int i = ib; i < ie; ++i) {
+        func(ts[i], i);
+      }
+    };
+    const unsigned int t_num = std::thread::hardware_concurrency() / 3;
+    const unsigned int t_step = (tsShapeSuffix[0] + t_num) / t_num;
+    std::vector<std::thread> t_pool;
+    for (unsigned int i = 0; i < t_num; ++i) {
+      unsigned int ib = i * t_step, ie = (i + 1) * t_step;
+      if (ie > tsShapeSuffix[0])
+        ie = tsShapeSuffix[0];
+      t_pool.push_back(std::thread(forI, ib, ie));
+    }
+    std::for_each(t_pool.begin(), t_pool.end(),
+                  [](std::thread &t) { t.join(); });
+  }
+
+  virtual void for_each(std::function<void(ValueType &, int i, int j)> func) {
+    auto &ts = *this;
+    auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
+      for (unsigned int i = ib; i < ie; ++i) {
+        func(ts[i], i / ts.tsShapeSuffix[1], (i % ts.tsShapeSuffix[1]));
+      }
+    };
+    try {
+      if (tsShape.size() != 2)
+        throw "\033[1;31mTensor error: Only 2-dimensions Tensors can use this "
+              "function!\033[0m";
+    } catch (const char *str) {
+      std::cerr << str << '\n'
+                << "\033[1;31mYour Tensor's dimensions is " +
+                       std::to_string(tsShape.size()) + ".\033[0m\n";
+      exit(EXIT_FAILURE);
+    }
+    const unsigned int t_num = std::thread::hardware_concurrency() / 3;
+    const unsigned int t_step = (tsShapeSuffix[0] + t_num) / t_num;
+    std::vector<std::thread> t_pool;
+    for (unsigned int i = 0; i < t_num; ++i) {
+      unsigned int ib = i * t_step, ie = (i + 1) * t_step;
+      if (ie > tsShapeSuffix[0])
+        ie = tsShapeSuffix[0];
+      t_pool.push_back(std::thread(forI, ib, ie));
+    }
+    std::for_each(t_pool.begin(), t_pool.end(),
+                  [](std::thread &t) { t.join(); });
+  }
+  virtual void
+  for_each(std::function<void(ValueType &, int i, int j, int k)> func) {
+    auto &ts = *this;
+    auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
+      for (unsigned int i = ib; i < ie; ++i) {
+        func(ts[i], i / ts.tsShapeSuffix[1],
+             (i % ts.tsShapeSuffix[1]) / ts.tsShapeSuffix[2],
+             (i % ts.tsShapeSuffix[2]));
+      }
+    };
+    try {
+      if (tsShape.size() != 3)
+        throw "\033[1;31mTensor error: Only 3-dimensions Tensors can use this "
+              "function!\033[0m";
+    } catch (const char *str) {
+      std::cerr << str << '\n'
+                << "\033[1;31mYour Tensor's dimensions is " +
+                       std::to_string(tsShape.size()) + ".\033[0m\n";
+      exit(EXIT_FAILURE);
+    }
+    const unsigned int t_num = std::thread::hardware_concurrency() / 3;
+    const unsigned int t_step = (tsShapeSuffix[0] + t_num) / t_num;
+    std::vector<std::thread> t_pool;
+    for (unsigned int i = 0; i < t_num; ++i) {
+      unsigned int ib = i * t_step, ie = (i + 1) * t_step;
+      if (ie > tsShapeSuffix[0])
+        ie = tsShapeSuffix[0];
+      t_pool.push_back(std::thread(forI, ib, ie));
+    }
+    std::for_each(t_pool.begin(), t_pool.end(),
+                  [](std::thread &t) { t.join(); });
+  }
+
+  virtual void for_each(std::function<void(ValueType &, Index &i)> func) {
+    auto &ts = *this;
+    auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
+      auto tsS = ts.tsShape.size();
+      auto tsS2 = tsS - 1;
+      auto tsSuff = ts.tsShapeSuffix;
+      for (unsigned int i = ib; i < ie; ++i) {
+        Index in(tsS, i);
+        for (unsigned int j = 1; j < tsS; ++j)
+          in[j] %= tsSuff[j];
+        for (unsigned int j = 0; j < tsS2; ++j)
+          in[j] /= tsSuff[j + 1];
+        func(ts[i], in);
+      }
+    };
+    const unsigned int t_num = std::thread::hardware_concurrency() / 3;
+    const unsigned int t_step = (tsShapeSuffix[0] + t_num) / t_num;
+    std::vector<std::thread> t_pool;
+    for (unsigned int i = 0; i < t_num; ++i) {
+      unsigned int ib = i * t_step, ie = (i + 1) * t_step;
+      if (ie > tsShapeSuffix[0])
+        ie = tsShapeSuffix[0];
+      t_pool.push_back(std::thread(forI, ib, ie));
+    }
+    std::for_each(t_pool.begin(), t_pool.end(),
+                  [](std::thread &t) { t.join(); });
+  }
 
   virtual bool show(const std::string &colTabStr = "| ") {
     // std::cout << "show!" << std::endl;

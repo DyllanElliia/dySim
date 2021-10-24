@@ -31,6 +31,7 @@ file(GLOB SOURCE
 FILE(GLOB_RECURSE SRC_FILES "*.c" "*.cpp")
 foreach(MAIN_PATH ${MAIN})
   string(REGEX REPLACE ".+/(.+)\\..*" "\\1" MAIN_NAME ${MAIN_PATH})
+  string(CONCAT MAIN_NAME ${MAIN_NAME} ".out")
   message(STATUS "build ${MAIN_PATH} -> ${MAIN_NAME}")
   add_executable(${MAIN_NAME} ${MAIN_PATH} ${SOURCE})
   target_link_libraries(${MAIN_NAME} ${CMAKE_THREAD_LIBS_INIT} ${dyMath_libs})

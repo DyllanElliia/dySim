@@ -6,7 +6,9 @@
  * @Description: How to use Matrix.
  */
 
-#include "../core/matrix.hpp"
+// !!!This library has been abolished
+
+#include "../core/src/matrix.hpp"
 #include <iostream>
 
 int main() {

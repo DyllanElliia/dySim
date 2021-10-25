@@ -6,8 +6,8 @@
  * @Description: How to use Tensor.
  */
 
-#include "../dyMath.hpp"
 #include <algorithm>
+#include <dyMath.hpp>
 #include <iostream>
 #include <ostream>
 

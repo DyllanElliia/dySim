@@ -6,6 +6,8 @@
  * @Description:
  */
 
+// !!!This library has been abolished
+
 #pragma once
 #include "./Index.hpp"
 namespace dym {

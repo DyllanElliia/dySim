@@ -3,8 +3,9 @@ cmake_minimum_required(VERSION 3.10)
 project(dyMath)
 
 # add package
+find_package(OpenCL REQUIRED)
 find_package(Threads)
-set(dyMath_libs ${dyMath_libs} ${CMAKE_THREAD_LIBS_INIT})
+set(dyMath_libs ${dyMath_libs} ${CMAKE_THREAD_LIBS_INIT} OpenCL::OpenCL)
 
 # !!! link opengl (copy from the source of LearnOpenGL)
 # Begin:
@@ -99,3 +100,4 @@ endforeach(MAIN_PATH)
 
 # include file
 include_directories(${PROJECT_SOURCE_DIR}/includes)
+include_directories(${PROJECT_SOURCE_DIR}/core)

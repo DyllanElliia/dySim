@@ -486,9 +486,16 @@ public:
       }
     };
     try {
-      if (tsShape.size() != 2)
-        throw "\033[1;31mTensor error: Only 2-dimensions Tensors can use this "
-              "function!\033[0m";
+      if (tsShape.size() != 2) {
+        if (tsShape.size() > 2) {
+          for (unsigned int i = 2; i < tsShape.size(); ++i)
+            if (tsShape[i] != 1)
+              throw "\033[1;31mTensor error: Only 2-dimensions Tensors can use "
+                    "this function!\033[0m";
+        } else
+          throw "\033[1;31mTensor error: Only 2-dimensions Tensors can use "
+                "this function!\033[0m";
+      }
     } catch (const char *str) {
       std::cerr << str << '\n'
                 << "\033[1;31mYour Tensor's dimensions is " +
@@ -518,9 +525,16 @@ public:
       }
     };
     try {
-      if (tsShape.size() != 3)
-        throw "\033[1;31mTensor error: Only 3-dimensions Tensors can use this "
-              "function!\033[0m";
+      if (tsShape.size() != 3) {
+        if (tsShape.size() > 3) {
+          for (unsigned int i = 3; i < tsShape.size(); ++i)
+            if (tsShape[i] != 1)
+              throw "\033[1;31mTensor error: Only 3-dimensions Tensors can use "
+                    "this function!\033[0m";
+        } else
+          throw "\033[1;31mTensor error: Only 3-dimensions Tensors can use "
+                "this function!\033[0m";
+      }
     } catch (const char *str) {
       std::cerr << str << '\n'
                 << "\033[1;31mYour Tensor's dimensions is " +

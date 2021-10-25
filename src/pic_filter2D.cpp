@@ -6,7 +6,8 @@
  * @Description:
  */
 
-#include "../dyPicture.hpp"
+#include <dyMath.hpp>
+#include <dyPicture.hpp>
 
 int main() {
   qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::YELLOW);
@@ -17,17 +18,14 @@ int main() {
 
   dym::TimeLog t;
   // Read Picture
-  dym::Picture<float, 1> pic;
-  pic.imread("./image/luna.png");
-
-  dym::Picture<float, 1> pic_L, pic_S;
+  auto pic = dym::imread("./image/luna.png", float(0), dym::PIC_GRAY);
 
   // Create Laplacian kernel
   dym::Tensor<float> kernel_L(-1, dym::gi(3, 3));
   kernel_L[dym::gi(1, 1)] = 8;
   qprint(kernel_L);
   // run!
-  pic_L = dym::filter2D(pic, kernel_L, dym::BORDER_REPLICATE);
+  auto pic_L = dym::filter2D(pic, kernel_L, dym::BORDER_REPLICATE);
 
   t.record();
   t.reStart();
@@ -43,10 +41,10 @@ int main() {
   });
   qprint(kernel_S2);
   // run!
-  pic_S = dym::abs(dym::filter2D(pic, kernel_S1, dym::BORDER_REPLICATE)) +
-          dym::abs(dym::filter2D(pic, kernel_S2, dym::BORDER_REPLICATE));
+  auto pic_S = dym::abs(dym::filter2D(pic, kernel_S1, dym::BORDER_REPLICATE)) +
+               dym::abs(dym::filter2D(pic, kernel_S2, dym::BORDER_REPLICATE));
   t.record();
   // Save Picture
-  pic_L.imwrite("./image_out/p_L.png");
-  pic_S.imwrite("./image_out/p_S.png");
+  imwrite(pic_L, "./image_out/p_L.png");
+  imwrite(pic_S, "./image_out/p_S.png");
 }

@@ -1,11 +1,15 @@
 cmake_minimum_required(VERSION 3.10)
 # program name
-project(dyMath)
+project(
+  dyMath
+  LANGUAGES C CXX CUDA
+  )
 
 # add package
-find_package(OpenCL REQUIRED)
+# find_package(OpenCL REQUIRED)
 find_package(Threads)
-set(dyMath_libs ${dyMath_libs} ${CMAKE_THREAD_LIBS_INIT} OpenCL::OpenCL)
+# set(dyMath_libs ${dyMath_libs} ${CMAKE_THREAD_LIBS_INIT} OpenCL::OpenCL)
+set(dyMath_libs ${dyMath_libs} ${CMAKE_THREAD_LIBS_INIT})
 
 # !!! link opengl (copy from the source of LearnOpenGL)
 # Begin:
@@ -14,11 +18,11 @@ link_directories(${PROJECT_SOURCE_DIR}/lib)
 
 # find the required packages
 find_package(GLM REQUIRED)
-message(STATUS "GLM included at ${GLM_INCLUDE_DIR}")
+message(STATUS "-> GLM included at ${GLM_INCLUDE_DIR}")
 find_package(GLFW3 REQUIRED)
-message(STATUS "Found GLFW3 in ${GLFW3_INCLUDE_DIR}")
+message(STATUS "-> GLFW3 included at ${GLFW3_INCLUDE_DIR}")
 find_package(ASSIMP REQUIRED)
-message(STATUS "Found ASSIMP in ${ASSIMP_INCLUDE_DIR}")
+message(STATUS "-> ASSIMP included at ${ASSIMP_INCLUDE_DIR}")
 # find_package(SOIL REQUIRED)
 # message(STATUS "Found SOIL in ${SOIL_INCLUDE_DIR}")
 # find_package(GLEW REQUIRED)
@@ -61,10 +65,12 @@ include_directories(${CMAKE_BINARY_DIR}/configuration)
 # set(LIBS ${LIBS} STB_IMAGE)
 
 add_library(GLAD "core/glad.c")
+# target_compile_features(GLAD PRIVATE cxx_std_17)
 set(LIBS ${LIBS} GLAD)
 
 # !!!End;
 # add LIBS to dyMath_libs
+# add_library(dyMathCore "core/src/*.cpp")
 set(dyMath_libs ${dyMath_libs} ${LIBS})
 
 # set compiler argument
@@ -77,15 +83,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/src)
 
 # read main.cpp
-file(GLOB MAIN "src/*.cpp")
+file(GLOB MAIN "src/*_main.cpp")
 
 # read other file
 file(GLOB SOURCE
       "src/*.h"
       "src/*.hpp"
+      # "src/*.cpp"
+      "src/*.cu"
       "src/*.vs"
       "src/*.fs"
       "src/*.gs"
+      "core/src/cuda/*.cu"
 )
 
 # target
@@ -99,5 +108,10 @@ foreach(MAIN_PATH ${MAIN})
 endforeach(MAIN_PATH)
 
 # include file
-include_directories(${PROJECT_SOURCE_DIR}/includes)
-include_directories(${PROJECT_SOURCE_DIR}/core)
+include_directories(
+  ${PROJECT_SOURCE_DIR}/includes
+  ${PROJECT_SOURCE_DIR}/core
+  ${GLM_INCLUDE_DIR}
+  ${GLFW3_INCLUDE_DIR}
+  ${ASSIMP_INCLUDE_DIR}
+  )

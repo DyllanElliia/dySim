@@ -10,6 +10,7 @@
 #include <dyMath.hpp>
 #include <iostream>
 #include <ostream>
+#include <type_traits>
 
 int main() {
   qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::YELLOW);
@@ -18,6 +19,7 @@ int main() {
   qprint("Description: How to use Tensor.");
   qp_ctrl();
   dym::TimeLog T;
+  std::cout << std::is_same_v<int, unsigned int> << std::endl;
 
   qprint("1. Create a Tensor");
   qprint("1.1. Directly to create");

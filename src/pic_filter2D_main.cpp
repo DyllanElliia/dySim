@@ -47,4 +47,6 @@ int main() {
   // Save Picture
   imwrite(pic_L, "./image_out/p_L.png");
   imwrite(pic_S, "./image_out/p_S.png");
+  qprint("sizeof pic: " + std::to_string(sizeof(pic_L)));
+  qprint("sizeof tensor: " + std::to_string(sizeof(dym::Tensor<float>)));
 }

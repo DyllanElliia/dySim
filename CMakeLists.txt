@@ -1,15 +1,36 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.18)
 # program name
-project(
-  dyMath
-  LANGUAGES C CXX CUDA
-  )
+project(dyMath C CXX)
+
+# set compiler argument
+set(CMAKE_BUILD_TYPE Release)
+
+option(CUDA_ENABLE "Use CUDA" ON)
+if(CUDA_ENABLE)
+  enable_language(CUDA)
+  set(CMAKE_CUDA_STANDARD 17)
+  set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+  find_package(CUDA REQUIRED)
+  message(STATUS "-> CUDA included at ${CUDA_INCLUDE_DIRS}")
+  file(GLOB CUDA_SOURCE "core/src/cuda/*")
+  message(STATUS "-> CUDA_SOURCE ${CUDA_SOURCE}")
+  add_library(dyMath_cuda STATIC ${CUDA_SOURCE})
+  target_compile_features(dyMath_cuda PRIVATE cuda_std_17)
+  set_target_properties(dyMath_cuda
+                       PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+  set_property(TARGET dyMath_cuda PROPERTY CUDA_ARCHITECTURES 61 70 75)
+  set(dyMath_libs ${dyMath_libs} dyMath_cuda)
+endif(CUDA_ENABLE)
 
 # add package
 # find_package(OpenCL REQUIRED)
 find_package(Threads)
 # set(dyMath_libs ${dyMath_libs} ${CMAKE_THREAD_LIBS_INIT} OpenCL::OpenCL)
 set(dyMath_libs ${dyMath_libs} ${CMAKE_THREAD_LIBS_INIT})
+
+set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_CXX_STANDARD 20) 
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # !!! link opengl (copy from the source of LearnOpenGL)
 # Begin:
@@ -70,41 +91,43 @@ set(LIBS ${LIBS} GLAD)
 
 # !!!End;
 # add LIBS to dyMath_libs
+# find_package(cuBLAS)
 # add_library(dyMathCore "core/src/*.cpp")
 set(dyMath_libs ${dyMath_libs} ${LIBS})
 
-# set compiler argument
-set(CMAKE_CXX_COMPILER "clang++")
-set(CMAKE_BUILD_TYPE "Release")
-set(CMAKE_CXX_STANDARD 17) 
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-
 # set output path
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/src)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
 # read main.cpp
-file(GLOB MAIN "src/*_main.cpp")
+file(GLOB MAIN "src/*_main.cpp" "src/*_main.cu")
 
 # read other file
 file(GLOB SOURCE
       "src/*.h"
       "src/*.hpp"
       # "src/*.cpp"
-      "src/*.cu"
+      # "src/*.cu"
       "src/*.vs"
       "src/*.fs"
       "src/*.gs"
-      "core/src/cuda/*.cu"
 )
 
 # target
-FILE(GLOB_RECURSE SRC_FILES "*.c" "*.cpp")
+FILE(GLOB_RECURSE SRC_FILES "*.c" "*.cpp" "*.cu")
 foreach(MAIN_PATH ${MAIN})
   string(REGEX REPLACE ".+/(.+)\\..*" "\\1" MAIN_NAME ${MAIN_PATH})
   string(CONCAT MAIN_NAME ${MAIN_NAME} ".out")
   message(STATUS "-> build ${MAIN_PATH} => ${MAIN_NAME}")
   add_executable(${MAIN_NAME} ${MAIN_PATH} ${SOURCE})
-  target_link_libraries(${MAIN_NAME} ${CMAKE_THREAD_LIBS_INIT} ${dyMath_libs})
+  if(CUDA_ENABLE)
+    set_property(TARGET ${MAIN_NAME}
+                  PROPERTY CUDA_SEPARABLE_COMPILATION ON)
+    set_property(TARGET ${MAIN_NAME} PROPERTY CUDA_ARCHITECTURES 61 70 75)
+    # target_compile_features(dyMath_cuda PRIVATE cuda_std_17 cxx_std_20)
+  endif(CUDA_ENABLE)
+  target_link_libraries(${MAIN_NAME} ${dyMath_libs} )
 endforeach(MAIN_PATH)
 
 # include file
@@ -114,4 +137,5 @@ include_directories(
   ${GLM_INCLUDE_DIR}
   ${GLFW3_INCLUDE_DIR}
   ${ASSIMP_INCLUDE_DIR}
+  ${CUDA_INCLUDE_DIRS}
   )

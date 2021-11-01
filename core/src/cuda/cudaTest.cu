@@ -1,6 +1,6 @@
 #include"./cudaTest.hpp"
 
-__global__ void Decrease2(int *a, int *b, int *c) { *c = *a - *b; }
+__global__ void Decrease2(int *a, int *b, int *c) { printf("run!%d %d %d %d\n",blockIdx.x,blockIdx.y,threadIdx.x,threadIdx.y);*c = *a - *b; }
 void addWithCuda2(int *c, int *a, int *b) {
   int *dev_c = 0;
   int *dev_a = 0;
@@ -14,7 +14,7 @@ void addWithCuda2(int *c, int *a, int *b) {
   cudaMemcpy(dev_a, a, sizeof(int), cudaMemcpyHostToDevice);
   cudaMemcpy(dev_b, b, sizeof(int), cudaMemcpyHostToDevice);
 
-  Decrease2<<<1, 1>>>(dev_a, dev_b, dev_c);
+  Decrease2<<<5, 5>>>(dev_a, dev_b, dev_c);
 
   // 5.等待设备所有线程任务执行完毕
   cudaDeviceSynchronize();

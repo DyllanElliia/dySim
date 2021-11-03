@@ -1,3 +1,12 @@
+/*
+ * @Author: DyllanElliia
+ * @Date: 2021-11-03 19:04:10
+ * @LastEditTime: 2021-11-03 19:54:57
+ * @LastEditors: DyllanElliia
+ * @Description: 
+ */
+#pragma once
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -17,6 +26,12 @@
 #define _DYM_GENERAL_ __host__ __device__
 #define _DYM_DEVICE_ __device__
 #define _DYM_GLOBAL_ __global__
+
+#ifdef __clang__
+#pragma nv_exec_check_disable
+#else
+#pragma hd_warning_disable
+#endif // __clang__
 
 #else
 #define _DYM_GENERAL_

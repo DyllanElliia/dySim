@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.18)
 # program name
 project(dyMath C CXX)
 
-# set compiler argument
-set(CMAKE_BUILD_TYPE Release)
-
 option(CUDA_ENABLE "Use CUDA" ON)
 if(CUDA_ENABLE)
   enable_language(CUDA)
@@ -30,10 +27,12 @@ find_package(Threads)
 # set(dyMath_libs ${dyMath_libs} ${CMAKE_THREAD_LIBS_INIT} OpenCL::OpenCL)
 set(dyMath_libs ${dyMath_libs} ${CMAKE_THREAD_LIBS_INIT})
 
+# set compiler argument
+set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_COMPILER "clang++")
 set(CMAKE_CXX_STANDARD 20) 
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -Wshadow -Wpointer-arith -o2")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -w -Wshadow -Wpointer-arith -o2")
 
 # !!! link opengl (copy from the source of LearnOpenGL)
 # Begin:
@@ -62,7 +61,9 @@ elseif(UNIX AND NOT APPLE)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
   find_package(OpenGL REQUIRED)
   add_definitions(${OPENGL_DEFINITIONS})
+  message(STATUS "-> OpenGL included at ${OPENGL_INCLUDE_DIR}")
   find_package(X11 REQUIRED)
+  message(STATUS "-> X11.X11 included at ${X11_X11_INCLUDE_PATH}")
   # note that the order is important for setting the libs
   # use pkg-config --libs $(pkg-config --print-requires --print-requires-private glfw3) in a terminal to confirm
   set(LIBS ${GLFW3_LIBRARY} X11 Xrandr Xinerama Xi Xxf86vm Xcursor GL dl pthread freetype ${ASSIMP_LIBRARY})
@@ -97,6 +98,14 @@ set(LIBS ${LIBS} GLAD)
 # find_package(cuBLAS)
 # add_library(dyMathCore "core/src/*.cpp")
 set(dyMath_libs ${dyMath_libs} ${LIBS})
+set(dyMath_include_dirs ${dyMath_include_dirs}
+  ${PROJECT_SOURCE_DIR}/includes
+  ${PROJECT_SOURCE_DIR}/core
+  ${GLM_INCLUDE_DIR}
+  ${GLFW3_INCLUDE_DIR}
+  ${ASSIMP_INCLUDE_DIR}
+  ${CUDA_INCLUDE_DIRS}
+)
 
 # set output path
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/src)
@@ -121,24 +130,20 @@ file(GLOB SOURCE
 FILE(GLOB_RECURSE SRC_FILES "*.c" "*.cpp" "*.cu")
 foreach(MAIN_PATH ${MAIN})
   string(REGEX REPLACE ".+/(.+)\\..*" "\\1" MAIN_NAME ${MAIN_PATH})
+  string(REGEX REPLACE ".+\\.(.+)" "\\1" MAIN_TYPE ${MAIN_PATH})
   string(CONCAT MAIN_NAME ${MAIN_NAME} ".out")
-  message(STATUS "-> build ${MAIN_PATH} => ${MAIN_NAME}")
+  message(STATUS "==> build ${MAIN_PATH} (Type: ${MAIN_TYPE}) as --> ${MAIN_NAME}")
   add_executable(${MAIN_NAME} ${MAIN_PATH} ${SOURCE})
   if(CUDA_ENABLE)
-    set_property(TARGET ${MAIN_NAME}
-                  PROPERTY CUDA_SEPARABLE_COMPILATION ON)
-    set_property(TARGET ${MAIN_NAME} PROPERTY CUDA_ARCHITECTURES 70 75)
+    if(${MAIN_TYPE} STREQUAL "cu")
+      message(STATUS "    -> use nvcc")
+      set_property(TARGET ${MAIN_NAME} PROPERTY CUDA_SEPARABLE_COMPILATION ON)
+      set_property(TARGET ${MAIN_NAME} PROPERTY CUDA_ARCHITECTURES 70 75)
+    endif()
     # target_compile_features(dyMath_cuda PRIVATE cuda_std_17 cxx_std_20)
   endif(CUDA_ENABLE)
   target_link_libraries(${MAIN_NAME} ${dyMath_libs} )
 endforeach(MAIN_PATH)
 
 # include file
-include_directories(
-  ${PROJECT_SOURCE_DIR}/includes
-  ${PROJECT_SOURCE_DIR}/core
-  ${GLM_INCLUDE_DIR}
-  ${GLFW3_INCLUDE_DIR}
-  ${ASSIMP_INCLUDE_DIR}
-  ${CUDA_INCLUDE_DIRS}
-  )
+include_directories(${dyMath_include_dirs})

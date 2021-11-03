@@ -49,7 +49,7 @@ int main() {
 
   // Use Lambda function to create a Tensor with shape.
   dym::Tensor<int> b(dym::gi(3, 2),
-                     [](const dym::Index &shape) -> std::vector<int> {
+                     [](const dym::Index<int> &shape) -> std::vector<int> {
                        std::vector<int> v(3 * 2, 2);
                        // function i2ti can transform Index to int.
                        v[dym::i2ti(dym::gi(2, 1), shape)] = 9;
@@ -88,7 +88,7 @@ int main() {
   qprint(a * a3);
 
   qprint("3.2. 2x1 * mx2x3");
-  dym::Tensor<int> a4({1, 2});
+  dym::Tensor<int> a4({1, 2}, -1);
   (a4 = a4.t()).show();
   qprint(a * a4);
 
@@ -159,7 +159,8 @@ int main() {
   m5d[dym::gi(1, 1, 0, 1, 0)] = 10;
   m5d[dym::gi(1, 1, 2, 1, 1)] = 15;
   m5d[dym::gi(1, 2, 3, 2, 1)] = 20;
-  m5d.for_each([&m5d](int &e, dym::Index i) { qprint(e, dym::pi(i), m5d[i]); });
+  m5d.for_each(
+      [&m5d](int &e, dym::Index<int> &i) { qprint(e, dym::pi(i), m5d[i]); });
 
   return 0;
 }

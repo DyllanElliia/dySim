@@ -10,8 +10,9 @@
 
 #include "./Index.hpp"
 namespace dym {
-Index addIndex(const Index &i1, const Index &i2, int i2begin = 0) {
-  Index result(i1);
+template <typename t>
+Index<t> addIndex(const Index<t> &i1, const Index<t> &i2, int i2begin = 0) {
+  Index<t> result(i1);
   for (size_t i = 0; i < i2.size(); ++i) {
     result[i2begin++] += i2[i];
   }
@@ -21,19 +22,21 @@ Index addIndex(const Index &i1, const Index &i2, int i2begin = 0) {
 template <class T> class Tensor {
 protected:
   using ValueType = T;
+  using shapeType = int;
 
   std::vector<ValueType> a;
   // Shape of the Tensor user want to create.
-  Index tsShape;
-  std::vector<ull> tsShapeSuffix;
+  Index<shapeType> tsShape;
+  Index<ull> tsShapeSuffix;
 
   // // Real Shape of the Tensor.
   // // e.g. user want to create [4,5,1], ordering to impress the efficiency,
   // the program would create [5,5,1], and Mapping it to [4,5,1].
   // std::vector<int> tsRealShape;
 
-  virtual bool show_(Index &indexS, size_t indexS_i, std::string &outBegin,
-                     const std::string &addStr, std::ostringstream &out) {
+  virtual bool show_(Index<shapeType> &indexS, size_t indexS_i,
+                     std::string &outBegin, const std::string &addStr,
+                     std::ostringstream &out) {
     if (indexS_i == tsShape.size()) {
       out << (*this)[indexS] << " ";
       return true;
@@ -64,7 +67,8 @@ protected:
     }
   }
 
-  static void shapeCheck(const Index &shape1, const Index &shape2) {
+  static void shapeCheck(const Index<shapeType> &shape1,
+                         const Index<shapeType> &shape2) {
     try {
       if (shape1 != shape2)
         throw "\033[1;31mTensor error: Tensors must be equal in shape!\033[0m";
@@ -131,8 +135,8 @@ protected:
     return result;
   }
 
-  void runCut(const Index &from, Tensor &result, const int &ibegin, Index &ci,
-              size_t i) {
+  void runCut(const Index<shapeType> &from, Tensor &result, const int &ibegin,
+              Index<shapeType> &ci, size_t i) {
     if (i == ci.size()) {
       result[ci] = (*this)[addIndex(from, ci, ibegin)];
       return;
@@ -152,7 +156,7 @@ protected:
   }
 
 public:
-  Tensor(ValueType defaultValue, const Index &shape) {
+  Tensor(ValueType defaultValue, const Index<shapeType> &shape) {
     tsShape = shape;
     ull sizetsR = 1;
     for (auto i : tsShape)
@@ -160,7 +164,8 @@ public:
     a.resize(sizetsR, defaultValue);
     updateSuffix();
   }
-  Tensor(const Index &shape, std::function<std::vector<ValueType>()> creatFun) {
+  Tensor(const Index<shapeType> &shape,
+         std::function<std::vector<ValueType>()> creatFun) {
     tsShape = shape;
     ull sizetsR = 1;
     for (auto i : tsShape)
@@ -168,8 +173,9 @@ public:
     a = creatFun();
     updateSuffix();
   }
-  Tensor(const Index &shape,
-         std::function<std::vector<ValueType>(const Index &shape)> creatFun) {
+  Tensor(const Index<shapeType> &shape,
+         std::function<std::vector<ValueType>(const Index<shapeType> &shape)>
+             creatFun) {
     tsShape = shape;
     ull sizetsR = 1;
     for (auto i : tsShape)
@@ -192,7 +198,7 @@ public:
     updateSuffix();
     a.push_back(v);
   }
-  Tensor(std::vector<std::vector<ValueType>> v) {
+  Tensor(const std::vector<std::vector<ValueType>> &v) {
     if (v.size() != 1)
       tsShape.push_back(v.size());
     int my = 1e7;
@@ -203,9 +209,11 @@ public:
       a.insert(a.end(), l.begin(), l.begin() + my);
     updateSuffix();
   }
-  Tensor(std::vector<ValueType> v) {
-    tsShape.push_back(v.size());
-    a.assign(v.begin(), v.end());
+  Tensor(const std::vector<ValueType> &v, int len = -1) {
+    if (len == -1 || len > v.size())
+      len = v.size();
+    tsShape.push_back(len);
+    a.assign(v.begin(), v.begin() + len);
     updateSuffix();
   }
   Tensor() {}
@@ -284,7 +292,7 @@ public:
     return result;
   }
 
-  virtual ValueType &operator[](const Index &index_) {
+  virtual ValueType &operator[](const Index<shapeType> &index_) {
     try {
       if (index_.size() != tsShape.size())
         throw "\033[1;31mTensor error: (Index)Index is not equal to Tensor "
@@ -554,14 +562,15 @@ public:
                   [](std::thread &t) { t.join(); });
   }
 
-  virtual void for_each(std::function<void(ValueType &, Index &i)> func) {
+  virtual void
+  for_each(std::function<void(ValueType &, Index<shapeType> &i)> func) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       auto tsS = ts.tsShape.size();
       auto tsS2 = tsS - 1;
       auto tsSuff = ts.tsShapeSuffix;
       for (unsigned int i = ib; i < ie; ++i) {
-        Index in(tsS, i);
+        Index<shapeType> in(tsS, i);
         for (unsigned int j = 1; j < tsS; ++j)
           in[j] %= tsSuff[j];
         for (unsigned int j = 0; j < tsS2; ++j)
@@ -590,7 +599,7 @@ public:
     //   std::cout << i << " ";
     // std::cout << std::endl;
     std::ostringstream out;
-    Index indexS(tsShape.size(), 0);
+    Index<shapeType> indexS(tsShape.size(), 0);
     std::string outBegin = "";
     bool result = show_(indexS, 0, outBegin, colTabStr, out);
     // std::cout << "show!beg" << std::endl;
@@ -600,7 +609,7 @@ public:
 
   // cutting your Tensor!
   // This function is the bottom function of Slice and Fiber.
-  virtual Tensor cut(const Index &from, const Index &to) {
+  virtual Tensor cut(const Index<shapeType> &from, const Index<shapeType> &to) {
     try {
       if (from.size() != to.size())
         throw "\033[1;31mTensor error: The function cut accepts two Indexes of "
@@ -649,15 +658,15 @@ public:
     }
     result.updateSuffix();
     result.a.resize(len);
-    Index ci(tsShapeSize, 0);
+    Index<shapeType> ci(tsShapeSize, 0);
     runCut(from, result, ibegin, ci, 0);
     return result;
   }
 
   // return Tensor's shape
-  virtual Index shape() { return tsShape; }
+  virtual Index<shapeType> shape() { return tsShape; }
 
-  virtual bool reShape(const Index &i) {
+  virtual bool reShape(const Index<shapeType> &i) {
     tsShape = i;
     updateSuffix();
     a.resize(tsShapeSuffix[0]);

@@ -1,6 +1,14 @@
+/*
+ * @Author: DyllanElliia
+ * @Date: 2021-11-04 20:20:37
+ * @LastEditTime: 2021-11-04 20:20:37
+ * @LastEditors: DyllanElliia
+ * @Description: 
+ */
 #include <dyPicture.hpp>
 
 int main() {
+  dym::TimeLog T;
   auto pic = dym::imread("./image/uestc.jpg", float(0), dym::PIC_RGB);
 
   for (int i = 100; i < 200; ++i)

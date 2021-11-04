@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2021-10-19 17:13:43
+ * @LastEditTime: 2021-11-04 20:18:25
  * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */
@@ -291,7 +291,7 @@ public:
     auto heads = result.tsShapeSuffix[0] / h2ts;
     auto &ra = result.a, &oa = a;
     for (unsigned int h = 0; h < heads; ++h)
-      for (unsigned int i = 0; i < im; ++i) {
+      for (unsigned int i = 0; i < im; ++i) 
         for (unsigned int j = 0; j < jm; ++j) {
           ull hh = h * h2ts;
           ull rbe = hh + i * rtails + j * rmids;
@@ -299,7 +299,6 @@ public:
           for (unsigned int k = 0; k < rtails; ++k)
             ra[rbe + k] = oa[obe + k];
         }
-      }
     return result;
   }
 
@@ -316,7 +315,6 @@ public:
       indexR += index_[max_] % tsShape[max_];
       return a[indexR];
     } catch (const char *str) {
-      // std::cout << index_.size() << " " << tsShape.size() << std::endl;
       std::cerr << str << '\n';
       return a[0];
     }
@@ -330,76 +328,19 @@ public:
 
       return a[index_];
     } catch (const char *str) {
-      // std::cout << index_.size() << " " << tsShape.size() << std::endl;
       std::cerr << str << '\n';
       return a[index_ % a.size()];
     }
   }
 
   virtual Tensor operator=(const Tensor &in) {
-    // a = in.a;
-    // tsShape = in.tsShape;
-    // tsShapeSuffix = in.tsShapeSuffix;
-
     auto &a_ = in.a;
     a.resize(a_.size());
     tsShape = in.tsShape;
     tsShapeSuffix = in.tsShapeSuffix;
     (*this).for_each([&a_](ValueType &e, int i) { e = a_[i]; });
-    // for (int i = 0, j = 0; i < a_.size(); ++i, ++j)
-    //   a[i] = a_[j];
-    // std::cout << a[0] << std::endl;
     return *this;
   }
-
-  // friend Tensor operator+(const ValueType &first, Tensor &second) {
-  //   Tensor result(second);
-  //   for (auto &i : result.a)
-  //     i = first + i;
-  //   return result;
-  // }
-
-  // friend Tensor operator+(Tensor &first, const ValueType &second) {
-  //   Tensor result(first);
-  //   for (auto &i : result.a)
-  //     i = i + second;
-  //   return result;
-  // }
-
-  // friend Tensor operator-(const ValueType &first, Tensor &second) {
-  //   Tensor result(second);
-  //   for (auto &i : result.a)
-  //     i = first - i;
-  //   return result;
-  // }
-
-  // friend Tensor operator-(Tensor &first, const ValueType &second) {
-  //   Tensor result(first);
-  //   for (auto &i : result.a)
-  //     i = i - second;
-  //   return result;
-  // }
-
-  // Tensor operator*(ValueType second) {
-  //   Tensor result(*this);
-  //   for (auto &i : result.a)
-  //     i = i * second;
-  //   return result;
-  // }
-
-  // friend Tensor operator*(const ValueType &first, Tensor &second) {
-  //   Tensor result(second);
-  //   for (auto &i : result.a)
-  //     i = i * first;
-  //   return result;
-  // }
-
-  // Tensor operator/(const ValueType &second) {
-  //   Tensor result(*this);
-  //   for (auto &i : result.a)
-  //     i = i / second;
-  //   return result;
-  // }
 
   friend std::ostream &operator<<(std::ostream &output, Tensor &ts) {
     output << ts.getShowOut().str();
@@ -413,7 +354,6 @@ public:
   public:
     iterator(ValueType *p = nullptr) : p(p) {}
     ValueType &operator*() { return *p; }
-    // std::vector<ValueType> *operator->() const;
     iterator &operator++() {
       ++p;
       return *this;
@@ -575,17 +515,10 @@ public:
   }
 
   virtual bool show(const std::string &colTabStr = "| ") {
-    // std::cout << "show!" << std::endl;
-    // std::cout << tsShape[0] << " " << tsShape[1] << std::endl;
-    // std::cout << (*this)[gi(0, 0)] << std::endl;
-    // for (auto i : a)
-    //   std::cout << i << " ";
-    // std::cout << std::endl;
     std::ostringstream out;
     Index<shapeType> indexS(tsShape.size(), 0);
     std::string outBegin = "";
     bool result = show_(indexS, 0, outBegin, colTabStr, out);
-    // std::cout << "show!beg" << std::endl;
     std::cout << out.str() << std::endl;
     return result;
   }
@@ -656,78 +589,58 @@ public:
     return true;
   }
 
-  virtual Tensor operator+(const Tensor &ts) {
-    return computer(*this, ts, [](const ValueType &a, const ValueType &b) {
-      return a + b;
-    });
-  }
-  virtual Tensor operator-(const Tensor &ts) {
-    return computer(*this, ts, [](const ValueType &a, const ValueType &b) {
-      return a - b;
-    });
-  }
-  virtual Tensor operator*(const Tensor &ts) {
-    return computer(*this, ts, [](const ValueType &a, const ValueType &b) {
-      return a * b;
-    });
-  }
-  virtual Tensor operator/(const Tensor &ts) {
-    return computer(*this, ts, [](const ValueType &a, const ValueType &b) {
-      return a / b;
-    });
-  }
-
-  // virtual Tensor operator-(const Tensor &ts) {
-  //   return computer<std::minus<ValueType>>(*this, ts);
-  // }
-
-  // virtual Tensor operator*(const Tensor &ts) {
-  //   return computer<std::multiplies<ValueType>>(*this, ts);
-  // }
-
-  // virtual Tensor operator/(const Tensor &ts) {
-  //   return computer<std::divides<ValueType>>(*this, ts);
-  // }
-
 #define _dym_tensor_operator_binary_(op)                                       \
-                                                                               \
   friend Tensor operator op(const ValueType &first, Tensor &second) {          \
     Tensor result(second);                                                     \
     result.for_each([&first](ValueType &e) { e = first op e; });               \
     return result;                                                             \
   }                                                                            \
-                                                                               \
   friend Tensor operator op(Tensor &first, const ValueType &second) {          \
     Tensor result(first);                                                      \
     result.for_each([&second](ValueType &e) { e = e op second; });             \
     return result;                                                             \
-  }                                                                            \
-  // virtual Tensor operator op(Tensor &ts) {                                     \
-  //   return computer(*this, ts,                                                 \
-  //                   [](ValueType &a, ValueType &b) { return a op b; });        \
-  // }                                                                            \
+  }                                                                           
+
+#define _dym_tentensor_operator_binary_(op)                                       \
+  virtual Tensor operator op(const Tensor &ts) {\
+    return computer(*this, ts, [](const ValueType &a, const ValueType &b) {\
+      return a op b;\
+    });\
+  }
 
 #define _dym_tensor_operator_unary_(op)                                        \
   friend Tensor operator op(Tensor &first, const ValueType &second) {          \
     Tensor result(first);                                                      \
-    result.for_each([&second](ValueType &e) { e op second; });                 \
+    result.for_each([&second](ValueType &e) { e op second; });                 \ 
     return result;                                                             \
   }
 
+  _dym_tentensor_operator_binary_(+)
+  _dym_tentensor_operator_binary_(-)
+  _dym_tentensor_operator_binary_(*)
+  _dym_tentensor_operator_binary_(/)
+
   // Calculation
-  _dym_tensor_operator_binary_(+) _dym_tensor_operator_binary_(-)
-      _dym_tensor_operator_binary_(*) _dym_tensor_operator_binary_(/)
-          _dym_tensor_operator_binary_(%) _dym_tensor_operator_unary_(+=)
-              _dym_tensor_operator_unary_(-=) _dym_tensor_operator_unary_(*=)
-                  _dym_tensor_operator_unary_(/=)
-                      _dym_tensor_operator_unary_(%=)
-      // Logic
-      _dym_tensor_operator_binary_(<<) _dym_tensor_operator_binary_(>>)
-          _dym_tensor_operator_binary_(&) _dym_tensor_operator_binary_(|)
-              _dym_tensor_operator_binary_(^) _dym_tensor_operator_unary_(<<=)
-                  _dym_tensor_operator_unary_(>>=)
-                      _dym_tensor_operator_unary_(&=)
-                          _dym_tensor_operator_unary_(|=)
-                              _dym_tensor_operator_unary_(^=)
-};
+  _dym_tensor_operator_binary_(+)
+  _dym_tensor_operator_binary_(-)
+  _dym_tensor_operator_binary_(*) 
+  _dym_tensor_operator_binary_(/)
+  _dym_tensor_operator_binary_(%) 
+  _dym_tensor_operator_unary_(+=)
+  _dym_tensor_operator_unary_(-=) 
+  _dym_tensor_operator_unary_(*=)
+  _dym_tensor_operator_unary_(/=)
+  _dym_tensor_operator_unary_(%=)
+  // Logic
+  _dym_tensor_operator_binary_(<<) 
+  _dym_tensor_operator_binary_(>>)
+  _dym_tensor_operator_binary_(&) 
+  _dym_tensor_operator_binary_(|)
+  _dym_tensor_operator_binary_(^) 
+  _dym_tensor_operator_unary_(<<=)
+  _dym_tensor_operator_unary_(>>=)
+  _dym_tensor_operator_unary_(&=)
+  _dym_tensor_operator_unary_(|=)
+  _dym_tensor_operator_unary_(^=)
+};  
 } // namespace dym

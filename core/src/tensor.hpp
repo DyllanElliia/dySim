@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2021-11-04 20:18:25
+ * @LastEditTime: 2021-11-04 21:41:11
  * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */
@@ -291,7 +291,7 @@ public:
     auto heads = result.tsShapeSuffix[0] / h2ts;
     auto &ra = result.a, &oa = a;
     for (unsigned int h = 0; h < heads; ++h)
-      for (unsigned int i = 0; i < im; ++i) 
+      for (unsigned int i = 0; i < im; ++i)
         for (unsigned int j = 0; j < jm; ++j) {
           ull hh = h * h2ts;
           ull rbe = hh + i * rtails + j * rmids;
@@ -473,7 +473,7 @@ public:
       exit(EXIT_FAILURE);
     }
     const unsigned int t_num = std::thread::hardware_concurrency() / 3;
-    const unsigned int t_step = (tsShapeSuffix[0] + t_num) / t_num;
+    const unsigned int t_step = (tsShapeSuffix[0] + t_num) / t_num; 
     std::vector<std::thread> t_pool;
     for (unsigned int i = 0; i < t_num; ++i) {
       unsigned int ib = i * t_step, ie = (i + 1) * t_step;
@@ -599,48 +599,40 @@ public:
     Tensor result(first);                                                      \
     result.for_each([&second](ValueType &e) { e = e op second; });             \
     return result;                                                             \
-  }                                                                           
+  }
 
-#define _dym_tentensor_operator_binary_(op)                                       \
-  virtual Tensor operator op(const Tensor &ts) {\
-    return computer(*this, ts, [](const ValueType &a, const ValueType &b) {\
-      return a op b;\
-    });\
+#define _dym_tentensor_operator_binary_(op)                                    \
+  virtual Tensor operator op(const Tensor &ts) {                               \
+    return computer(*this, ts, [](const ValueType &a, const ValueType &b) {    \
+      return a op b;                                                           \
+    });                                                                        \
   }
 
 #define _dym_tensor_operator_unary_(op)                                        \
   friend Tensor operator op(Tensor &first, const ValueType &second) {          \
     Tensor result(first);                                                      \
-    result.for_each([&second](ValueType &e) { e op second; });                 \ 
+    result.for_each([&second](ValueType &e) { e op second; });                 \
     return result;                                                             \
   }
 
-  _dym_tentensor_operator_binary_(+)
-  _dym_tentensor_operator_binary_(-)
-  _dym_tentensor_operator_binary_(*)
-  _dym_tentensor_operator_binary_(/)
+  _dym_tentensor_operator_binary_(+) _dym_tentensor_operator_binary_(-)
+      _dym_tentensor_operator_binary_(*) _dym_tentensor_operator_binary_(/)
 
-  // Calculation
-  _dym_tensor_operator_binary_(+)
-  _dym_tensor_operator_binary_(-)
-  _dym_tensor_operator_binary_(*) 
-  _dym_tensor_operator_binary_(/)
-  _dym_tensor_operator_binary_(%) 
-  _dym_tensor_operator_unary_(+=)
-  _dym_tensor_operator_unary_(-=) 
-  _dym_tensor_operator_unary_(*=)
-  _dym_tensor_operator_unary_(/=)
-  _dym_tensor_operator_unary_(%=)
-  // Logic
-  _dym_tensor_operator_binary_(<<) 
-  _dym_tensor_operator_binary_(>>)
-  _dym_tensor_operator_binary_(&) 
-  _dym_tensor_operator_binary_(|)
-  _dym_tensor_operator_binary_(^) 
-  _dym_tensor_operator_unary_(<<=)
-  _dym_tensor_operator_unary_(>>=)
-  _dym_tensor_operator_unary_(&=)
-  _dym_tensor_operator_unary_(|=)
-  _dym_tensor_operator_unary_(^=)
-};  
+      // Calculation 
+      _dym_tensor_operator_binary_(+) _dym_tensor_operator_binary_(-)
+          _dym_tensor_operator_binary_(*) _dym_tensor_operator_binary_(/)
+              _dym_tensor_operator_binary_(%) _dym_tensor_operator_unary_(+=)
+                  _dym_tensor_operator_unary_(-=)
+                      _dym_tensor_operator_unary_(*=)
+                          _dym_tensor_operator_unary_(/=)
+                              _dym_tensor_operator_unary_(%=)
+      // Logic
+      _dym_tensor_operator_binary_(<<) _dym_tensor_operator_binary_(>>)
+          _dym_tensor_operator_binary_(&) _dym_tensor_operator_binary_(|)
+              _dym_tensor_operator_binary_(^) _dym_tensor_operator_unary_(<<=)
+                  _dym_tensor_operator_unary_(>>=)
+                      _dym_tensor_operator_unary_(&=)
+                          _dym_tensor_operator_unary_(|=)
+                              _dym_tensor_operator_unary_(^=)
+};
 } // namespace dym

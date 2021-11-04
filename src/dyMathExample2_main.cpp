@@ -88,13 +88,18 @@ int main() {
   qprint(a * a3);
 
   qprint("3.2. 2x1 * mx2x3");
-  dym::Tensor<int> a4({1, 2}, -1);
-  (a4 = a4.t()).show();
+  dym::Tensor<int> a4({1, 2}, true);
+  a4.show();
   qprint(a * a4);
 
-  qprint("3.3. 1x1 * mx2x3");
-  dym::Tensor<int> a5(2);
-  qprint(a * a5);
+  qprint("3.3. 1x3 * mx2x3");
+  dym::Tensor<int> a5({1, 2, 3}, false);
+  a5.show();
+  qprint(a * a4);
+
+  qprint("3.4. 1x1 * mx2x3");
+  dym::Tensor<int> a6(2);
+  qprint(a * a6);
 
   qprint("4. mathematical notation for tensors");
   // dyMath provides operator + - Tensor*Value Tensor/Value.

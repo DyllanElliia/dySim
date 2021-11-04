@@ -78,16 +78,21 @@ protected:
     }
   }
 
-  template <class tranFun>
-  static Tensor computer(const Tensor &first, const Tensor &second) {
+  template <class func>
+  static Tensor computer(const Tensor &first, const Tensor &second,
+                         func tranFun) {
     // shapeCheck(first.tsShape, second.tsShape);
     if (first.tsShape == second.tsShape) {
       Tensor result;
       result.tsShape = first.tsShape;
       result.updateSuffix();
-      result.a.reserve(first.a.size());
-      std::transform(first.a.begin(), first.a.begin() + first.a.size(),
-                     second.a.begin(), std::back_inserter(result.a), tranFun());
+      result.a.resize(first.a.size(), 0);
+      result.for_each([&first, &second, &tranFun](ValueType &e, int i) {
+        e = tranFun(first.a[i], second.a[i]);
+      });
+      // std::transform(first.a.begin(), first.a.begin() + first.a.size(),
+      //                second.a.begin(), std::back_inserter(result.a),
+      //                tranFun());
       return result;
     }
     Tensor t1, t2;
@@ -98,7 +103,7 @@ protected:
     Tensor result;
     result.tsShape = t1s;
     result.updateSuffix();
-    result.a.reserve(t1.a.size());
+    result.a.resize(t1.a.size(), 0);
     try {
       for (int i = 0, t1l = t1s.size() - t2s.size(); i < t2s.size(); ++i, ++t1l)
         if (t1s[t1l] != t2s[i]) {
@@ -128,10 +133,13 @@ protected:
     }
     int t2len = t2.tsShapeSuffix[0];
     auto &t1end = t1.tsShapeSuffix[0];
-    for (int i = 0, ii = t2len; i < t1end; i += t2len, ii += t2len) {
-      std::transform(t1.a.begin() + i, t1.a.begin() + ii, t2.a.begin(),
-                     std::back_inserter(result.a), tranFun());
-    }
+    result.for_each([&t2len, &t1, &t2, &tranFun](ValueType &e, int i) {
+      e = tranFun(t1.a[i], t2.a[i % t2len]);
+    });
+    // for (int i = 0, ii = t2len; i < t1end; i += t2len, ii += t2len) {
+    //   std::transform(t1.a.begin() + i, t1.a.begin() + ii, t2.a.begin(),
+    //                  std::back_inserter(result.a), tranFun());
+    // }
     return result;
   }
 
@@ -209,10 +217,13 @@ public:
       a.insert(a.end(), l.begin(), l.begin() + my);
     updateSuffix();
   }
-  Tensor(const std::vector<ValueType> &v, int len = -1) {
-    if (len == -1 || len > v.size())
-      len = v.size();
-    tsShape.push_back(len);
+  Tensor(const std::vector<ValueType> &v, bool t) {
+    int len = v.size();
+    if (t)
+      tsShape = gi(len, 1);
+    else
+      tsShape = gi(len);
+    qprint(pi(tsShape));
     a.assign(v.begin(), v.begin() + len);
     updateSuffix();
   }
@@ -325,22 +336,6 @@ public:
     }
   }
 
-  virtual Tensor operator+(const Tensor &ts) {
-    return computer<std::plus<ValueType>>(*this, ts);
-  }
-
-  virtual Tensor operator-(const Tensor &ts) {
-    return computer<std::minus<ValueType>>(*this, ts);
-  }
-
-  virtual Tensor operator*(const Tensor &ts) {
-    return computer<std::multiplies<ValueType>>(*this, ts);
-  }
-
-  virtual Tensor operator/(const Tensor &ts) {
-    return computer<std::divides<ValueType>>(*this, ts);
-  }
-
   virtual Tensor operator=(const Tensor &in) {
     // a = in.a;
     // tsShape = in.tsShape;
@@ -348,76 +343,63 @@ public:
 
     auto &a_ = in.a;
     a.resize(a_.size());
-    for (int i = 0, j = 0; i < a_.size(); ++i, ++j)
-      a[i] = a_[j];
-    // std::cout << a[0] << std::endl;
-
     tsShape = in.tsShape;
     tsShapeSuffix = in.tsShapeSuffix;
+    (*this).for_each([&a_](ValueType &e, int i) { e = a_[i]; });
+    // for (int i = 0, j = 0; i < a_.size(); ++i, ++j)
+    //   a[i] = a_[j];
+    // std::cout << a[0] << std::endl;
     return *this;
   }
 
-  // friend Tensor operator+(const Tensor &first, const Tensor &second) {
-  //   return computer<std::plus<ValueType>>(first, second);
+  // friend Tensor operator+(const ValueType &first, Tensor &second) {
+  //   Tensor result(second);
+  //   for (auto &i : result.a)
+  //     i = first + i;
+  //   return result;
   // }
 
-  friend Tensor operator+(const ValueType &first, Tensor &second) {
-    Tensor result(second);
-    for (auto &i : result.a)
-      i = first + i;
-    return result;
-  }
-
-  friend Tensor operator+(Tensor &first, const ValueType &second) {
-    Tensor result(first);
-    for (auto &i : result.a)
-      i = i + second;
-    return result;
-  }
-
-  // friend Tensor operator-(const Tensor &first, const Tensor &second) {
-  //   return computer<std::minus<ValueType>>(first, second);
+  // friend Tensor operator+(Tensor &first, const ValueType &second) {
+  //   Tensor result(first);
+  //   for (auto &i : result.a)
+  //     i = i + second;
+  //   return result;
   // }
 
-  friend Tensor operator-(const ValueType &first, Tensor &second) {
-    Tensor result(second);
-    for (auto &i : result.a)
-      i = first - i;
-    return result;
-  }
-
-  friend Tensor operator-(Tensor &first, const ValueType &second) {
-    Tensor result(first);
-    for (auto &i : result.a)
-      i = i - second;
-    return result;
-  }
-
-  // void operator=(const Tensor &in) {
-  //   a = in.a;
-  //   tsShape = in.tsShape;
-  //   tsShapeSuffix = in.tsShapeSuffix;
+  // friend Tensor operator-(const ValueType &first, Tensor &second) {
+  //   Tensor result(second);
+  //   for (auto &i : result.a)
+  //     i = first - i;
+  //   return result;
   // }
 
-  Tensor operator*(ValueType second) {
-    Tensor result(*this);
-    for (auto &i : result.a)
-      i = i * second;
-    return result;
-  }
-  friend Tensor operator*(const ValueType &first, Tensor &second) {
-    Tensor result(second);
-    for (auto &i : result.a)
-      i = i * first;
-    return result;
-  }
+  // friend Tensor operator-(Tensor &first, const ValueType &second) {
+  //   Tensor result(first);
+  //   for (auto &i : result.a)
+  //     i = i - second;
+  //   return result;
+  // }
 
-  Tensor operator/(const ValueType &second) {
-    Tensor result(*this);
-    for (auto &i : result.a)
-      i = i / second;
-    return result;
-  }
+  // Tensor operator*(ValueType second) {
+  //   Tensor result(*this);
+  //   for (auto &i : result.a)
+  //     i = i * second;
+  //   return result;
+  // }
+
+  // friend Tensor operator*(const ValueType &first, Tensor &second) {
+  //   Tensor result(second);
+  //   for (auto &i : result.a)
+  //     i = i * first;
+  //   return result;
+  // }
+
+  // Tensor operator/(const ValueType &second) {
+  //   Tensor result(*this);
+  //   for (auto &i : result.a)
+  //     i = i / second;
+  //   return result;
+  // }
 
   friend std::ostream &operator<<(std::ostream &output, Tensor &ts) {
     output << ts.getShowOut().str();
@@ -522,6 +504,7 @@ public:
     std::for_each(t_pool.begin(), t_pool.end(),
                   [](std::thread &t) { t.join(); });
   }
+
   virtual void
   for_each(std::function<void(ValueType &, int i, int j, int k)> func) {
     auto &ts = *this;
@@ -672,5 +655,79 @@ public:
     a.resize(tsShapeSuffix[0]);
     return true;
   }
+
+  virtual Tensor operator+(const Tensor &ts) {
+    return computer(*this, ts, [](const ValueType &a, const ValueType &b) {
+      return a + b;
+    });
+  }
+  virtual Tensor operator-(const Tensor &ts) {
+    return computer(*this, ts, [](const ValueType &a, const ValueType &b) {
+      return a - b;
+    });
+  }
+  virtual Tensor operator*(const Tensor &ts) {
+    return computer(*this, ts, [](const ValueType &a, const ValueType &b) {
+      return a * b;
+    });
+  }
+  virtual Tensor operator/(const Tensor &ts) {
+    return computer(*this, ts, [](const ValueType &a, const ValueType &b) {
+      return a / b;
+    });
+  }
+
+  // virtual Tensor operator-(const Tensor &ts) {
+  //   return computer<std::minus<ValueType>>(*this, ts);
+  // }
+
+  // virtual Tensor operator*(const Tensor &ts) {
+  //   return computer<std::multiplies<ValueType>>(*this, ts);
+  // }
+
+  // virtual Tensor operator/(const Tensor &ts) {
+  //   return computer<std::divides<ValueType>>(*this, ts);
+  // }
+
+#define _dym_tensor_operator_binary_(op)                                       \
+                                                                               \
+  friend Tensor operator op(const ValueType &first, Tensor &second) {          \
+    Tensor result(second);                                                     \
+    result.for_each([&first](ValueType &e) { e = first op e; });               \
+    return result;                                                             \
+  }                                                                            \
+                                                                               \
+  friend Tensor operator op(Tensor &first, const ValueType &second) {          \
+    Tensor result(first);                                                      \
+    result.for_each([&second](ValueType &e) { e = e op second; });             \
+    return result;                                                             \
+  }                                                                            \
+  // virtual Tensor operator op(Tensor &ts) {                                     \
+  //   return computer(*this, ts,                                                 \
+  //                   [](ValueType &a, ValueType &b) { return a op b; });        \
+  // }                                                                            \
+
+#define _dym_tensor_operator_unary_(op)                                        \
+  friend Tensor operator op(Tensor &first, const ValueType &second) {          \
+    Tensor result(first);                                                      \
+    result.for_each([&second](ValueType &e) { e op second; });                 \
+    return result;                                                             \
+  }
+
+  // Calculation
+  _dym_tensor_operator_binary_(+) _dym_tensor_operator_binary_(-)
+      _dym_tensor_operator_binary_(*) _dym_tensor_operator_binary_(/)
+          _dym_tensor_operator_binary_(%) _dym_tensor_operator_unary_(+=)
+              _dym_tensor_operator_unary_(-=) _dym_tensor_operator_unary_(*=)
+                  _dym_tensor_operator_unary_(/=)
+                      _dym_tensor_operator_unary_(%=)
+      // Logic
+      _dym_tensor_operator_binary_(<<) _dym_tensor_operator_binary_(>>)
+          _dym_tensor_operator_binary_(&) _dym_tensor_operator_binary_(|)
+              _dym_tensor_operator_binary_(^) _dym_tensor_operator_unary_(<<=)
+                  _dym_tensor_operator_unary_(>>=)
+                      _dym_tensor_operator_unary_(&=)
+                          _dym_tensor_operator_unary_(|=)
+                              _dym_tensor_operator_unary_(^=)
 };
 } // namespace dym

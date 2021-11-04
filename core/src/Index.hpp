@@ -105,7 +105,8 @@ template <class ValueType = int> struct Index {
     for (int i = 0; i < rank; ++i)
       p[i] = a[i];
     p[rank++] = v;
-    delete[] a;
+    if (a)
+      delete[] a;
     a = p;
   }
 };

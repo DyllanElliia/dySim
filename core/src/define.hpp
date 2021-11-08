@@ -1,9 +1,9 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-11-03 19:04:10
- * @LastEditTime: 2021-11-03 19:54:57
- * @LastEditors: DyllanElliia
- * @Description: 
+ * @LastEditTime: 2021-11-08 14:32:55
+ * @LastEditors: Please set LastEditors
+ * @Description:
  */
 #pragma once
 
@@ -31,13 +31,13 @@
 #pragma nv_exec_check_disable
 #else
 #pragma hd_warning_disable
-#endif // __clang__
+#endif  // __clang__
 
 #else
 #define _DYM_GENERAL_
 #define _DYM_DEVICE_
 #define _DYM_GLOBAL_
 
-#endif //_DYM_USE_CUDA_
+#endif  //_DYM_USE_CUDA_
 
 #define _DYM_LAMBDA_ _DYM_GENERAL_

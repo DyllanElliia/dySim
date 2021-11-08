@@ -1,8 +1,8 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-22 14:21:25
- * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-10-18 18:54:23
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-11-08 16:30:42
  * @Description: How to use Tensor.
  */
 
@@ -93,7 +93,7 @@ int main() {
   qprint(a * a4);
 
   qprint("3.3. 1x1 * mx2x3");
-  dym::Tensor<int> a5(2);
+  dym::Tensor<int> a5(2,dym::gi(1));
   qprint(a * a5);
 
   qprint("4. mathematical notation for tensors");

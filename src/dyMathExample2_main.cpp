@@ -1,8 +1,8 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-22 14:21:25
- * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-10-18 18:54:23
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-11-08 16:29:46
  * @Description: How to use Tensor.
  */
 
@@ -98,7 +98,7 @@ int main() {
   qprint(a * a4);
 
   qprint("3.4. 1x1 * mx2x3");
-  dym::Tensor<int> a6(2);
+  dym::Tensor<int> a6(2, dym::gi(1));
   qprint(a * a6);
 
   qprint("4. mathematical notation for tensors");
@@ -129,8 +129,7 @@ int main() {
   qprint();
 
   qprint("5.2. for(auto i:tensor)");
-  for (auto i = b.begin(); i != b.end(); ++i)
-    qprint_nlb(*i);
+  for (auto i = b.begin(); i != b.end(); ++i) qprint_nlb(*i);
   qprint();
 
   qprint("5.3.1. (recommented) tensor.for_each(element&)");
@@ -151,8 +150,9 @@ int main() {
   a3.for_each(
       [&a3](int &e, int i, int j) { qprint(e, i, j, a3[dym::gi(i, j)]); });
 
-  qprint("5.3.4. (recommented) 3-D tensor.for_each(element&, int i, int j, int "
-         "k)");
+  qprint(
+      "5.3.4. (recommented) 3-D tensor.for_each(element&, int i, int j, int "
+      "k)");
   b.for_each([&b](int &e, int i, int j, int k) {
     qprint(e, i, j, k, b[dym::gi(i, j, k)]);
   });

@@ -1,14 +1,14 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2021-11-08 17:01:17
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-11-09 11:50:31
+ * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */
 
 #pragma once
 
-#include "./Index.hpp"
+#include "./launch.hpp"
 namespace dym {
 template <typename t>
 Index<t> addIndex(const Index<t> &i1, const Index<t> &i2, int i2begin = 0) {
@@ -86,7 +86,7 @@ class Tensor {
       result.tsShape = first.tsShape;
       result.updateSuffix();
       result.a.resize(first.a.size(), 0);
-      result.for_each([&first, &second, &tranFun](ValueType &e, int i) {
+      result.for_each_i([&first, &second, &tranFun](ValueType &e, int i) {
         e = tranFun(first.a[i], second.a[i]);
       });
       // std::transform(first.a.begin(), first.a.begin() + first.a.size(),
@@ -131,7 +131,7 @@ class Tensor {
     }
     int t2len = t2.tsShapeSuffix[0];
     auto &t1end = t1.tsShapeSuffix[0];
-    result.for_each([&t2len, &t1, &t2, &tranFun](ValueType &e, int i) {
+    result.for_each_i([&t2len, &t1, &t2, &tranFun](ValueType &e, int i) {
       e = tranFun(t1.a[i], t2.a[i % t2len]);
     });
     // for (int i = 0, ii = t2len; i < t1end; i += t2len, ii += t2len) {
@@ -358,7 +358,7 @@ class Tensor {
     a.resize(a_.size());
     tsShape = in.tsShape;
     tsShapeSuffix = in.tsShapeSuffix;
-    (*this).for_each([&a_](ValueType &e, int i) { e = a_[i]; });
+    (*this).for_each_i([&a_](ValueType &e, int i) { e = a_[i]; });
     return *this;
   }
 
@@ -387,7 +387,7 @@ class Tensor {
 
   virtual iterator end() { return iterator(a.data() + a.size()); }
 
-  virtual void for_each(std::function<void(ValueType &)> func) {
+  virtual void for_each_i(std::function<void(ValueType &)> func) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       for (unsigned int i = ib; i < ie; ++i) {
@@ -395,38 +395,20 @@ class Tensor {
         func(tsi);
       }
     };
-    const unsigned int t_num = std::thread::hardware_concurrency() / 3;
-    const unsigned int t_step = (tsShapeSuffix[0] + t_num) / t_num;
-    std::vector<std::thread> t_pool;
-    for (unsigned int i = 0; i < t_num; ++i) {
-      unsigned int ib = i * t_step, ie = (i + 1) * t_step;
-      if (ie > tsShapeSuffix[0]) ie = tsShapeSuffix[0];
-      t_pool.push_back(std::thread(forI, ib, ie));
-    }
-    std::for_each(t_pool.begin(), t_pool.end(),
-                  [](std::thread &t) { t.join(); });
+    launch(forI, 0, tsShapeSuffix[0]);
   }
 
-  virtual void for_each(std::function<void(ValueType &, int i)> func) {
+  virtual void for_each_i(std::function<void(ValueType &, int i)> func) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       for (unsigned int i = ib; i < ie; ++i) {
         func(ts[i], i);
       }
     };
-    const unsigned int t_num = std::thread::hardware_concurrency() / 3;
-    const unsigned int t_step = (tsShapeSuffix[0] + t_num) / t_num;
-    std::vector<std::thread> t_pool;
-    for (unsigned int i = 0; i < t_num; ++i) {
-      unsigned int ib = i * t_step, ie = (i + 1) * t_step;
-      if (ie > tsShapeSuffix[0]) ie = tsShapeSuffix[0];
-      t_pool.push_back(std::thread(forI, ib, ie));
-    }
-    std::for_each(t_pool.begin(), t_pool.end(),
-                  [](std::thread &t) { t.join(); });
+    launch(forI, 0, tsShapeSuffix[0]);
   }
 
-  virtual void for_each(std::function<void(ValueType &, int i, int j)> func) {
+  virtual void for_each_i(std::function<void(ValueType &, int i, int j)> func) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       for (unsigned int i = ib; i < ie; ++i) {
@@ -450,19 +432,10 @@ class Tensor {
                        std::to_string(tsShape.size()) + ".\033[0m\n";
       exit(EXIT_FAILURE);
     }
-    const unsigned int t_num = std::thread::hardware_concurrency() / 3;
-    const unsigned int t_step = (tsShapeSuffix[0] + t_num) / t_num;
-    std::vector<std::thread> t_pool;
-    for (unsigned int i = 0; i < t_num; ++i) {
-      unsigned int ib = i * t_step, ie = (i + 1) * t_step;
-      if (ie > tsShapeSuffix[0]) ie = tsShapeSuffix[0];
-      t_pool.push_back(std::thread(forI, ib, ie));
-    }
-    std::for_each(t_pool.begin(), t_pool.end(),
-                  [](std::thread &t) { t.join(); });
+    launch(forI, 0, tsShapeSuffix[0]);
   }
 
-  virtual void for_each(
+  virtual void for_each_i(
       std::function<void(ValueType &, int i, int j, int k)> func) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
@@ -489,19 +462,75 @@ class Tensor {
                        std::to_string(tsShape.size()) + ".\033[0m\n";
       exit(EXIT_FAILURE);
     }
-    const unsigned int t_num = std::thread::hardware_concurrency() / 3;
-    const unsigned int t_step = (tsShapeSuffix[0] + t_num) / t_num;
-    std::vector<std::thread> t_pool;
-    for (unsigned int i = 0; i < t_num; ++i) {
-      unsigned int ib = i * t_step, ie = (i + 1) * t_step;
-      if (ie > tsShapeSuffix[0]) ie = tsShapeSuffix[0];
-      t_pool.push_back(std::thread(forI, ib, ie));
+    launch(forI, 0, tsShapeSuffix[0]);
+  }
+
+  virtual void for_each(std::function<void(ValueType *, int i)> func) {
+    auto &ts = *this;
+    auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
+      const auto &step = ts.tsShapeSuffix[1];
+      for (unsigned int i = ib; i < ie; i += step) {
+        func(&(ts[i]), i / ts.tsShapeSuffix[1]);
+      }
+    };
+    try {
+      if (tsShape.size() < 2)
+        throw "\033[1;31mTensor error: Only >= 2-dimensions Tensors can use "
+                "this function!\033[0m";
+    } catch (const char *str) {
+      std::cerr << str << '\n'
+                << "\033[1;31mYour Tensor's dimensions is " +
+                       std::to_string(tsShape.size()) + ".\033[0m\n";
+      exit(EXIT_FAILURE);
     }
-    std::for_each(t_pool.begin(), t_pool.end(),
-                  [](std::thread &t) { t.join(); });
+    launch(forI, 0, tsShapeSuffix[0]);
+  }
+
+  virtual void for_each(std::function<void(ValueType *, int i, int j)> func) {
+    auto &ts = *this;
+    auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
+      for (unsigned int i = ib; i < ie; ++i) {
+        func(&(ts[i]), i / ts.tsShapeSuffix[1],
+             (i % ts.tsShapeSuffix[1]) / ts.tsShapeSuffix[2]);
+      }
+    };
+    try {
+      if (tsShape.size() < 2)
+        throw "\033[1;31mTensor error: Only >= 2-dimensions Tensors can use "
+                "this function!\033[0m";
+    } catch (const char *str) {
+      std::cerr << str << '\n'
+                << "\033[1;31mYour Tensor's dimensions is " +
+                       std::to_string(tsShape.size()) + ".\033[0m\n";
+      exit(EXIT_FAILURE);
+    }
+    launch(forI, 0, tsShapeSuffix[0]);
   }
 
   virtual void for_each(
+      std::function<void(ValueType *, int i, int j, int k)> func) {
+    auto &ts = *this;
+    auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
+      for (unsigned int i = ib; i < ie; ++i) {
+        func(&(ts[i]), i / ts.tsShapeSuffix[1],
+             (i % ts.tsShapeSuffix[1]) / ts.tsShapeSuffix[2],
+             (i % ts.tsShapeSuffix[2]) / ts.tsShapeSuffix[3]);
+      }
+    };
+    try {
+      if (tsShape.size() < 3)
+        throw "\033[1;31mTensor error: Only >= 3-dimensions Tensors can use "
+                "this function!\033[0m";
+    } catch (const char *str) {
+      std::cerr << str << '\n'
+                << "\033[1;31mYour Tensor's dimensions is " +
+                       std::to_string(tsShape.size()) + ".\033[0m\n";
+      exit(EXIT_FAILURE);
+    }
+    launch(forI, 0, tsShapeSuffix[0]);
+  }
+
+  virtual void for_each_i(
       std::function<void(ValueType &, Index<shapeType> &i)> func) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
@@ -515,16 +544,7 @@ class Tensor {
         func(ts[i], in);
       }
     };
-    const unsigned int t_num = std::thread::hardware_concurrency() / 3;
-    const unsigned int t_step = (tsShapeSuffix[0] + t_num) / t_num;
-    std::vector<std::thread> t_pool;
-    for (unsigned int i = 0; i < t_num; ++i) {
-      unsigned int ib = i * t_step, ie = (i + 1) * t_step;
-      if (ie > tsShapeSuffix[0]) ie = tsShapeSuffix[0];
-      t_pool.push_back(std::thread(forI, ib, ie));
-    }
-    std::for_each(t_pool.begin(), t_pool.end(),
-                  [](std::thread &t) { t.join(); });
+    launch(forI, 0, tsShapeSuffix[0]);
   }
 
   virtual bool show(const std::string &colTabStr = "| ") {
@@ -602,12 +622,12 @@ class Tensor {
 #define _dym_tensor_operator_binary_(op)                                    \
   friend Tensor operator op(const ValueType &first, const Tensor &second) { \
     Tensor result(second);                                                  \
-    result.for_each([&first](ValueType &e) { e = first op e; });            \
+    result.for_each_i([&first](ValueType &e) { e = first op e; });          \
     return result;                                                          \
   }                                                                         \
   friend Tensor operator op(const Tensor &first, const ValueType &second) { \
     Tensor result(first);                                                   \
-    result.for_each([&second](ValueType &e) { e = e op second; });          \
+    result.for_each_i([&second](ValueType &e) { e = e op second; });        \
     return result;                                                          \
   }
 
@@ -621,7 +641,7 @@ class Tensor {
 #define _dym_tensor_operator_unary_(op)                                     \
   friend Tensor operator op(const Tensor &first, const ValueType &second) { \
     Tensor result(first);                                                   \
-    result.for_each([&second](ValueType &e) { e op second; });              \
+    result.for_each_i([&second](ValueType &e) { e op second; });            \
     return result;                                                          \
   }
 

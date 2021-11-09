@@ -1,8 +1,8 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-22 14:21:25
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-11-08 16:30:42
+ * @LastEditors: DyllanElliia
+ * @LastEditTime: 2021-11-09 11:52:50
  * @Description: How to use Tensor.
  */
 
@@ -88,13 +88,18 @@ int main() {
   qprint(a * a3);
 
   qprint("3.2. 2x1 * mx2x3");
-  dym::Tensor<int> a4({1, 2}, -1);
-  (a4 = a4.t()).show();
+  dym::Tensor<int> a4({1, 2}, true);
+  a4.show();
   qprint(a * a4);
 
-  qprint("3.3. 1x1 * mx2x3");
-  dym::Tensor<int> a5(2,dym::gi(1));
-  qprint(a * a5);
+  qprint("3.3. 1x3 * mx2x3");
+  dym::Tensor<int> a5({1, 2, 3}, false);
+  a5.show();
+  qprint(a * a4);
+
+  qprint("3.4. 1x1 * mx2x3");
+  dym::Tensor<int> a6(2, dym::gi(1));
+  qprint(a * a6);
 
   qprint("4. mathematical notation for tensors");
   // dyMath provides operator + - Tensor*Value Tensor/Value.
@@ -124,43 +129,46 @@ int main() {
   qprint();
 
   qprint("5.2. for(auto i:tensor)");
-  for (auto i = b.begin(); i != b.end(); ++i)
-    qprint_nlb(*i);
+  for (auto i = b.begin(); i != b.end(); ++i) qprint_nlb(*i);
   qprint();
 
-  qprint("5.3.1. (recommented) tensor.for_each(element&)");
+  qprint("5.3.1. (recommented) tensor.for_each_i(element&)");
   auto b_s = b;
   int ma = -100;
-  b.for_each([&ma](int &i) {
+  b.for_each_i([&ma](int &i) {
     i = -i;
     ma = std::max(ma, i);
   });
   (b - ma).show();
   qprint(ma);
 
-  qprint("5.3.2. (recommented) tensor.for_each(element&, int i)");
+  qprint("5.3.2. (recommented) tensor.for_each_i(element&, int i)");
   b = b_s;
-  b.for_each([&b](int &e, int i) { qprint(e, i, b[i]); });
+  b.for_each_i([&b](int &e, int i) { qprint(e, i, b[i]); });
 
-  qprint("5.3.3. (recommented) 2-D tensor.for_each(element&, int i, int j)");
-  a3.for_each(
+  qprint("5.3.3. (recommented) 2-D tensor.for_each_i(element&, int i, int j)");
+  a3.for_each_i(
       [&a3](int &e, int i, int j) { qprint(e, i, j, a3[dym::gi(i, j)]); });
 
-  qprint("5.3.4. (recommented) 3-D tensor.for_each(element&, int i, int j, int "
-         "k)");
-  b.for_each([&b](int &e, int i, int j, int k) {
+  qprint(
+      "5.3.4. (recommented) 3-D tensor.for_each_i(element&, int i, int j, int "
+      "k)");
+  b.for_each_i([&b](int &e, int i, int j, int k) {
     qprint(e, i, j, k, b[dym::gi(i, j, k)]);
   });
 
-  qprint("5.3.5. (not-recommented) n-D tensor.for_each(element&, Index i)");
+  qprint("5.3.5. (not-recommented) n-D tensor.for_each_i(element&, Index i)");
   dym::Tensor<int> m5d(2, dym::gi(2, 3, 4, 3, 2));
   m5d[dym::gi(0, 0, 0, 0, 0)] = 0;
   m5d[dym::gi(0, 1, 1, 0, 0)] = 5;
   m5d[dym::gi(1, 1, 0, 1, 0)] = 10;
   m5d[dym::gi(1, 1, 2, 1, 1)] = 15;
   m5d[dym::gi(1, 2, 3, 2, 1)] = 20;
-  m5d.for_each(
+  m5d.for_each_i(
       [&m5d](int &e, dym::Index<int> &i) { qprint(e, dym::pi(i), m5d[i]); });
-
+  qprint("5.3.6. (recommented) n-D tensor.for_each_i(element*, int i)");
+  dym::Tensor<float> loc({{10, 200}, {50, 150}, {100, 50}, {200, 200}});
+  loc.show();
+  loc.for_each([&loc](float *e, int i) { qprint(e[0], e[1], i); });
   return 0;
 }

@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-11-04 20:20:37
- * @LastEditTime: 2021-11-08 17:31:03
+ * @LastEditTime: 2021-11-09 10:27:24
  * @LastEditors: Please set LastEditors
  * @Description:
  */
@@ -27,7 +27,7 @@ int main() {
   qprint(dym::pi(pic.shape()), ret);
   auto r = dym::clear(pic_l, dym::gi(0, 150, 150));
   qprint("fin", r);
-  dym::Tensor<float> loc({{10, 50, 100, 200}, {100, 50, 10, 200}});
+  dym::Tensor<float> loc({{10, 200}, {50, 150}, {100, 50}, {200, 200}});
   loc.show();
   qprint(dym::pi(loc.shape()), loc[0], loc[1]);
   auto ans = dym::scatter(pic_l, loc, dym::gi(200, 50, 50), 3);

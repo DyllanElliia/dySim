@@ -1,8 +1,8 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-13 16:50:00
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-11-08 17:29:56
+ * @LastEditors: DyllanElliia
+ * @LastEditTime: 2021-11-09 11:51:31
  * @Description:
  */
 #pragma once
@@ -28,26 +28,26 @@ bool clear(Tensor<ValueType> &pic, colorType const color_default) {
   const auto &pic_color_size = (pic.shape().size() == 3 ? pic.shape()[2] : 1);
   if (pic_color_size > color_size) return false;
   qprint(pic_color_size, color_size);
-  pic.for_each([&color_default, &pic_color_size](ValueType &e, int i) {
+  pic.for_each_i([&color_default, &pic_color_size](ValueType &e, int i) {
     e = color_default[i % pic_color_size];
   });
   return true;
 }
 
 template <typename ValueType, typename VertexType>
-int scatter(Tensor<ValueType> &pic, const Tensor<VertexType> &loc,
+int scatter(Tensor<ValueType> &pic, Tensor<VertexType> &loc,
             const Index<int> color_default, int radius = 1) {
   const int pic_color_size = (pic.shape().size() == 3 ? pic.shape()[2] : 1);
   const int color_size = color_default.size();
   if (pic_color_size > color_size) return -1;
   qprint(pic_color_size, color_size);
   const Index locShape = loc.shape();
-  const auto &vec_num = locShape[1], &vec_d = locShape[0];
+  const auto &vec_num = locShape[0], &vec_d = locShape[1];
   if (vec_d != 2) return -1;
   const Index picShape = pic.shape();
   const auto &picx = picShape[0], &picy = picShape[1];
 
-  std::array<int, 2> pos;
+  // std::array<int, 2> pos;
   int r2 = 4 * radius * radius;
   std::vector<int> xx(r2), yy(r2);
   for (int x = -radius, index = 0; x < radius; ++x)
@@ -56,8 +56,8 @@ int scatter(Tensor<ValueType> &pic, const Tensor<VertexType> &loc,
 
   int ans = 0;
 
-  for (int i = 0; i < vec_num; ++i) {
-    pos[0] = loc[i], pos[1] = loc[i + vec_num];
+  loc.for_each([&](VertexType *pos, int i) {
+    int ans_i = 0;
     for (int xyi = 0; xyi < r2; ++xyi) {
       int xi = pos[0] + xx[xyi], yi = pos[1] + yy[xyi];
       if (xi < 0 || xi >= picx || yi < 0 || yi >= picy) continue;
@@ -67,10 +67,27 @@ int scatter(Tensor<ValueType> &pic, const Tensor<VertexType> &loc,
       } else
         for (int ci = 0; ci < pic_color_size; ++ci) {
           pic[gi(xi, yi, ci)] = color_default[ci];
-          ++ans;
+          ++ans_i;
         }
     }
-  }
+    ans += ans_i;
+  });
+  // for (int i = 0; i < vec_num; ++i) {
+  //   int pbegin = i * vec_d;
+  //   pos[0] = loc[pbegin], pos[1] = loc[pbegin + 1];
+  //   for (int xyi = 0; xyi < r2; ++xyi) {
+  //     int xi = pos[0] + xx[xyi], yi = pos[1] + yy[xyi];
+  //     if (xi < 0 || xi >= picx || yi < 0 || yi >= picy) continue;
+  //     if (pic_color_size == 1) {
+  //       pic[gi(xi, yi)] = color_default[0];
+  //       ++ans;
+  //     } else
+  //       for (int ci = 0; ci < pic_color_size; ++ci) {
+  //         pic[gi(xi, yi, ci)] = color_default[ci];
+  //         ++ans;
+  //       }
+  //   }
+  // }
   return ans;
 }
 
@@ -123,8 +140,8 @@ Tensor<InputType> filter2D(Tensor<InputType> &in, Tensor<KernelType> &kernel,
       ++cnt;
     }
 
-  result.for_each([&result, &gv, &kernel, &vShapeY, &kxi, &kyi, &kx, &ky,
-                   &kSXY](InputType &e, int i, int j, int k) {
+  result.for_each_i([&result, &gv, &kernel, &vShapeY, &kxi, &kyi, &kx, &ky,
+                     &kSXY](InputType &e, int i, int j, int k) {
     auto &rij = result[gi(i, j, k)];
     for (int l = 0; l < kSXY; ++l)
       rij += gv(i + kxi[l], j + kyi[l], k) * kernel[gi(kx[l], ky[l])];
@@ -136,7 +153,7 @@ Tensor<InputType> filter2D(Tensor<InputType> &in, Tensor<KernelType> &kernel,
 // template <class InputType, int color_size>
 // Picture<InputType, color_size> abs(Picture<InputType, color_size> in) {
 //   Picture<InputType, color_size> result(in);
-//   result.for_each([](Tuples<InputType, color_size> &i) {
+//   result.for_each_i([](Tuples<InputType, color_size> &i) {
 //     for (int j = 0; j < color_size; ++j)
 //       if (i[j] < 0)
 //         i[j] = -i[j];
@@ -167,10 +184,10 @@ Tensor<Type> imread(std::string picPath, Type ValueType = Type(0),
   Tensor<Type> result(0, gi(y, x, color_size));
   int xc = x * channel;
   if (channel < color_size)
-    result.for_each(
+    result.for_each_i(
         [&data, &x](Type &e, int i, int j) { e = (Type)data[i * x + j]; });
   else
-    result.for_each([&data, &xc, &channel](Type &e, int i, int j, int k) {
+    result.for_each_i([&data, &xc, &channel](Type &e, int i, int j, int k) {
       e = (Type)data[i * xc + j * channel + k];
     });
   stbi_image_free(data);
@@ -186,7 +203,7 @@ int imwrite(Tensor<Type> &pic, std::string picPath) {
   int xc = x * color_size, size_i = y * xc;
   // std::cout << "here " << size_i << std::endl;
   unsigned char *data = new unsigned char[size_i];
-  pic.for_each([&data, &xc, &color_size](Type &e, int i, int j, int k) {
+  pic.for_each_i([&data, &xc, &color_size](Type &e, int i, int j, int k) {
     auto &datai = data[i * xc + j * color_size + k];
     auto pici = e;
     if (pici < 0) pici = 0;

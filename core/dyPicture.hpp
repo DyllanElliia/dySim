@@ -2,12 +2,12 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-13 16:50:00
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-11-09 11:51:31
+ * @LastEditTime: 2021-11-13 14:52:20
  * @Description:
  */
 #pragma once
 
-// !!!Abandon class Picture
+// !!!Abandon class Picture & Matrix
 // #include "src/picture.hpp"
 // #include "./matrix.hpp"
 #include "src/tensor.hpp"

@@ -116,8 +116,9 @@ public:
   Camera camera;
   unsigned int src_height, src_width;
 
-  GUI(std::string windowName_ = "dyMath", ViewMode viewMode_ = VIEWER_2D,
-      Index<int> background_color_ = Index<int>(3, 0))
+  GUI(std::string windowName_ = "dyMath",
+      Index<int> background_color_ = Index<int>(3, 0),
+      ViewMode viewMode_ = VIEWER_2D)
       : window(nullptr), windowName(windowName_), viewMode(viewMode_),
         VxO_i(0) {
     keys = new bool[1024];
@@ -276,7 +277,7 @@ public:
         for (int i = 0; i < VxO_i; ++i) {
           qprint("VAO: " + std::to_string(i));
           glBindVertexArray(VAO[i]);
-          glPointSize(2);
+          glPointSize(20);
           glDrawArrays(draw_property[i].first, 0, draw_property[i].second);
         }
         glBindVertexArray(0);

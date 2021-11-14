@@ -656,11 +656,7 @@ public:
 
 #define _dym_tensor_operator_unary_(op)                                        \
   friend void operator op(Tensor &first, const ValueType &second) {            \
-    first.for_each_i([&second](ValueType &e) {                                 \
-      qprint(e);                                                               \
-      e op second;                                                             \
-      qprint(e);                                                               \
-    });                                                                        \
+    first.for_each_i([&second](ValueType &e) { e op second; });                \
   }
 
   _dym_tentensor_operator_binary_(+) _dym_tentensor_operator_binary_(-)

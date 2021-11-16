@@ -1,19 +1,31 @@
 #include "src/tensor.hpp"
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <dyGraphic.hpp>
 
+#include <random>
+#include <string>
+
 int main() {
-  qprint("begin");
+  std::default_random_engine re;
+  std::uniform_real_distribution<float> u(0.f, 1.f);
+  float t = 0, count = 0;
+  dym::Tensor<float> pos(0, dym::gi(10000, 2));
+  pos.for_each_i([&](float &e) { e = u(re); });
+
   dym::GUI gui("dymathTest", dym::gi(0, 100, 100));
-  gui.init(400, 300);
-  qprint("?");
+  gui.init(400, 400);
+  dym::TimeLog tt;
   gui.update([&]() {
-    getchar();
+    // getchar();
     qprint("in");
-    dym::Tensor<float> pos({{10, 200}, {50, 150}, {100, 50}, {200, 200}});
-    pos /= 210;
-    pos.show();
-    gui.scatter2D(pos, dym::gi(255, 100, 0));
+    auto pos_ = pos * std::sin(t);
+    t += 1e-2;
+    // pos.show();
+    ++count;
+    gui.scatter2D(pos_, dym::gi(255, 100, 0), 0, 50);
+    gui.scatter2D(pos_, dym::gi(0, 100, 255), 50);
   });
+  qprint("run counter: " + std::to_string(count));
 }

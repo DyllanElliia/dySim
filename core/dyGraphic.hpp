@@ -34,6 +34,7 @@ private:
   ViewMode viewMode;
   std::vector<std::function<void(GLFWwindow *)>> processInput;
   std::vector<unsigned int> VAO, VBO_v, VBO_c; // VAO -> VBO : 1 -> 2
+  std::vector<glm::vec3> color_l;
   std::vector<std::pair<unsigned short, unsigned int>> draw_property;
   unsigned int VxO_i;
 
@@ -50,11 +51,12 @@ private:
       // create AND gen
       VAO.push_back(0);
       VBO_v.push_back(0);
-      VBO_c.push_back(0);
+      // VBO_c.push_back(0);
+      color_l.push_back(glm::vec3(0));
       draw_property.push_back(std::make_pair(0, 0));
       glGenVertexArrays(1, &VAO[i]);
       glGenBuffers(1, &VBO_v[i]);
-      glGenBuffers(1, &VBO_c[i]);
+      // glGenBuffers(1, &VBO_c[i]);
     }
     return true;
   }
@@ -139,8 +141,8 @@ public:
   ~GUI() {
     for (auto &v : VAO)
       glDeleteVertexArrays(1, &v);
-    for (auto &v : VBO_c)
-      glDeleteBuffers(1, &v);
+    // for (auto &v : VBO_c)
+    //   glDeleteBuffers(1, &v);
     for (auto &v : VBO_v)
       glDeleteBuffers(1, &v);
     glfwTerminate();
@@ -226,11 +228,15 @@ public:
     }
     if (end == -1)
       end = vec_num;
-    Index<float> color;
-    for (auto &c : color_default)
-      color.push_back(c / 255.0);
+    // Index<float> color;
+    // for (auto &c : color_default)
+    //   color.push_back(c / 255.0);
     checkObjId(VxO_i);
-
+    // add color
+    auto &color = color_l[VxO_i];
+    color[0] = color_default[0] / 255.0;
+    color[1] = color_default[1] / 255.0;
+    color[2] = color_default[2] / 255.0;
     glBindVertexArray(VAO[VxO_i]);
     // add vertex
     glBindBuffer(GL_ARRAY_BUFFER, VBO_v[VxO_i]);
@@ -239,11 +245,11 @@ public:
     glVertexAttribPointer(0, vec_d, GL_FLOAT, GL_FALSE, vec_d * sizeof(float),
                           (void *)0);
     glEnableVertexAttribArray(0);
-    // add color
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_c[VxO_i]);
-    glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float), color.a, GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
-    glEnableVertexAttribArray(1);
+    // glBindBuffer(GL_ARRAY_BUFFER, VBO_c[VxO_i]);
+    // glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float), color.a,
+    // GL_STATIC_DRAW); glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0,
+    // (void
+    // *)0); glEnableVertexAttribArray(1);
     glBindVertexArray(0);
 
     draw_property[VxO_i] = std::make_pair(GL_POINTS, end - begin);
@@ -272,12 +278,16 @@ public:
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       // use default shader
       auto &ourShader = shaderList[0];
-      ourShader.use();
+
       if (viewMode == VIEWER_2D) {
         for (int i = 0; i < VxO_i; ++i) {
+          ourShader.use();
+          ourShader.setVec3("color", color_l[i]);
           qprint("VAO: " + std::to_string(i));
+          qprint("color: " + std::to_string(color_l[i][0]) +
+                 std::to_string(color_l[i][1]) + std::to_string(color_l[i][2]));
           glBindVertexArray(VAO[i]);
-          glPointSize(20);
+          glPointSize(3);
           glDrawArrays(draw_property[i].first, 0, draw_property[i].second);
         }
         glBindVertexArray(0);

@@ -10,7 +10,7 @@
 #include <string>
 
 class Shader {
-public:
+ public:
   unsigned int ID;
   // constructor generates the shader on the fly
   // ------------------------------------------------------------------------
@@ -27,7 +27,6 @@ public:
     vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    qprint("fin 1");
     try {
       // open files
       vShaderFile.open(vertexPath);
@@ -42,7 +41,6 @@ public:
       // convert stream into string
       vertexCode = vShaderStream.str();
       fragmentCode = fShaderStream.str();
-      qprint("fin read");
       // if geometry shader path is present, also load a geometry shader
       if (geometryPath != nullptr) {
         gShaderFile.open(geometryPath);
@@ -56,9 +54,7 @@ public:
     }
     const char *vShaderCode = vertexCode.c_str();
     const char *fShaderCode = fragmentCode.c_str();
-    qprint(vertexCode);
     // 2. compile shaders
-    qprint("asdf");
     // fragment Shader
     auto fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fShaderCode, NULL);
@@ -66,15 +62,10 @@ public:
     checkCompileErrors(fragment, "FRAGMENT");
     // vertex shader
     auto vertex = glCreateShader(GL_VERTEX_SHADER);
-    qprint("create v");
     glShaderSource(vertex, 1, &vShaderCode, NULL);
-    qprint("add source");
     glCompileShader(vertex);
-    qprint("fin com");
     checkCompileErrors(vertex, "VERTEX");
-    qprint("fin vertex");
 
-    qprint("fin frag");
     // if geometry shader is given, compile geometry shader
     unsigned int geometry;
     if (geometryPath != nullptr) {
@@ -88,16 +79,14 @@ public:
     ID = glCreateProgram();
     glAttachShader(ID, vertex);
     glAttachShader(ID, fragment);
-    if (geometryPath != nullptr)
-      glAttachShader(ID, geometry);
+    if (geometryPath != nullptr) glAttachShader(ID, geometry);
     glLinkProgram(ID);
     checkCompileErrors(ID, "PROGRAM");
     // delete the shaders as they're linked into our program now and no longer
     // necessery
     glDeleteShader(vertex);
     glDeleteShader(fragment);
-    if (geometryPath != nullptr)
-      glDeleteShader(geometry);
+    if (geometryPath != nullptr) glDeleteShader(geometry);
   }
   // activate the shader
   // ------------------------------------------------------------------------
@@ -152,7 +141,7 @@ public:
                        &mat[0][0]);
   }
 
-private:
+ private:
   // utility function for checking shader compilation/linking errors.
   // ------------------------------------------------------------------------
   void checkCompileErrors(GLuint shader, std::string type) {

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-12 16:02:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-11-13 18:10:48
+ * @LastEditTime: 2021-11-17 17:28:54
  * @Description:
  */
 #pragma once
@@ -30,10 +30,10 @@ namespace dym {
 enum ViewMode { VIEWER_2D, VIEWER_3D };
 
 class GUI {
-private:
+ private:
   ViewMode viewMode;
   std::vector<std::function<void(GLFWwindow *)>> processInput;
-  std::vector<unsigned int> VAO, VBO_v, VBO_c; // VAO -> VBO : 1 -> 2
+  std::vector<unsigned int> VAO, VBO_v, VBO_c;  // VAO -> VBO : 1 -> 2
   std::vector<glm::vec3> color_l;
   std::vector<std::pair<unsigned short, unsigned int>> draw_property;
   unsigned int VxO_i;
@@ -96,7 +96,7 @@ private:
 
     GLfloat xoffset = xpos - lastX;
     GLfloat yoffset =
-        lastY - ypos; // Reversed since y-coordinates go from bottom to left
+        lastY - ypos;  // Reversed since y-coordinates go from bottom to left
 
     lastX = xpos;
     lastY = ypos;
@@ -110,7 +110,7 @@ private:
     // camera.ProcessMouseScroll(yoffset);
   }
 
-public:
+ public:
   GLFWwindow *window;
   std::string windowName;
   Index<float> background_color;
@@ -121,30 +121,27 @@ public:
   GUI(std::string windowName_ = "dyMath",
       Index<int> background_color_ = Index<int>(3, 0),
       ViewMode viewMode_ = VIEWER_2D)
-      : window(nullptr), windowName(windowName_), viewMode(viewMode_),
+      : window(nullptr),
+        windowName(windowName_),
+        viewMode(viewMode_),
         VxO_i(0) {
     keys = new bool[1024];
-    qprint("fin keys");
-    for (auto &bc : background_color_)
-      background_color.push_back(bc / 255.0);
+    for (auto &bc : background_color_) background_color.push_back(bc / 255.0);
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    qprint("fin call");
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
   }
   ~GUI() {
-    for (auto &v : VAO)
-      glDeleteVertexArrays(1, &v);
+    for (auto &v : VAO) glDeleteVertexArrays(1, &v);
     // for (auto &v : VBO_c)
     //   glDeleteBuffers(1, &v);
-    for (auto &v : VBO_v)
-      glDeleteBuffers(1, &v);
+    for (auto &v : VBO_v) glDeleteBuffers(1, &v);
     glfwTerminate();
     delete[] keys;
   }
@@ -183,25 +180,23 @@ public:
       if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     });
-    qprint("fin pI");
     // add default shader
     switch (viewMode) {
-    case VIEWER_2D:
-      shaderList.push_back(
-          Shader("../shader/default2D.vs", "../shader/default2D.frag"));
-      qprint("fin 2d");
-      break;
-    case VIEWER_3D:
-      shaderList.push_back(
-          Shader("../shader/default3D.vs", "../shader/default3D.frag"));
-      break;
-    default:
-      qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::RED);
-      qprint("GUI ERROR: Init default shader failure!");
-      qp_ctrl();
-      return false;
+      case VIEWER_2D:
+        shaderList.push_back(
+            Shader("../shader/default2D.vs", "../shader/default2D.frag"));
+        break;
+      case VIEWER_3D:
+        shaderList.push_back(
+            Shader("../shader/default3D.vs", "../shader/default3D.frag"));
+        break;
+      default:
+        qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::RED);
+        qprint("GUI ERROR: Init default shader failure!");
+        qp_ctrl();
+        return false;
     }
-    qprint("fin");
+    // qprint("fin");
 
     int sw, sh;
     glfwGetFramebufferSize(window, &sw, &sh);
@@ -210,7 +205,6 @@ public:
     if (viewMode == VIEWER_3D)
       // Setup some OpenGL options
       glEnable(GL_DEPTH_TEST);
-    qprint("fin2");
     return true;
   }
 
@@ -221,13 +215,13 @@ public:
     auto &vec_d = locShape[1];
     if (vec_d != 2) {
       qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::RED);
-      qprint("GUI::scatter2D ERROW: vertex dimension is no equal to 2!\nSTOP "
-             "DRAWING!");
+      qprint(
+          "GUI::scatter2D ERROW: vertex dimension is no equal to 2!\nSTOP "
+          "DRAWING!");
       qp_ctrl();
       return false;
     }
-    if (end == -1)
-      end = vec_num;
+    if (end == -1) end = vec_num;
     // Index<float> color;
     // for (auto &c : color_default)
     //   color.push_back(c / 255.0);
@@ -259,11 +253,8 @@ public:
   }
 
   bool update(std::function<void()> updateFun) {
-    qprint("run");
     while (!glfwWindowShouldClose(window)) {
-      qprint("asdf");
-      for (auto &fun : processInput)
-        fun(window);
+      for (auto &fun : processInput) fun(window);
       auto save_i = VxO_i;
       // update all
       updateFun();
@@ -283,9 +274,6 @@ public:
         for (int i = 0; i < VxO_i; ++i) {
           ourShader.use();
           ourShader.setVec3("color", color_l[i]);
-          qprint("VAO: " + std::to_string(i));
-          qprint("color: " + std::to_string(color_l[i][0]) +
-                 std::to_string(color_l[i][1]) + std::to_string(color_l[i][2]));
           glBindVertexArray(VAO[i]);
           glPointSize(3);
           glDrawArrays(draw_property[i].first, 0, draw_property[i].second);
@@ -299,16 +287,11 @@ public:
           m_xoffset = 0, m_yoffset = 0, s_yoffset = 0;
 
           // Camera controls
-          if (keys[GLFW_KEY_W])
-            camera.ProcessKeyboard(FORWARD, deltaTime);
-          if (keys[GLFW_KEY_S])
-            camera.ProcessKeyboard(BACKWARD, deltaTime);
-          if (keys[GLFW_KEY_A])
-            camera.ProcessKeyboard(LEFT, deltaTime);
-          if (keys[GLFW_KEY_D])
-            camera.ProcessKeyboard(RIGHT, deltaTime);
-          if (keys[GLFW_KEY_SPACE])
-            run = false;
+          if (keys[GLFW_KEY_W]) camera.ProcessKeyboard(FORWARD, deltaTime);
+          if (keys[GLFW_KEY_S]) camera.ProcessKeyboard(BACKWARD, deltaTime);
+          if (keys[GLFW_KEY_A]) camera.ProcessKeyboard(LEFT, deltaTime);
+          if (keys[GLFW_KEY_D]) camera.ProcessKeyboard(RIGHT, deltaTime);
+          if (keys[GLFW_KEY_SPACE]) run = false;
         };
         // Create camera transformation
         glm::mat4 view;
@@ -338,4 +321,4 @@ public:
     return true;
   }
 };
-} // namespace dym
+}  // namespace dym

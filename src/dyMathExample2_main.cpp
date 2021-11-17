@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-22 14:21:25
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-11-09 11:51:07
+ * @LastEditTime: 2021-11-17 17:01:12
  * @Description: How to use Tensor.
  */
 
@@ -122,6 +122,10 @@ int main() {
   // You can use cut(Index_begin, Index_end) to cut the Tensor.
   c = c.cut(dym::gi(1, 0, 1), dym::gi(2, 2, 3));
   qprint(c);
+
+  dym::Tensor<float> mA({{1, 1, 1}, {2, 2, 2}, {3, 3, 3}, {4, 4, 4}}),
+      mB({{1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}});
+  qprint(dym::cross(mA, mB));
 
   qprint("5. for_each elements of tensor");
   qprint("5.1. std::for_each");

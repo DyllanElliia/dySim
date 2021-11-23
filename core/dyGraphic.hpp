@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-12 16:02:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-11-17 17:28:54
+ * @LastEditTime: 2021-11-23 14:17:24
  * @Description:
  */
 #pragma once
@@ -33,7 +33,7 @@ class GUI {
  private:
   ViewMode viewMode;
   std::vector<std::function<void(GLFWwindow *)>> processInput;
-  std::vector<unsigned int> VAO, VBO_v, VBO_c;  // VAO -> VBO : 1 -> 2
+  std::vector<unsigned int> VAO, VBO_v, VBO_c, u_shader;  // VAO -> VBO : 1 -> 2
   std::vector<glm::vec3> color_l;
   std::vector<std::pair<unsigned short, unsigned int>> draw_property;
   unsigned int VxO_i;
@@ -54,6 +54,7 @@ class GUI {
       // VBO_c.push_back(0);
       color_l.push_back(glm::vec3(0));
       draw_property.push_back(std::make_pair(0, 0));
+      u_shader.push_back(0);
       glGenVertexArrays(1, &VAO[i]);
       glGenBuffers(1, &VBO_v[i]);
       // glGenBuffers(1, &VBO_c[i]);
@@ -209,7 +210,8 @@ class GUI {
   }
 
   bool scatter2D(Tensor<float> &loc, Index<int> color_default,
-                 unsigned int begin = 0, unsigned int end = -1) {
+                 int shader_index = 0, unsigned int begin = 0,
+                 unsigned int end = -1) {
     Index locShape = loc.shape();
     auto &vec_num = locShape[0];
     auto &vec_d = locShape[1];
@@ -226,6 +228,7 @@ class GUI {
     // for (auto &c : color_default)
     //   color.push_back(c / 255.0);
     checkObjId(VxO_i);
+    u_shader[VxO_i] = shader_index;
     // add color
     auto &color = color_l[VxO_i];
     color[0] = color_default[0] / 255.0;
@@ -268,10 +271,10 @@ class GUI {
                    background_color[2], 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       // use default shader
-      auto &ourShader = shaderList[0];
 
       if (viewMode == VIEWER_2D) {
         for (int i = 0; i < VxO_i; ++i) {
+          auto &ourShader = shaderList[u_shader[i]];
           ourShader.use();
           ourShader.setVec3("color", color_l[i]);
           glBindVertexArray(VAO[i]);
@@ -301,12 +304,12 @@ class GUI {
             camera.Zoom, (float)src_width / (float)src_height, 0.1f, 1000.0f);
         glm::mat4 model = glm::translate(model, glm::vec3(0, 0, 0));
 
-        // Get the uniform locations
-        ourShader.setMat4("view", view);
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("model", model);
-
         for (int i = 0; i < VxO_i; ++i) {
+          auto &ourShader = shaderList[u_shader[i]];
+          // Get the uniform locations
+          ourShader.setMat4("view", view);
+          ourShader.setMat4("projection", projection);
+          ourShader.setMat4("model", model);
           glBindVertexArray(VAO[i]);
           glPointSize(2);
           glDrawArrays(draw_property[i].first, 0, draw_property[i].second);

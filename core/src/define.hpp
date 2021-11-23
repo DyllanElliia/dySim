@@ -1,8 +1,8 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-11-03 19:04:10
- * @LastEditTime: 2021-11-08 14:32:55
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-11-23 15:56:52
+ * @LastEditors: DyllanElliia
  * @Description:
  */
 #pragma once
@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstring>
 #include <functional>
 #include <iostream>
 #include <map>
@@ -41,3 +42,11 @@
 #endif  //_DYM_USE_CUDA_
 
 #define _DYM_LAMBDA_ _DYM_GENERAL_
+
+#define _DYM_ASSERT_(bool_opt, outstr) \
+  try {                                \
+    if (bool_opt) throw outstr;        \
+  } catch (const char *str) {          \
+    std::error << str << std::endl;    \
+    exit(EXIT_FAILURE);                \
+  }

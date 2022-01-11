@@ -2,9 +2,10 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:32:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-11-23 16:25:22
+ * @LastEditTime: 2022-01-07 12:45:35
  * @Description:
  */
+#pragma once
 #include "define.hpp"
 namespace dym {
 template <typename Type, int rank>
@@ -53,6 +54,10 @@ struct Vector {
   Type operator[](const int &i) const { return a[i]; }
   Vector operator=(const Vector &v) {
     memcpy(a, v.a, sizeof(Vector));
+    return *this;
+  }
+  Vector operator=(const Type &num) {
+    for (auto &i : a) i = num;
     return *this;
   }
   friend std::ostream &operator<<(std::ostream &output, const Vector &v) {

@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2021-11-23 15:40:26
+ * @LastEditTime: 2022-01-12 16:32:42
  * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */
@@ -643,23 +643,32 @@ class Tensor {
     first.for_each_i([&second](ValueType &e) { e op second; });     \
   }
 
-  _dym_tentensor_operator_binary_(+) _dym_tentensor_operator_binary_(-)
-      _dym_tentensor_operator_binary_(*) _dym_tentensor_operator_binary_(/)
+  _dym_tentensor_operator_binary_(+);
+  _dym_tentensor_operator_binary_(-);
+  _dym_tentensor_operator_binary_(*);
+  _dym_tentensor_operator_binary_(/);
 
-      // Calculation
-      _dym_tensor_operator_binary_(+) _dym_tensor_operator_binary_(-)
-          _dym_tensor_operator_binary_(*) _dym_tensor_operator_binary_(/)
-      // _dym_tensor_operator_binary_(%)
-      _dym_tensor_operator_unary_(+=) _dym_tensor_operator_unary_(-=)
-          _dym_tensor_operator_unary_(*=) _dym_tensor_operator_unary_(/=)
-  // _dym_tensor_operator_unary_(%=)
-  // Logic
-  // _dym_tensor_operator_binary_(<<) _dym_tensor_operator_binary_(>>)
-  //     _dym_tensor_operator_binary_(&) _dym_tensor_operator_binary_(|)
-  //         _dym_tensor_operator_binary_(^) _dym_tensor_operator_unary_(<<=)
-  //             _dym_tensor_operator_unary_(>>=)
-  //                 _dym_tensor_operator_unary_(&=)
-  //                     _dym_tensor_operator_unary_(|=)
-  //                         _dym_tensor_operator_unary_(^=)
+  // Calculation
+  _dym_tensor_operator_binary_(+);
+  _dym_tensor_operator_binary_(-);
+  _dym_tensor_operator_binary_(*);
+  _dym_tensor_operator_binary_(/);
+  // _dym_tensor_operator_binary_(%);
+  _dym_tensor_operator_unary_(+=);
+  _dym_tensor_operator_unary_(-=);
+  _dym_tensor_operator_unary_(*=);
+  _dym_tensor_operator_unary_(/=);
+  // _dym_tensor_operator_unary_(%=);
+  // // Logic
+  // _dym_tensor_operator_binary_(<<);
+  // _dym_tensor_operator_binary_(>>);
+  // _dym_tensor_operator_binary_(&);
+  // _dym_tensor_operator_binary_(|);
+  // _dym_tensor_operator_binary_(^);
+  // _dym_tensor_operator_unary_(<<=);
+  // _dym_tensor_operator_unary_(>>=);
+  // _dym_tensor_operator_unary_(&=);
+  // _dym_tensor_operator_unary_(|=);
+  // _dym_tensor_operator_unary_(^=);
 };
 }  // namespace dym

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:32:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-07 12:45:35
+ * @LastEditTime: 2022-01-12 16:46:04
  * @Description:
  */
 #pragma once
@@ -17,10 +17,8 @@ struct Vector {
   Vector(const Type &num = 0) {
     for (auto &i : a) i = num;
   }
-  template <typename... args>
-  Vector(Type v1, args... v) {
-    a = {v1, (Type(v))...};
-  }
+  // template <Type... args>
+  Vector(std::array<Type, rank> v) { a = v; }
   Vector(std::function<void(Type &)> fun) {
     for (auto &e : a) fun(e);
   }
@@ -52,8 +50,10 @@ struct Vector {
 
   Type &operator[](const int &i) { return a[i]; }
   Type operator[](const int &i) const { return a[i]; }
-  Vector operator=(const Vector &v) {
-    memcpy(a, v.a, sizeof(Vector));
+  template <int inRank>
+  Vector operator=(const Vector<Type, inRank> &v) {
+    memcpy(a.data(), v.data(),
+           std::min(sizeof(Vector<Type, inRank>), sizeof(Vector<Type, rank>)));
     return *this;
   }
   Vector operator=(const Type &num) {
@@ -67,7 +67,39 @@ struct Vector {
     output << res;
     return output;
   }
+  template <typename cType>
+  Vector<cType, rank> cast() {
+    Vector<cType, rank> o;
+    for (int i = 0; i < rank; ++i) o[i] = a[i];
+    return o;
+  }
+  Type dot(const Vector &v) const {
+    Type res = 0;
+    for (int i = 0; i < rank; ++i) res += a[i] * v[i];
+    return res;
+  }
 };
+
+template <typename Type, int rank>
+constexpr Type dot(const Vector<Type, rank> &v1, const Vector<Type, rank> &v2) {
+  return v1.dot(v2);
+}
+
+template <typename Type, int rank>
+constexpr Type operator*(const Vector<Type, rank> &f,
+                         const Vector<Type, rank> &s) {
+  return dot(f, s);
+}
+
+template <typename Type, int rank>
+Vector<Type, rank> operator*(const Type &f, const Vector<Type, rank> &s) {
+  return Vector<Type, rank>([&](Type &e, int i) { e = f * s[i]; });
+}
+template <typename Type, int rank>
+Vector<Type, rank> operator*(const Vector<Type, rank> &f, const Type &s) {
+  return Vector<Type, rank>([&](Type &e, int i) { e = f[i] * s; });
+}
+
 #define _dym_vector_operator_binary_(op)                                       \
   template <typename Type, int rank>                                           \
   Vector<Type, rank> operator op(const Vector<Type, rank> &f,                  \
@@ -88,9 +120,13 @@ struct Vector {
   void operator op(Vector<Type, rank> &f, const Type &s) { \
     for (int i = 0; i < rank; ++i) f[i] op s;              \
   }
-_dym_vector_operator_binary_(+) _dym_vector_operator_binary_(-)
-    _dym_vector_operator_binary_(*) _dym_vector_operator_binary_(/)
-        _dym_vector_operator_unary_(+=) _dym_vector_operator_unary_(-=)
-            _dym_vector_operator_unary_(*=) _dym_vector_operator_unary_(/=)
+_dym_vector_operator_binary_(+);
+_dym_vector_operator_binary_(-);
+// _dym_vector_operator_binary_(*);
+_dym_vector_operator_binary_(/);
+_dym_vector_operator_unary_(+=);
+_dym_vector_operator_unary_(-=);
+_dym_vector_operator_unary_(*=);
+_dym_vector_operator_unary_(/=);
 
 }  // namespace dym

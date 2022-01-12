@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-11-03 19:04:10
- * @LastEditTime: 2021-11-23 15:56:52
+ * @LastEditTime: 2022-01-12 14:40:30
  * @LastEditors: DyllanElliia
  * @Description:
  */
@@ -19,7 +19,7 @@
 #include <thread>
 #include <vector>
 
-#define _DYM_USE_CUDA_
+// #define _DYM_USE_CUDA_
 
 #ifdef _DYM_USE_CUDA_
 #include <cuda_runtime.h>

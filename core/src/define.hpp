@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-11-03 19:04:10
- * @LastEditTime: 2022-01-12 14:40:30
+ * @LastEditTime: 2022-01-13 16:46:54
  * @LastEditors: DyllanElliia
  * @Description:
  */
@@ -18,6 +18,7 @@
 #include <sstream>
 #include <thread>
 #include <vector>
+#include <memory>
 
 // #define _DYM_USE_CUDA_
 

@@ -10,4 +10,9 @@ cd build
 cmake ..
 make
 ```
-### reliable
+### LIBS
+- OpenGL version >= 4.0
+- GLM
+- GLFW
+- ASSIMP
+- (Optional) CUDA

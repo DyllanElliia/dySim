@@ -2,23 +2,23 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:32:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-13 17:14:25
+ * @LastEditTime: 2022-01-14 15:23:29
  * @Description:
  */
 #pragma once
 #include "define.hpp"
 namespace dym {
-template <typename Type, std::size_t rank>
+template <typename Type, std::size_t dim>
 struct Vector {
  private:
-  std::array<Type, rank> a;
+  std::array<Type, dim> a;
 
  public:
   Vector(const Type &num = 0) {
     for (auto &i : a) i = num;
   }
   // template <Type... args>
-  Vector(std::array<Type, rank> v) { a = v; }
+  Vector(std::array<Type, dim> v) { a = v; }
   Vector(std::function<void(Type &)> fun) {
     for (auto &e : a) fun(e);
   }
@@ -26,17 +26,17 @@ struct Vector {
     int i = 0;
     for (auto &e : a) fun(e, i++);
   }
-  template <std::size_t inRank>
-  Vector(const Vector<Type, inRank> &v, const Type &vul = 0) {
+  template <std::size_t inDim>
+  Vector(const Vector<Type, inDim> &v, const Type &vul = 0) {
     std::memcpy(
         a.data(), v.data(),
-        std::min(sizeof(Vector<Type, inRank>), sizeof(Vector<Type, rank>)));
-    for (int i = inRank; i < rank; ++i) a[i] = vul;
+        std::min(sizeof(Vector<Type, inDim>), sizeof(Vector<Type, dim>)));
+    for (int i = inDim; i < dim; ++i) a[i] = vul;
   }
-  Vector(const Vector<Type, rank> &&v) {
+  Vector(const Vector<Type, dim> &&v) {
     std::memcpy(a.data(), v.a.data(), sizeof(Vector));
   }
-  Vector(const Vector<Type, rank> &v) {
+  Vector(const Vector<Type, dim> &v) {
     std::memcpy(a.data(), v.a.data(), sizeof(Vector));
   }
 
@@ -47,14 +47,21 @@ struct Vector {
     std::cout << res << std::endl;
   }
   inline auto data() const { return a.data(); }
+  inline void for_each(std::function<void(Type &)> func) {
+    for (auto &e : a) func(e);
+  }
+  inline void for_each(std::function<void(Type &, int)> func) {
+    int i = 0;
+    for (auto &e : a) func(e, i++);
+  }
 
   Type &operator[](const int &i) { return a[i]; }
   Type operator[](const int &i) const { return a[i]; }
 
-  template <std::size_t inRank>
-  inline Vector operator=(const Vector<Type, inRank> &v) {
+  template <std::size_t inDim>
+  inline Vector operator=(const Vector<Type, inDim> &v) {
     memcpy(a.data(), v.data(),
-           std::min(sizeof(Vector<Type, inRank>), sizeof(Vector<Type, rank>)));
+           std::min(sizeof(Vector<Type, inDim>), sizeof(Vector<Type, dim>)));
     return *this;
   }
   inline Vector operator=(const Vector &v) {
@@ -73,54 +80,53 @@ struct Vector {
     return output;
   }
   template <typename cType>
-  inline Vector<cType, rank> cast() {
-    return Vector<cType, rank>([&](cType &e, int i) { e = a[i]; });
+  inline Vector<cType, dim> cast() {
+    return Vector<cType, dim>([&](cType &e, int i) { e = a[i]; });
   }
   Type dot(const Vector &v) const {
     Type res = 0;
-    for (int i = 0; i < rank; ++i) res += a[i] * v[i];
+    for (int i = 0; i < dim; ++i) res += a[i] * v[i];
     return res;
   }
 };
 
-template <typename Type, std::size_t rank>
-inline Type dot(const Vector<Type, rank> &v1, const Vector<Type, rank> &v2) {
+template <typename Type, std::size_t dim>
+inline Type dot(const Vector<Type, dim> &v1, const Vector<Type, dim> &v2) {
   return v1.dot(v2);
 }
 
-template <typename Type, std::size_t rank>
-inline Type operator*(const Vector<Type, rank> &f,
-                      const Vector<Type, rank> &s) {
+template <typename Type, std::size_t dim>
+inline Type operator*(const Vector<Type, dim> &f, const Vector<Type, dim> &s) {
   return dot(f, s);
 }
 
-#define _dym_vector_type_operator_binary_(op)                          \
-  template <typename Type, std::size_t rank>                           \
-  inline Vector<Type, rank> operator op(const Type &f,                 \
-                                        const Vector<Type, rank> &s) { \
-    return Vector<Type, rank>([&](Type &e, int i) { e = f op s[i]; }); \
-  }                                                                    \
-  template <typename Type, std::size_t rank>                           \
-  inline Vector<Type, rank> operator op(const Vector<Type, rank> &f,   \
-                                        const Type &s) {               \
-    return Vector<Type, rank>([&](Type &e, int i) { e = f[i] op s; }); \
+#define _dym_vector_type_operator_binary_(op)                         \
+  template <typename Type, std::size_t dim>                           \
+  inline Vector<Type, dim> operator op(const Type &f,                 \
+                                       const Vector<Type, dim> &s) {  \
+    return Vector<Type, dim>([&](Type &e, int i) { e = f op s[i]; }); \
+  }                                                                   \
+  template <typename Type, std::size_t dim>                           \
+  inline Vector<Type, dim> operator op(const Vector<Type, dim> &f,    \
+                                       const Type &s) {               \
+    return Vector<Type, dim>([&](Type &e, int i) { e = f[i] op s; }); \
   }
 
 _dym_vector_type_operator_binary_(*);
 _dym_vector_type_operator_binary_(/);
 
-#define _dym_vector_operator_binary_(op)                                  \
-  template <typename Type, std::size_t rank>                              \
-  inline Vector<Type, rank> operator op(const Vector<Type, rank> &f,      \
-                                        const Vector<Type, rank> &s) {    \
-    return Vector<Type, rank>([&](Type &e, int i) { e = f[i] op s[i]; }); \
-  }                                                                       \
+#define _dym_vector_operator_binary_(op)                                 \
+  template <typename Type, std::size_t dim>                              \
+  inline Vector<Type, dim> operator op(const Vector<Type, dim> &f,       \
+                                       const Vector<Type, dim> &s) {     \
+    return Vector<Type, dim>([&](Type &e, int i) { e = f[i] op s[i]; }); \
+  }                                                                      \
   _dym_vector_type_operator_binary_(op);
 
-#define _dym_vector_operator_unary_(op)                           \
-  template <typename Type, std::size_t rank>                      \
-  inline void operator op(Vector<Type, rank> &f, const Type &s) { \
-    for (int i = 0; i < rank; ++i) f[i] op s;                     \
+#define _dym_vector_operator_unary_(op)                          \
+  template <typename Type, std::size_t dim>                      \
+  inline void operator op(Vector<Type, dim> &f, const Type &s) { \
+    for (int i = 0; i < dim; ++i) f[i] op s;                     \
   }
 
 _dym_vector_operator_binary_(+);

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-07 12:19:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-13 17:17:42
+ * @LastEditTime: 2022-01-14 15:51:45
  * @Description:
  */
 #pragma once
@@ -57,6 +57,14 @@ struct Matrix {
     res += "]";
     std::cout << res << std::endl;
   }
+  inline void for_each(std::function<void(Type &)> func) {
+    for (auto &e : a) func(e);
+  }
+  inline void for_each(std::function<void(Type &, int, int)> func) {
+    int i = 0;
+    for (auto &v : a) v.for_each([&](Type &e, int j) { func(e, i, j); }), i++;
+  }
+
   Vector<Type, n> &operator[](const int &i) { return a[i]; }
   Vector<Type, n> operator[](const int &i) const { return a[i]; }
 
@@ -102,53 +110,16 @@ inline Vector<Type, m> operator*(const Matrix<Type, m, n> &ma,
 
 template <typename Type, std::size_t m1, std::size_t n1, std::size_t m2,
           std::size_t n2>
-inline Matrix<Type, m1, n2> mul_std(Matrix<Type, m1, n1> &a,
-                                    Matrix<Type, m2, n2> &b) {
+inline Matrix<Type, m1, n2> operator*(const Matrix<Type, m1, n1> &a,
+                                      const Matrix<Type, m2, n2> &b) {
   static_assert(n1 == m2,
-                "\033[31;1;4mLeft Matrix's col must be equal to Right Matrix's "
-                "row!\n\033[0m");
-  Matrix<Type, m1, n2> o(0);
-  for (int r = 0; r < m1; ++r)
-    for (int c = 0; c < n2; ++c)
-      for (int i = 0; i < n1; ++i) o[r][c] += a[r][i] * b[i][c];
-  return o;
-}
-
-template <typename Type, std::size_t m1, std::size_t n1, std::size_t m2,
-          std::size_t n2>
-inline Matrix<Type, m1, n2> mul_swap(Matrix<Type, m1, n1> &a,
-                                     Matrix<Type, m2, n2> &b) {
-  static_assert(n1 == m2,
-                "\033[31;1;4mLeft Matrix's col must be equal to Right Matrix's "
-                "row!\n\033[0m");
+                "Left Matrix's col must be equal to Right Matrix's row!");
+  // dym::matrix::mul_swap
+  // mul_fast is better, but difficult to implement. Because of const & ptr
   Matrix<Type, m1, n2> o(0);
   for (int r = 0; r < m1; ++r)
     for (int i = 0; i < n1; ++i)
       for (int c = 0; c < n2; ++c) o[r][c] += a[r][i] * b[i][c];
-  return o;
-}
-
-template <typename Type, std::size_t m1, std::size_t n1, std::size_t m2,
-          std::size_t n2>
-inline Matrix<Type, m1, n2> mul_fast(Matrix<Type, m1, n1> &a,
-                                     Matrix<Type, m2, n2> &b) {
-  static_assert(n1 == m2,
-                "\033[31;1;4mLeft Matrix's col must be equal to Right Matrix's "
-                "row!\n\033[0m");
-  Matrix<Type, m1, n2> o(0);
-  Type *dest = &(o[0][0]);
-  const Type *srcA = &(a[0][0]), *srcB = &(b[0][0]);
-  for (int i = 0; i < m1; ++i)
-    for (int k = 0; k < n1; ++k) {
-      const Type *na = srcA + i * n1 + k;
-      const Type *nb = srcB + k * n2;
-      Type *nc = dest + i * n2;
-
-      Type *cMac = nc + n2;
-      while (nc < cMac) {
-        *nc++ += (*na) * (*nb++);
-      }
-    }
   return o;
 }
 

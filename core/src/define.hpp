@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-11-03 19:04:10
- * @LastEditTime: 2022-01-13 16:46:54
+ * @LastEditTime: 2022-01-19 16:48:12
  * @LastEditors: DyllanElliia
  * @Description:
  */
@@ -51,3 +51,5 @@
     std::error << str << std::endl;    \
     exit(EXIT_FAILURE);                \
   }
+
+typedef float Real;

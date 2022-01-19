@@ -113,7 +113,10 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
 # read main.cpp
-file(GLOB MAIN "src/*_main.cpp" "src/*_main.cu")
+file(GLOB MAIN 
+      "src/*_main.cpp" 
+      # "src/*_main.cu"
+)
 
 # read other file
 file(GLOB SOURCE

@@ -2,11 +2,11 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:32:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-14 15:23:29
+ * @LastEditTime: 2022-01-19 16:03:10
  * @Description:
  */
 #pragma once
-#include "define.hpp"
+#include "Index.hpp"
 namespace dym {
 template <typename Type, std::size_t dim>
 struct Vector {

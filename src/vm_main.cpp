@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 15:30:45
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-14 15:45:38
+ * @LastEditTime: 2022-01-19 16:06:36
  * @Description:
  */
 #include "../core/src/matALG.hpp"
@@ -98,11 +98,9 @@ int main(int argc, char** argv) {
     dym::Matrix<float, 100, 80> mulD([&](float& e) { e = u(re); });
 
     auto CD = dym::matrix::mul_std(mulC, mulD);
-    count++;
   }
   t.record(scale);
   // std::cout << o << std::endl;
-  qprint_nlb("count =", count);
   qprint();
   t.reStart();
   for (long long i = 0; i < times; ++i) {

@@ -2,12 +2,12 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-14 14:51:57
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-14 15:50:09
+ * @LastEditTime: 2022-01-19 16:41:05
  * @Description:
  */
 #pragma once
 #include "matrix.hpp"
-
+#include "matALG_others/matSVD.hpp"
 namespace dym {
 namespace matrix {
 template <typename Type, std::size_t dim>
@@ -64,5 +64,6 @@ inline Matrix<Type, m1, n2> mul_fast(Matrix<Type, m1, n1> &a,
     }
   return o;
 }
+
 }  // namespace matrix
 }  // namespace dym

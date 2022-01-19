@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-07 12:19:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-14 15:51:45
+ * @LastEditTime: 2022-01-19 16:42:02
  * @Description:
  */
 #pragma once
@@ -99,6 +99,12 @@ struct Matrix {
     for (int i = 0; i < m; ++i)
       for (int j = 0; j < n; ++j) o[i][j] = a[i][j];
     return o;
+  }
+
+  constexpr auto shape() const { return gi((int)m, (int)n); }
+
+  inline Matrix<Type, n, m> transpose() const {
+    return Matrix<Type, n, m>([&](Type &e, int i, int j) { e = a[j][i]; });
   }
 };
 

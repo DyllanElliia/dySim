@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 15:30:45
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-19 16:06:36
+ * @LastEditTime: 2022-01-20 16:32:14
  * @Description:
  */
 #include "../core/src/matALG.hpp"
@@ -30,6 +30,9 @@ int main(int argc, char** argv) {
   a.cast<int>().show();
   dym::Vector<float, 10> g([](float& e, int i) { e = i; });
   g.show();
+  g = -g;
+  g.show();
+  qprint(g.x(), g.y(), g.z(), g.w());
   g = 0;
   g.show();
 

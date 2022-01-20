@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-19 15:52:08
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-20 15:28:32
+ * @LastEditTime: 2022-01-20 17:59:33
  * @Description:
  */
 
@@ -31,6 +31,12 @@ int main(int argc, char** argv) {
 
   qprint("fast3x3Svd:");
   dym::matrix::fast3x3Svd(A, U, Sig, V);
+  qprint(A, "U x SIg x V'=", U * Sig * V.transpose());
+  qprint(U, Sig, V);
+
+  U = 0, Sig = 0, V = 0;
+  qprint("traditionSvd:");
+  dym::matrix::traditionalSvd(A, U, Sig, V);
   qprint(A, "U x SIg x V'=", U * Sig * V.transpose());
   qprint(U, Sig, V);
 }

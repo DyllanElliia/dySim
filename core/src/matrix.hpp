@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-07 12:19:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-19 16:42:02
+ * @LastEditTime: 2022-01-20 17:33:01
  * @Description:
  */
 #pragma once
@@ -106,6 +106,12 @@ struct Matrix {
   inline Matrix<Type, n, m> transpose() const {
     return Matrix<Type, n, m>([&](Type &e, int i, int j) { e = a[j][i]; });
   }
+  inline Vector<Type, m> getColVec(const int col) {
+    return Vector<Type, m>([&](Type &e, int i) { e = a[i][col]; });
+  }
+  inline void setColVec(const int col, Vector<Type, m> v) {
+    v.for_each([&](Type &e, int i) { a[i][col] = e; });
+  }
 };
 
 template <typename Type, std::size_t m, std::size_t n>
@@ -127,6 +133,11 @@ inline Matrix<Type, m1, n2> operator*(const Matrix<Type, m1, n1> &a,
     for (int i = 0; i < n1; ++i)
       for (int c = 0; c < n2; ++c) o[r][c] += a[r][i] * b[i][c];
   return o;
+}
+
+template <typename Type, std::size_t m, std::size_t n>
+inline Matrix<Type, m, n> operator-(const Matrix<Type, m, n> &v) {
+  return Matrix<Type, m, n>([&](Type &e, int i, int j) { e = -v[i][j]; });
 }
 
 #define _dym_matrix_type_operator_binary_(op)                          \

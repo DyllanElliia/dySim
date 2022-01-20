@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-14 15:53:11
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-19 16:56:07
+ * @LastEditTime: 2022-01-20 16:59:13
  * @Description:
  */
 #pragma once
@@ -10,6 +10,7 @@
 
 #include "truncatedSvd.hpp"
 #include "fast3x3SVD.hpp"
+#include "traditionalSVD.hpp"
 
 namespace dym {
 namespace matrix {
@@ -65,5 +66,12 @@ void fast3x3Svd(Matrix<Type, 3, 3>& A, Matrix<Type, 3, 3>& U,
   }
 }
 
+template <typename Type>
+void traditionalSvd(Matrix<Type, 3, 3>& A, Matrix<Type, 3, 3>& U,
+                    Matrix<Type, 3, 3>& Sig, Matrix<Type, 3, 3>& V) {
+  if constexpr (std::is_same<Type, Real>::value) {
+    traditionalSVD ::svd(A, U, Sig, V);
+  }
+}
 }  // namespace matrix
 }  // namespace dym

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:32:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-19 16:03:10
+ * @LastEditTime: 2022-01-20 16:25:25
  * @Description:
  */
 #pragma once
@@ -58,6 +58,20 @@ struct Vector {
   Type &operator[](const int &i) { return a[i]; }
   Type operator[](const int &i) const { return a[i]; }
 
+#define _dym_vector_xyzw_(whichOne, index)                         \
+  inline Type whichOne() const {                                   \
+    if constexpr (dim > index)                                     \
+      return a[index];                                             \
+    else {                                                         \
+      printf("Error: Only Vector's dim>=1 can use whichOne()!\n"); \
+      return a[index];                                             \
+    }                                                              \
+  }
+  _dym_vector_xyzw_(x, 0);
+  _dym_vector_xyzw_(y, 1);
+  _dym_vector_xyzw_(z, 2);
+  _dym_vector_xyzw_(w, 3);
+
   template <std::size_t inDim>
   inline Vector operator=(const Vector<Type, inDim> &v) {
     memcpy(a.data(), v.data(),
@@ -65,13 +79,14 @@ struct Vector {
     return *this;
   }
   inline Vector operator=(const Vector &v) {
-    memcpy(a, v.a, sizeof(Vector));
+    memcpy(a.data(), v.a.data(), sizeof(Vector));
     return *this;
   }
   inline Vector operator=(const Type &num) {
     for (auto &i : a) i = num;
     return *this;
   }
+
   friend std::ostream &operator<<(std::ostream &output, const Vector &v) {
     std::string res = "Vec: [";
     for (auto &i : v.a) res += std::to_string(i) + " ";
@@ -98,6 +113,11 @@ inline Type dot(const Vector<Type, dim> &v1, const Vector<Type, dim> &v2) {
 template <typename Type, std::size_t dim>
 inline Type operator*(const Vector<Type, dim> &f, const Vector<Type, dim> &s) {
   return dot(f, s);
+}
+
+template <typename Type, std::size_t dim>
+inline Vector<Type, dim> operator-(const Vector<Type, dim> &v) {
+  return Vector<Type, dim>([&](Type &e, int i) { e = -v[i]; });
 }
 
 #define _dym_vector_type_operator_binary_(op)                         \

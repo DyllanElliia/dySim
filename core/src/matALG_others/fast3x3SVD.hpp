@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-19 16:45:56
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-19 16:47:29
+ * @LastEditTime: 2022-01-21 14:50:39
  * @Description: https://github.com/ericjang/svd3
  */
 /**************************************************************************
@@ -287,7 +287,7 @@ inline void sortSingularValues(  // matrix that we want to decompose
   condNegSwap(c, v32, v33);
 }
 
-void QRGivensQuaternion(float a1, float a2, float &ch, float &sh) {
+inline void QRGivensQuaternion(float a1, float a2, float &ch, float &sh) {
   // a1 = pivot point on diagonal
   // a2 = lower triangular entry we want to annihilate
   float epsilon = (float)EPSILON;

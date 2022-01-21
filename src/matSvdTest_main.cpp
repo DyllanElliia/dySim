@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-20 17:57:52
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-20 18:09:15
+ * @LastEditTime: 2022-01-21 14:51:38
  * @Description:
  */
 
@@ -18,7 +18,7 @@ Real errorCmp(dym::Matrix<Real, 3, 3>& a, dym::Matrix<Real, 3, 3>& b) {
 
 int main(int argc, char const* argv[]) {
   std::default_random_engine re;
-  std::uniform_real_distribution<float> u(0.f, 1.f);
+  std::uniform_real_distribution<float> u(-100.f, 100.f);
 
   int times = 100000;
   dym::TimeLog t;

@@ -19,6 +19,7 @@ if(CUDA_ENABLE)
                        PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
   set_property(TARGET dyMath_cuda PROPERTY CUDA_ARCHITECTURES 70 75)
   set(dyMath_libs ${dyMath_libs} dyMath_cuda)
+  add_definitions(-DDYM_USE_CUDA)
 endif(CUDA_ENABLE)
 
 # add package
@@ -27,12 +28,22 @@ find_package(Threads)
 # set(dyMath_libs ${dyMath_libs} ${CMAKE_THREAD_LIBS_INIT} OpenCL::OpenCL)
 set(dyMath_libs ${dyMath_libs} ${CMAKE_THREAD_LIBS_INIT})
 
+option(OPENMP_ENABLE "Use OpenMP" ON)
+if(OPENMP_ENABLE)
+  find_package(OpenMP REQUIRED)
+  if(OpenMP_FOUND)
+    add_definitions(-DDYM_USE_OPENMP)
+    set(dyMath_libs ${dyMath_libs} OpenMP::OpenMP_CXX)
+    message(STATUS "-> OpenMP included at ${OpenMP_CXX_INCLUDE_DIRS} ${OpenMP_C_INCLUDE_DIRS}")
+  endif(OpenMP_FOUND)
+endif(OPENMP_ENABLE)
+
 # set compiler argument
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_COMPILER "clang++")
 set(CMAKE_CXX_STANDARD 20) 
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -o3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -o3 ${OpenMP_CXX_FLAGS}")
 
 # !!! link opengl (copy from the source of LearnOpenGL)
 # Begin:
@@ -105,6 +116,8 @@ set(dyMath_include_dirs ${dyMath_include_dirs}
   ${GLFW3_INCLUDE_DIR}
   ${ASSIMP_INCLUDE_DIR}
   ${CUDA_INCLUDE_DIRS}
+  ${OpenMP_CXX_INCLUDE_DIRS}
+  ${OpenMP_C_INCLUDE_DIRS}
 )
 
 # set output path

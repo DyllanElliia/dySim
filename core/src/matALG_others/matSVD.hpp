@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-14 15:53:11
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-20 16:59:13
+ * @LastEditTime: 2022-01-21 15:06:40
  * @Description:
  */
 #pragma once
@@ -17,8 +17,8 @@ namespace matrix {
 namespace {
 
 template <typename Type, std::size_t m, std::size_t n>
-void truncatedSvd_v(Matrix<Type, m, n>& A, Matrix<Type, m, m>& U,
-                    Matrix<Type, m, m>& Sig, Matrix<Type, n, m>& V) {
+inline void truncatedSvd_v(Matrix<Type, m, n>& A, Matrix<Type, m, m>& U,
+                           Matrix<Type, m, m>& Sig, Matrix<Type, n, m>& V) {
   if constexpr (m <= n) {
     Matrix<Type, (m <= n ? m : n), m> Ut;
     Matrix<Type, (m <= n ? m : n), n> Vt;
@@ -29,22 +29,24 @@ void truncatedSvd_v(Matrix<Type, m, n>& A, Matrix<Type, m, m>& U,
     printf("Matrix must m <= n");
 }
 template <typename Type, std::size_t m, std::size_t n>
-void truncatedSvd_u(Matrix<Type, m, n>& A, Matrix<Type, m, n>& U,
-                    Matrix<Type, n, n>& Sig, Matrix<Type, n, n>& V) {
+inline void truncatedSvd_u(Matrix<Type, m, n>& A, Matrix<Type, m, n>& U,
+                           Matrix<Type, n, n>& Sig, Matrix<Type, n, n>& V) {
   if constexpr (n <= m) {
     Matrix<Type, (m <= n ? m : n), m> Ut;
     Matrix<Type, (m <= n ? m : n), n> Vt;
-    truncatedSvd::svd_truncated_u(m, n, &(A[0][0]), &(U[0][0]), &(Sig[0][0]),
+    Matrix<Type, n, n> St;
+    truncatedSvd::svd_truncated_u(m, n, &(A[0][0]), &(U[0][0]), &(St[0][0]),
                                   &(V[0][0]));
-    U = Ut.transpose(), V = Vt.transpose();
+    U = Ut.transpose(), V = Vt.transpose(), Sig = St.transpose();
   } else
     printf("Matrix must n <= m");
 }
 }  // namespace
 template <typename Type, std::size_t m, std::size_t n>
-void truncatedSvd(Matrix<Type, m, n>& A, Matrix<Type, m, (m <= n ? m : n)>& U,
-                  Matrix<Type, (m <= n ? m : n), (m <= n ? m : n)>& Sig,
-                  Matrix<Type, n, (m <= n ? m : n)>& V) {
+inline void truncatedSvd(Matrix<Type, m, n>& A,
+                         Matrix<Type, m, (m <= n ? m : n)>& U,
+                         Matrix<Type, (m <= n ? m : n), (m <= n ? m : n)>& Sig,
+                         Matrix<Type, n, (m <= n ? m : n)>& V) {
   if constexpr (std::is_same<Type, Real>::value) {
     if constexpr (m <= n)
       truncatedSvd_v(A, U, Sig, V);
@@ -54,8 +56,8 @@ void truncatedSvd(Matrix<Type, m, n>& A, Matrix<Type, m, (m <= n ? m : n)>& U,
 }
 
 template <typename Type>
-void fast3x3Svd(Matrix<Type, 3, 3>& A, Matrix<Type, 3, 3>& U,
-                Matrix<Type, 3, 3>& Sig, Matrix<Type, 3, 3>& V) {
+inline void fast3x3Svd(Matrix<Type, 3, 3>& A, Matrix<Type, 3, 3>& U,
+                       Matrix<Type, 3, 3>& Sig, Matrix<Type, 3, 3>& V) {
   if constexpr (std::is_same<Type, Real>::value) {
     fast3x3SVD::svd(
         A[0][0], A[0][1], A[0][2], A[1][0], A[1][1], A[1][2], A[2][0], A[2][1],
@@ -67,11 +69,32 @@ void fast3x3Svd(Matrix<Type, 3, 3>& A, Matrix<Type, 3, 3>& U,
 }
 
 template <typename Type>
-void traditionalSvd(Matrix<Type, 3, 3>& A, Matrix<Type, 3, 3>& U,
-                    Matrix<Type, 3, 3>& Sig, Matrix<Type, 3, 3>& V) {
+inline void traditionalSvd(Matrix<Type, 3, 3>& A, Matrix<Type, 3, 3>& U,
+                           Matrix<Type, 3, 3>& Sig, Matrix<Type, 3, 3>& V) {
   if constexpr (std::is_same<Type, Real>::value) {
     traditionalSVD ::svd(A, U, Sig, V);
   }
 }
+
+template <typename Type, std::size_t m, std::size_t n>
+inline void svd(Matrix<Type, m, n>& A, Matrix<Type, m, n>& U,
+                Matrix<Type, m, n>& Sig, Matrix<Type, m, n>& V) {
+  if constexpr (m == 3 && n == 3)
+    fast3x3Svd(A, U, Sig, V);
+  else
+    truncatedSvd(A, U, Sig, V);
+}
+
+template <typename Type, std::size_t n>
+inline void pd(Matrix<Type, n, n>& A, Matrix<Type, n, n>& U,
+               Matrix<Type, n, n>& P) {
+  Matrix<Type, n, n> V;
+  auto& Sig = P;
+  svd(A, U, Sig, V);
+  auto Vt = V.transpose();
+  P = V * Sig * Vt;
+  U = U * Vt;
+}
+
 }  // namespace matrix
 }  // namespace dym

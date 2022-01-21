@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2022-01-12 16:32:42
+ * @LastEditTime: 2022-01-21 16:16:49
  * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */
@@ -387,7 +387,8 @@ class Tensor {
 
   virtual iterator end() { return iterator(a.data() + a.size()); }
 
-  virtual void for_each_i(std::function<void(ValueType &)> func) {
+  virtual void for_each_i(std::function<void(ValueType &)> func,
+                          const bool use_OpenMp = false) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       for (unsigned int i = ib; i < ie; ++i) {
@@ -395,20 +396,22 @@ class Tensor {
         func(tsi);
       }
     };
-    launch(forI, 0, tsShapeSuffix[0]);
+    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
   }
 
-  virtual void for_each_i(std::function<void(ValueType &, int i)> func) {
+  virtual void for_each_i(std::function<void(ValueType &, int i)> func,
+                          const bool use_OpenMp = false) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       for (unsigned int i = ib; i < ie; ++i) {
         func(ts[i], i);
       }
     };
-    launch(forI, 0, tsShapeSuffix[0]);
+    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
   }
 
-  virtual void for_each_i(std::function<void(ValueType &, int i, int j)> func) {
+  virtual void for_each_i(std::function<void(ValueType &, int i, int j)> func,
+                          const bool use_OpenMp = false) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       for (unsigned int i = ib; i < ie; ++i) {
@@ -432,11 +435,12 @@ class Tensor {
                        std::to_string(tsShape.size()) + ".\033[0m\n";
       exit(EXIT_FAILURE);
     }
-    launch(forI, 0, tsShapeSuffix[0]);
+    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
   }
 
   virtual void for_each_i(
-      std::function<void(ValueType &, int i, int j, int k)> func) {
+      std::function<void(ValueType &, int i, int j, int k)> func,
+      const bool use_OpenMp = false) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       for (unsigned int i = ib; i < ie; ++i) {
@@ -462,10 +466,11 @@ class Tensor {
                        std::to_string(tsShape.size()) + ".\033[0m\n";
       exit(EXIT_FAILURE);
     }
-    launch(forI, 0, tsShapeSuffix[0]);
+    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
   }
 
-  virtual void for_each(std::function<void(ValueType *, int i)> func) {
+  virtual void for_each(std::function<void(ValueType *, int i)> func,
+                        const bool use_OpenMp = false) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       const auto &step = ts.tsShapeSuffix[1];
@@ -483,10 +488,11 @@ class Tensor {
                        std::to_string(tsShape.size()) + ".\033[0m\n";
       exit(EXIT_FAILURE);
     }
-    launch(forI, 0, tsShapeSuffix[0]);
+    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
   }
 
-  virtual void for_each(std::function<void(ValueType *, int i, int j)> func) {
+  virtual void for_each(std::function<void(ValueType *, int i, int j)> func,
+                        const bool use_OpenMp = false) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       for (unsigned int i = ib; i < ie; ++i) {
@@ -504,11 +510,12 @@ class Tensor {
                        std::to_string(tsShape.size()) + ".\033[0m\n";
       exit(EXIT_FAILURE);
     }
-    launch(forI, 0, tsShapeSuffix[0]);
+    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
   }
 
   virtual void for_each(
-      std::function<void(ValueType *, int i, int j, int k)> func) {
+      std::function<void(ValueType *, int i, int j, int k)> func,
+      const bool use_OpenMp = false) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       for (unsigned int i = ib; i < ie; ++i) {
@@ -527,11 +534,12 @@ class Tensor {
                        std::to_string(tsShape.size()) + ".\033[0m\n";
       exit(EXIT_FAILURE);
     }
-    launch(forI, 0, tsShapeSuffix[0]);
+    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
   }
 
   virtual void for_each_i(
-      std::function<void(ValueType &, Index<shapeType> &i)> func) {
+      std::function<void(ValueType &, Index<shapeType> &i)> func,
+      const bool use_OpenMp = false) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       auto tsS = ts.tsShape.size();
@@ -544,7 +552,7 @@ class Tensor {
         func(ts[i], in);
       }
     };
-    launch(forI, 0, tsShapeSuffix[0]);
+    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
   }
 
   virtual bool show(const std::string &colTabStr = "| ") {

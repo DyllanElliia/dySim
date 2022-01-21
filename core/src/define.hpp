@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-11-03 19:04:10
- * @LastEditTime: 2022-01-19 16:48:12
+ * @LastEditTime: 2022-01-21 15:28:12
  * @LastEditors: DyllanElliia
  * @Description:
  */
@@ -20,9 +20,13 @@
 #include <vector>
 #include <memory>
 
+#ifdef DYM_USE_OPENMP
+#include <omp.h>
+#endif
+
 // #define _DYM_USE_CUDA_
 
-#ifdef _DYM_USE_CUDA_
+#ifdef DYM_USE_CUDA
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #define _DYM_GENERAL_ __host__ __device__

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-23 19:33:53
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-23 19:33:54
+ * @LastEditTime: 2022-01-23 19:59:04
  * @Description:
  */
 #include <cmath>
@@ -15,13 +15,14 @@
 
 int main() {
   std::default_random_engine re;
-  std::uniform_real_distribution<float> u(0.f, 1.f);
-  float t1 = 0, t2 = 0, count = 0;
-  dym::Tensor<float> pos(0, dym::gi(10000, 2));
-  pos.for_each_i([&](float &e) { e = u(re); });
+  std::uniform_real_distribution<Real> u(0.f, 1.f);
+  float t1 = 0, t2 = 0;
+  int count = 0;
+  dym::Tensor<Real> pos(0, dym::gi(10000, 2));
+  pos.for_each_i([&](Real &e) { e = u(re); });
 
-  dym::Tensor<float> pos2(0, dym::gi(10000, 2));
-  pos2.for_each_i([&](float &e, int i, int j) {
+  dym::Tensor<Real> pos2(0, dym::gi(10000, 2));
+  pos2.for_each_i([&](Real &e, int i, int j) {
     if (j == 1)
       e = -u(re);
     else

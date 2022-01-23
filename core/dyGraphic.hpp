@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-12 16:02:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-11-23 14:17:24
+ * @LastEditTime: 2022-01-23 19:49:05
  * @Description:
  */
 #pragma once
@@ -145,6 +145,9 @@ class GUI {
     for (auto &v : VBO_v) glDeleteBuffers(1, &v);
     glfwTerminate();
     delete[] keys;
+    qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::GREEN);
+    qprint("dySim GUI end!");
+    qp_ctrl();
   }
 
   bool init(const unsigned int src_width_, const unsigned int src_height_) {
@@ -206,6 +209,15 @@ class GUI {
     if (viewMode == VIEWER_3D)
       // Setup some OpenGL options
       glEnable(GL_DEPTH_TEST);
+
+    qprint("-------------------------------------------------");
+    qprint("************* Welcome to use dySim! *************");
+    qprint("-------------------------------------------------");
+    qprint("OpenGL  version: >=4.0");
+    qprint("dySim   version:   0.5 (Unreleased)");
+    qprint("Author: DyllanElliia");
+    qprint("Github: https://github.com/DyllanElliia/dySim\n");
+
     return true;
   }
 
@@ -256,6 +268,9 @@ class GUI {
   }
 
   bool update(std::function<void()> updateFun) {
+    qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::GREEN);
+    qprint("dySim GUI run!");
+    qp_ctrl();
     while (!glfwWindowShouldClose(window)) {
       for (auto &fun : processInput) fun(window);
       auto save_i = VxO_i;

@@ -1,3 +1,10 @@
+/*
+ * @Author: DyllanElliia
+ * @Date: 2022-01-23 19:33:53
+ * @LastEditors: DyllanElliia
+ * @LastEditTime: 2022-01-23 19:33:54
+ * @Description:
+ */
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -25,15 +32,9 @@ int main() {
   gui.init(400, 400);
   dym::TimeLog tt;
   gui.update([&]() {
-    // getchar();
-    qprint("in");
-    auto pos_ = pos * std::sin(t1);
-    auto pos2_ = pos2 * std::sin(t2);
-    t1 += 3e-2;
-    t2 += 2e-2;
-    // pos.show();
-    ++count;
-    gui.scatter2D(pos_, dym::gi(255, 100, 0));
+    auto pos1_ = pos * std::sin(t1), pos2_ = pos2 * std::sin(t2);
+    t1 += 3e-2, t2 += 2e-2, ++count;
+    gui.scatter2D(pos1_, dym::gi(255, 100, 0));
     gui.scatter2D(pos2_, dym::gi(0, 100, 255));
   });
   qprint("run counter: " + std::to_string(count));

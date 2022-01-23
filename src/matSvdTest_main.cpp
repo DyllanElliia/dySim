@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-20 17:57:52
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-21 14:51:38
+ * @LastEditTime: 2022-01-23 19:52:06
  * @Description:
  */
 
@@ -22,6 +22,7 @@ int main(int argc, char const* argv[]) {
 
   int times = 100000;
   dym::TimeLog t;
+  qprint("truncated Svd");
   t.reStart();
   for (int i = 0; i < times; ++i) {
     dym::Matrix<Real, 3, 3> A([&](float&e) { e = u(re); }), U, Sig, V;
@@ -30,6 +31,7 @@ int main(int argc, char const* argv[]) {
   }
   t.record();
 
+  qprint("\nfast 3x3 Svd");
   t.reStart();
   for (int i = 0; i < times; ++i) {
     dym::Matrix<Real, 3, 3> A([&](float&e) { e = u(re); }), U, Sig, V;
@@ -38,6 +40,7 @@ int main(int argc, char const* argv[]) {
   }
   t.record();
 
+  qprint("\ntraditional 3x3 Svd");
   t.reStart();
   for (int i = 0; i < times; ++i) {
     dym::Matrix<Real, 3, 3> A([&](float&e) { e = u(re); }), U, Sig, V;
@@ -46,6 +49,7 @@ int main(int argc, char const* argv[]) {
   }
   t.record();
 
+  qprint("\ntruncated Svd");
   Real ans = 0.f;
   for (int i = 0; i < times; ++i) {
     dym::Matrix<Real, 3, 3> A([&](float&e) { e = u(re); }), U, Sig, V;
@@ -53,27 +57,27 @@ int main(int argc, char const* argv[]) {
     auto usv = U * Sig * V.transpose();
     ans += errorCmp(A, usv);
   }
-  std::cout << "error: " << ans / times << std::endl;
+  std::cout << "error: " << ans / times << "\n" << std::endl;
 
   ans = 0.f;
-
+  qprint("fast 3x3 Svd");
   for (int i = 0; i < times; ++i) {
     dym::Matrix<Real, 3, 3> A([&](float&e) { e = u(re); }), U, Sig, V;
     dym::matrix::fast3x3Svd(A, U, Sig, V);
     auto usv = U * Sig * V.transpose();
     ans += errorCmp(A, usv);
   }
-  std::cout << "error: " << ans / times << std::endl;
+  std::cout << "error: " << ans / times << "\n" << std::endl;
 
   ans = 0.f;
-
+  qprint("traditional 3x3 Svd");
   for (int i = 0; i < times; ++i) {
     dym::Matrix<Real, 3, 3> A([&](float&e) { e = u(re); }), U, Sig, V;
     dym::matrix::traditionalSvd(A, U, Sig, V);
     auto usv = U * Sig * V.transpose();
     ans += errorCmp(A, usv);
   }
-  std::cout << "error: " << ans / times << std::endl;
+  std::cout << "error: " << ans / times << "\n" << std::endl;
 
   return 0;
 }

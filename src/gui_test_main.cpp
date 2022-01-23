@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-23 19:33:53
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-23 19:59:04
+ * @LastEditTime: 2022-01-23 20:00:27
  * @Description:
  */
 #include <cmath>
@@ -20,7 +20,6 @@ int main() {
   int count = 0;
   dym::Tensor<Real> pos(0, dym::gi(10000, 2));
   pos.for_each_i([&](Real &e) { e = u(re); });
-
   dym::Tensor<Real> pos2(0, dym::gi(10000, 2));
   pos2.for_each_i([&](Real &e, int i, int j) {
     if (j == 1)
@@ -29,9 +28,10 @@ int main() {
       e = u(re);
   });
 
+  // GUI part:
   dym::GUI gui("dymathTest", dym::gi(0, 100, 100));
   gui.init(400, 400);
-  dym::TimeLog tt;
+  dym::TimeLog tt;  // timer
   gui.update([&]() {
     auto pos1_ = pos * std::sin(t1), pos2_ = pos2 * std::sin(t2);
     t1 += 3e-2, t2 += 2e-2, ++count;

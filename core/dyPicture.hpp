@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-13 16:50:00
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-11-13 14:52:20
+ * @LastEditTime: 2022-01-26 17:22:54
  * @Description:
  */
 #pragma once
@@ -27,7 +27,7 @@ bool clear(Tensor<ValueType> &pic, colorType const color_default) {
   const auto color_size = color_default.size();
   const auto &pic_color_size = (pic.shape().size() == 3 ? pic.shape()[2] : 1);
   if (pic_color_size > color_size) return false;
-  qprint(pic_color_size, color_size);
+  // qprint(pic_color_size, color_size);
   pic.for_each_i([&color_default, &pic_color_size](ValueType &e, int i) {
     e = color_default[i % pic_color_size];
   });
@@ -40,7 +40,7 @@ int scatter(Tensor<ValueType> &pic, Tensor<VertexType> &loc,
   const int pic_color_size = (pic.shape().size() == 3 ? pic.shape()[2] : 1);
   const int color_size = color_default.size();
   if (pic_color_size > color_size) return -1;
-  qprint(pic_color_size, color_size);
+  // qprint(pic_color_size, color_size);
   const Index locShape = loc.shape();
   const auto &vec_num = locShape[0], &vec_d = locShape[1];
   if (vec_d != 2) return -1;
@@ -63,7 +63,7 @@ int scatter(Tensor<ValueType> &pic, Tensor<VertexType> &loc,
       if (xi < 0 || xi >= picx || yi < 0 || yi >= picy) continue;
       if (pic_color_size == 1) {
         pic[gi(xi, yi)] = color_default[0];
-        ++ans;
+        ++ans_i;
       } else
         for (int ci = 0; ci < pic_color_size; ++ci) {
           pic[gi(xi, yi, ci)] = color_default[ci];
@@ -95,7 +95,7 @@ template <class InputType, class KernelType>
 Tensor<InputType> filter2D(Tensor<InputType> &in, Tensor<KernelType> &kernel,
                            BorderType border = BORDER_CONSTANT,
                            InputType DefaultColor = InputType(0)) {
-  Index vShape = in.shape(), vBorder1 = vShape - gi(1, 1, 0);
+  Index<int> vShape = in.shape(), vBorder1 = vShape - gi(1, 1, 0);
   auto &color_size = vShape[2];
   auto &vShapeX = vShape[0], &vShapeY = vShape[1];
   auto &vBorder1X = vBorder1[0], &vBorder1Y = vBorder1[1];

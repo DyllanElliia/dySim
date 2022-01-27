@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:32:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-20 16:25:25
+ * @LastEditTime: 2022-01-26 16:25:56
  * @Description:
  */
 #pragma once
@@ -46,7 +46,7 @@ struct Vector {
     res += "]";
     std::cout << res << std::endl;
   }
-  inline auto data() const { return a.data(); }
+  _DYM_FORCE_INLINE_ auto data() const { return a.data(); }
   inline void for_each(std::function<void(Type &)> func) {
     for (auto &e : a) func(e);
   }
@@ -59,7 +59,7 @@ struct Vector {
   Type operator[](const int &i) const { return a[i]; }
 
 #define _dym_vector_xyzw_(whichOne, index)                         \
-  inline Type whichOne() const {                                   \
+  _DYM_FORCE_INLINE_ Type whichOne() const {                       \
     if constexpr (dim > index)                                     \
       return a[index];                                             \
     else {                                                         \
@@ -106,14 +106,17 @@ struct Vector {
 };
 
 template <typename Type, std::size_t dim>
-inline Type dot(const Vector<Type, dim> &v1, const Vector<Type, dim> &v2) {
+_DYM_FORCE_INLINE_ Type dot(const Vector<Type, dim> &v1,
+                            const Vector<Type, dim> &v2) {
   return v1.dot(v2);
 }
 
-template <typename Type, std::size_t dim>
-inline Type operator*(const Vector<Type, dim> &f, const Vector<Type, dim> &s) {
-  return dot(f, s);
-}
+// template <typename Type, std::size_t dim>
+// _DYM_FORCE_INLINE_ Type operator*(const Vector<Type, dim> &f, const
+// Vector<Type, dim> &s)
+// {
+//   return dot(f, s);
+// }
 
 template <typename Type, std::size_t dim>
 inline Vector<Type, dim> operator-(const Vector<Type, dim> &v) {
@@ -132,8 +135,13 @@ inline Vector<Type, dim> operator-(const Vector<Type, dim> &v) {
     return Vector<Type, dim>([&](Type &e, int i) { e = f[i] op s; }); \
   }
 
-_dym_vector_type_operator_binary_(*);
+// _dym_vector_type_operator_binary_(*);
 _dym_vector_type_operator_binary_(/);
+template <typename Type, std::size_t dim>
+_DYM_FORCE_INLINE_ Vector<Type, dim> operator/(const Vector<Type, dim> &f,
+                                               const Vector<Type, dim> &s) {
+  return f;
+}
 
 #define _dym_vector_operator_binary_(op)                                 \
   template <typename Type, std::size_t dim>                              \
@@ -143,15 +151,19 @@ _dym_vector_type_operator_binary_(/);
   }                                                                      \
   _dym_vector_type_operator_binary_(op);
 
-#define _dym_vector_operator_unary_(op)                          \
-  template <typename Type, std::size_t dim>                      \
-  inline void operator op(Vector<Type, dim> &f, const Type &s) { \
-    for (int i = 0; i < dim; ++i) f[i] op s;                     \
+#define _dym_vector_operator_unary_(op)                                       \
+  template <typename Type, std::size_t dim>                                   \
+  inline void operator op(Vector<Type, dim> &f, const Vector<Type, dim> &s) { \
+    for (int i = 0; i < dim; ++i) f[i] op s[i];                               \
+  }                                                                           \
+  template <typename Type, std::size_t dim>                                   \
+  inline void operator op(Vector<Type, dim> &f, const Type &s) {              \
+    for (int i = 0; i < dim; ++i) f[i] op s;                                  \
   }
 
 _dym_vector_operator_binary_(+);
 _dym_vector_operator_binary_(-);
-// _dym_vector_operator_binary_(*);
+_dym_vector_operator_binary_(*);
 // _dym_vector_operator_binary_(/);
 _dym_vector_operator_unary_(+=);
 _dym_vector_operator_unary_(-=);

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-14 15:53:11
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-21 15:06:40
+ * @LastEditTime: 2022-01-26 15:57:53
  * @Description:
  */
 #pragma once
@@ -78,10 +78,14 @@ inline void traditionalSvd(Matrix<Type, 3, 3>& A, Matrix<Type, 3, 3>& U,
 
 template <typename Type, std::size_t m, std::size_t n>
 inline void svd(Matrix<Type, m, n>& A, Matrix<Type, m, n>& U,
-                Matrix<Type, m, n>& Sig, Matrix<Type, m, n>& V) {
-  if constexpr (m == 3 && n == 3)
-    fast3x3Svd(A, U, Sig, V);
-  else
+                Matrix<Type, m, n>& Sig, Matrix<Type, m, n>& V,
+                bool use_fast3x3Svd = false) {
+  if constexpr (m == 3 && n == 3) {
+    if (use_fast3x3Svd)
+      fast3x3Svd(A, U, Sig, V);
+    else
+      traditionalSvd(A, U, Sig, V);
+  } else
     truncatedSvd(A, U, Sig, V);
 }
 

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-07 12:19:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-20 17:33:01
+ * @LastEditTime: 2022-01-26 16:26:42
  * @Description:
  */
 #pragma once
@@ -117,7 +117,7 @@ struct Matrix {
 template <typename Type, std::size_t m, std::size_t n>
 inline Vector<Type, m> operator*(const Matrix<Type, m, n> &ma,
                                  const Vector<Type, n> &ve) {
-  return Vector<Type, m>([&](Type &e, int i) { e = ma[i] * ve; });
+  return Vector<Type, m>([&](Type &e, int i) { e = dot(ma[i], ve); });
 }
 
 template <typename Type, std::size_t m1, std::size_t n1, std::size_t m2,
@@ -167,6 +167,12 @@ _dym_matrix_type_operator_binary_(/);
   _dym_matrix_type_operator_binary_(op);
 
 #define _dym_matrix_operator_unary_(op)                           \
+  template <typename Type, std::size_t m, std::size_t n>          \
+  inline void operator op(Matrix<Type, m, n> &f,                  \
+                          const Matrix<Type, m, n> &s) {          \
+    for (int i = 0; i < m; ++i)                                   \
+      for (int j = 0; j < n; ++j) f[i][j] op s[i][j];             \
+  }                                                               \
   template <typename Type, std::size_t m, std::size_t n>          \
   inline void operator op(Matrix<Type, m, n> &f, const Type &s) { \
     for (int i = 0; i < m; ++i)                                   \

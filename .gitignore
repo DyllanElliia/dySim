@@ -4,6 +4,7 @@ design
 example/*.exe
 build/*
 example/build
+src/*_out
 
 # Executables
 *.exe

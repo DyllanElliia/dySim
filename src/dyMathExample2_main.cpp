@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-22 14:21:25
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-11-17 17:01:12
+ * @LastEditTime: 2022-01-25 16:05:46
  * @Description: How to use Tensor.
  */
 
@@ -10,7 +10,6 @@
 #include <dyMath.hpp>
 #include <iostream>
 #include <ostream>
-#include <type_traits>
 
 int main() {
   qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::YELLOW);

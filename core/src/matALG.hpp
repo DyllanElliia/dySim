@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-14 14:51:57
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-19 16:41:05
+ * @LastEditTime: 2022-01-26 16:45:29
  * @Description:
  */
 #pragma once
@@ -63,6 +63,13 @@ inline Matrix<Type, m1, n2> mul_fast(Matrix<Type, m1, n1> &a,
       }
     }
   return o;
+}
+
+template <typename Type, std::size_t dim>
+inline Matrix<Type, dim, dim> outer_product(const Vector<Type, dim> &a,
+                                            const Vector<Type, dim> &b) {
+  return Matrix<Type, dim, dim>(
+      [&](Vector<Type, dim> &e, int i) { e = a[i] * b; });
 }
 
 }  // namespace matrix

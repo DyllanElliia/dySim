@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2022-01-21 16:16:49
+ * @LastEditTime: 2022-01-26 16:22:22
  * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */
@@ -17,6 +17,13 @@ Index<t> addIndex(const Index<t> &i1, const Index<t> &i2, int i2begin = 0) {
     result[i2begin++] += i2[i];
   }
   return result;
+}
+
+template <typename T>
+constexpr _DYM_FORCE_INLINE_ bool is_calculated() {
+  return std::is_same_v<T, Real> || std::is_same_v<T, float> ||
+         std::is_same_v<T, double> || std::is_same_v<T, int> ||
+         std::is_same_v<T, short> || std::is_same_v<T, long long>;
 }
 
 template <class T>
@@ -359,6 +366,10 @@ class Tensor {
     tsShape = in.tsShape;
     tsShapeSuffix = in.tsShapeSuffix;
     (*this).for_each_i([&a_](ValueType &e, int i) { e = a_[i]; });
+    return *this;
+  }
+  virtual Tensor operator=(const ValueType &in) {
+    (*this).for_each_i([&in](ValueType &e) { e = in; });
     return *this;
   }
 

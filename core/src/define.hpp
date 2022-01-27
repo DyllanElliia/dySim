@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-11-03 19:04:10
- * @LastEditTime: 2022-01-21 15:28:12
+ * @LastEditTime: 2022-01-26 15:33:20
  * @LastEditors: DyllanElliia
  * @Description:
  */
@@ -19,6 +19,7 @@
 #include <thread>
 #include <vector>
 #include <memory>
+#include <type_traits>
 
 #ifdef DYM_USE_OPENMP
 #include <omp.h>
@@ -55,5 +56,7 @@
     std::error << str << std::endl;    \
     exit(EXIT_FAILURE);                \
   }
+
+#define _DYM_FORCE_INLINE_ inline __attribute__((always_inline))
 
 typedef float Real;

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 15:30:45
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-20 16:32:14
+ * @LastEditTime: 2022-01-27 17:39:24
  * @Description:
  */
 #include "../core/src/matALG.hpp"
@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
   dym::Vector<float, 3> a(1);
   dym::Vector<float, 3> b({1, 2, 3});
   std::cout << a + b << a * b << a - b << b + 1.f << b - 1.f << b * 2.f
-            << b / 2.f;
+            << b / 2.f << b / 1e-4f;
   auto c = b;
   c.show();
   c *= 10.f;
@@ -121,6 +121,9 @@ int main(int argc, char** argv) {
   }
   t.record(scale);
   // std::cout << o << std::endl;
+  qprint(a, b);
+  a += b;
+  qprint(a);
 
   return 0;
 }

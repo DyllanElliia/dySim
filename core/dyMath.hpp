@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-10-06 17:00:50
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-11-17 16:58:33
+ * @LastEditTime: 2022-01-26 15:24:58
  * @Description:
  */
 
@@ -10,6 +10,11 @@
 
 // #include "./picture.hpp"
 #include "src/tensor.hpp"
+#include "src/vector.hpp"
+#include "src/matrix.hpp"
+#include "src/realALG.hpp"
+#include "src/vecALG.hpp"
+#include "src/matALG.hpp"
 
 namespace dym {
 template <class InputType>

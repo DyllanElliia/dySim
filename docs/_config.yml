@@ -9,8 +9,8 @@ description: >
 version:          1.0
 gitbook_version:  3.2.3
 
-url:              'https://dyllanelliia.github.io/dySim/'
-baseurl:          '/docs'
+url:              'https://dyllanelliia.github.io/'
+baseurl:          '/dySim'
 rss:              RSS
 
 toc:

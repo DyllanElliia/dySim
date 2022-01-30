@@ -2,7 +2,7 @@
 title: Hello DySim!
 author: DyllanElliia
 date: 2022-01-29
-category: Hello DySim
+category: DySim
 layout: post
 ---
 

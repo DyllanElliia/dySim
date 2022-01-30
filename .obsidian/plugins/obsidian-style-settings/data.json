@@ -1,4 +1,7 @@
 {
-  "blue-topaz-theme@@color-scheme-options": "=↓👩😺 Created by Topaz Community 🐵🧑↓=",
-  "blue-topaz-theme@@folder-style-change-options-colorful": true
+  "blue-topaz-theme@@color-scheme-options": "color-scheme-options-default",
+  "blue-topaz-theme@@folder-style-change-options-colorful": true,
+  "blue-topaz-theme@@rainbow-lines": true,
+  "blue-topaz-theme@@rainbow-ordered-list": true,
+  "blue-topaz-theme@@rainbow-checkbox": true
 }

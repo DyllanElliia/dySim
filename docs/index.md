@@ -2,66 +2,23 @@
 layout: home
 ---
 
-Make Jelly site have a GitBook look!
+![[logoAddWord.png]]
 
-## Demo
+>Make Simulation Great again!
 
-Live demo on Github Pages: [https://sighingnow.github.io/jekyll-gitbook](https://sighingnow.github.io/jekyll-gitbook)
+## DySim 是什么🏷️
 
-[![Jekyll Themes](https://img.shields.io/badge/featured%20on-JekyllThemes-red.svg)](https://jekyll-themes.com/jekyll-gitbook/)
+DySim的名字取自于我的昵称Dyllan和这个工具Simulator，表意就是“我的模拟器”！它起源于我的数学框架DyMath，是对DyMath的拓展，因此你会看到非常多原框架遗留下的内容（如 `namespace dym`）。但由于DyMath这个库已经被别人创建了，所以我就将它命名为DySim。
 
-## Why Jekyll with GitBook
+DySim是什么？它是一个提供开发者更专注于写模拟的图形学架构，你可以用它很方便地验证一些数学方法。相比于其他方法，DySim更适合：
+1. 喜欢泛型和函数式编程的你🥰
+2. 调各种材质参数的你😜
+3. 懒得写各种并行的你🤔
+4. 喜欢写CPP的你😂（符合这点的应该没多少人）
 
-GitBook is an amazing frontend style to present and organize contents (such as book chapters
-and blogs) on Web. The typical to deploy GitBook at [Github Pages][1]
-is building HTML files locally and then push to Github repository, usually to the `gh-pages`
-branch. It's quite annoying to repeat such workload and make it hard for people do version
-control via git for when there are generated HTML files to be staged in and out.
+DySim是我的本科毕业设计作品，它包含了泛型并行数学库、基于物质点法的物理模拟模块、基于光线追踪的渲染模块 和 一个简单的GUI模块。它或许不是一个能传世的框架，但它是我设计的适合我的一个Simulator。若你喜欢这个idea，给我一个⭐️！同时，欢迎一起让它变得更好！
 
-This theme takes style definition out of generated GitBook site and provided the template
-for Jekyll to rendering markdown documents to HTML, thus the whole site can be deployed
-to [Github Pages][1] without generating and uploading HTML bundle every time when there are
-changes to the original repo.
 
-## How to Get Started
-
-This theme can be used just as other [Jekyll themes][1].
-
-[Fork][3] this repository and add your markdown posts to the `_posts` folder.
-
-### Deploy Locally with Jekyll Serve
-
-This theme can be ran locally using Ruby and Gemfiles.
-
-[Testing your GitHub Pages site locally with Jekyll](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll) - GitHub
-
-## Full-text search
-
-The search functionality in jekyll-gitbook theme is powered by the [gitbook-plugin-search-pro][5] plugin and is enabled by default.
-
-[https://sighingnow.github.io/jekyll-gitbook/?q=generated](https://sighingnow.github.io/jekyll-gitbook/?q=generated)
-
-## Code highlight
-
-The code highlight style is configurable the following entry in `_config.yaml`:
-
-```yaml
-syntax_highlighter_style: colorful
-```
-
-The default code highlight style is `colorful`, the full supported styles can be found from [the rouge repository][6]. Customized
-style can be added to [./gitbook/rouge/](./gitbook/rouge/).
-
-## How to generate TOC
-
-The jekyll-gitbook theme leverages [jekyll-toc][4] to generate the *Contents* for the page.
-The TOC feature is not enabled by default. To use the TOC feature, modify the TOC
-configuration in `_config.yml`:
-
-```yaml
-toc:
-    enabled: true
-```
 
 ## License
 

@@ -1,15 +1,15 @@
 {
   "main": {
-    "id": "01c4875dfdf918b9",
+    "id": "6c9c102645398829",
     "type": "split",
     "children": [
       {
-        "id": "e28959cd3c36faaf",
+        "id": "5c533af42790f12e",
         "type": "leaf",
         "state": {
           "type": "markdown",
           "state": {
-            "file": "docs/_posts/2022-01-30-vector.md",
+            "file": "_posts/2022-01-12-vector.md",
             "mode": "source",
             "source": false
           }
@@ -19,15 +19,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "98a0fce37bf39818",
+    "id": "462126189625a614",
     "type": "split",
     "children": [
       {
-        "id": "0c08872472736d47",
+        "id": "3af6f643ca0eef40",
         "type": "tabs",
         "children": [
           {
-            "id": "4a0a39086d9a1af1",
+            "id": "ba426b2785c67335",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -35,7 +35,7 @@
             }
           },
           {
-            "id": "06304331865fbe8f",
+            "id": "78be1475806656a8",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -56,20 +56,20 @@
     "width": 300
   },
   "right": {
-    "id": "bef66c8255990c70",
+    "id": "a375777a316fbd9a",
     "type": "split",
     "children": [
       {
-        "id": "32e796e98b0aef92",
+        "id": "c6b409d3d7f5e06c",
         "type": "tabs",
         "children": [
           {
-            "id": "c094b7eedc11d5b0",
+            "id": "0e3d66b0912c1b69",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "docs/_posts/2022-01-30-vector.md",
+                "file": "_posts/2022-01-12-vector.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -87,15 +87,17 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "e28959cd3c36faaf",
+  "active": "5c533af42790f12e",
   "lastOpenFiles": [
-    "docs/_posts/2022-01-30-vector.md",
-    "docs/_posts/2022-01-29-hello_dySim.md",
-    "docs/_posts/2022-01-31-matrix.md",
-    "docs/index.md",
-    "docs/_posts/2022-02-05-picture.md",
-    "docs/_posts/2022-02-03-tensor.md",
-    "docs/gitbook/fonts/fontawesome/fontawesome-webfont.svg",
-    "README.md"
+    "_posts/2022-01-12-vector.md",
+    "_posts/2022-01-13-matrix.md",
+    "_posts/2022-01-11-hello.md",
+    "_posts/tensor.md",
+    "index.md",
+    "_posts/picture.md",
+    "_posts/2021-08-10-toc.md",
+    "_posts/2019-04-29-license.md",
+    "_posts/2019-04-28-howto.md",
+    "_posts/2019-04-27-why.md"
   ]
 }

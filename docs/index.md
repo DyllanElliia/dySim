@@ -2,7 +2,7 @@
 layout: home
 ---
 
-![logoAddWord](..\logo\logoAddWord.png)
+![logoAddWord](index.assets/logoAddWord-16435318604501.png)
 
 >Make Simulation Great again!
 

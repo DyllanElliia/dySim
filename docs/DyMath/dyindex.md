@@ -2,7 +2,7 @@
 sort: 4
 ---
 
-# dym::Index 索引
+# Index 索引
 
     ```mermaid
     graph TB

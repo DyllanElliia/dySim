@@ -2,7 +2,7 @@
 sort: 3
 ---
 
-# Tensor 张量
+# 图像处理样例
 
 ```
 {% raw %}{% avatar saowang %}{% endraw %}

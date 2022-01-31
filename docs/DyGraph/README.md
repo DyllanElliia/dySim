@@ -1,8 +1,8 @@
 ---
-sort: 2
+sort: 4
 ---
 
-# DyMath Documentation
+# DyGraph Documentation
 
 ```
 {% raw %}{% include list.liquid all=true %}{% endraw %}

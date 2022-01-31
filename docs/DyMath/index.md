@@ -2,7 +2,7 @@
 sort: 4
 ---
 
-# Mermaid Test
+# Index 索引
 
     ```mermaid
     graph TB

@@ -2,7 +2,7 @@
 sort: 1
 ---
 
-# Markdown Elements
+# Vector 向量
 
 Text can be **bold**, _italic_, or ~~strikethrough~~. [Links](https://github.com) should be blue with no underlines (unless hovered over).
 

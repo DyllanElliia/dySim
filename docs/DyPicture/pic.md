@@ -2,8 +2,6 @@
 sort: 1
 ---
 
-# Vector 向量
-
 # 图像表示
 
 THIS IS TOO LONG, NEED UPDATE! HERE IS SOME IDEAS:

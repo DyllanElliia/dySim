@@ -135,8 +135,7 @@ void advance(const Real &dt) {
       auto new_Sig = Sig[d][d];
       y_c_f(new_Sig);
       p.Jp *= Sig[d][d] / new_Sig;
-      Sig[d][d] = new_Sig;
-      J *= new_Sig;
+      Sig[d][d] = new_Sig, J *= new_Sig;
     }
     c_F[p.material](p.F, U, Sig, V);
     Matrix3 stress = 2.f * mu * ((p.F - U * V.transpose()) * p.F.transpose()) +
@@ -188,9 +187,6 @@ void advance(const Real &dt) {
         }
     p.v = new_v, p.C = new_C;
     px += dt * p.v;
-    // px[0] = dym::real::clamp(px[0], dx, 1.f - dx);
-    // px[1] = dym::real::clamp(px[1], dx, 1.f - dx);
-    // px[2] = dym::real::clamp(px[2], dx, 1.f - dx);
   });
 }
 std::default_random_engine re;

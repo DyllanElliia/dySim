@@ -4,7 +4,7 @@ sort: 1
 
 # Hello DySim
 
-![logoAddWord](README.assets/logoAddWord-16435318604501.png)
+![logoAddWord](README.assets/logoAddWord.png)
 
 >Make Simulation Great Again🤺
 

@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "./launch.hpp"
+#include "./Launch.hpp"
 namespace dym {
 template <typename t>
 Index<t> addIndex(const Index<t> &i1, const Index<t> &i2, int i2begin = 0) {
@@ -19,16 +19,14 @@ Index<t> addIndex(const Index<t> &i1, const Index<t> &i2, int i2begin = 0) {
   return result;
 }
 
-template <typename T>
-constexpr _DYM_FORCE_INLINE_ bool is_calculated() {
+template <typename T> constexpr _DYM_FORCE_INLINE_ bool is_calculated() {
   return std::is_same_v<T, Real> || std::is_same_v<T, float> ||
          std::is_same_v<T, double> || std::is_same_v<T, int> ||
          std::is_same_v<T, short> || std::is_same_v<T, long long>;
 }
 
-template <class T>
-class Tensor {
- protected:
+template <class T> class Tensor {
+protected:
   using ValueType = T;
   using shapeType = int;
 
@@ -53,14 +51,16 @@ class Tensor {
     outBegin += addStr;
     out << "[ ";
     // run
-    if (indexS_i + 1 != tsShape.size()) out << "\n";
+    if (indexS_i + 1 != tsShape.size())
+      out << "\n";
     for (int i = 0; i < tsShape[indexS_i]; ++i) {
       indexS[indexS_i] = i;
       show_(indexS, indexS_i + 1, outBegin, addStr, out);
     }
 
     outBegin = outBegin.substr(0, outBegin.size() - addStr.size());
-    if (indexS_i + 1 != tsShape.size()) out << outBegin;
+    if (indexS_i + 1 != tsShape.size())
+      out << outBegin;
     out << (indexS_i == 0 ? "]" : "],\n");
     return true;
   }
@@ -103,7 +103,8 @@ class Tensor {
     }
     Tensor t1, t2;
     t1 = first, t2 = second;
-    if (t1.tsShape.size() < t2.tsShape.size()) std::swap(t1, t2);
+    if (t1.tsShape.size() < t2.tsShape.size())
+      std::swap(t1, t2);
     auto &t1s = t1.tsShape, &t2s = t2.tsShape;
     Tensor result;
     result.tsShape = t1s;
@@ -168,11 +169,12 @@ class Tensor {
     return out;
   }
 
- public:
+public:
   Tensor(ValueType defaultValue, const Index<shapeType> &shape) {
     tsShape = shape;
     ull sizetsR = 1;
-    for (auto i : tsShape) sizetsR *= i;
+    for (auto i : tsShape)
+      sizetsR *= i;
     a.resize(sizetsR, defaultValue);
     updateSuffix();
   }
@@ -180,7 +182,8 @@ class Tensor {
          std::function<std::vector<ValueType>()> creatFun) {
     tsShape = shape;
     ull sizetsR = 1;
-    for (auto i : tsShape) sizetsR *= i;
+    for (auto i : tsShape)
+      sizetsR *= i;
     a = creatFun();
     updateSuffix();
   }
@@ -189,7 +192,8 @@ class Tensor {
              creatFun) {
     tsShape = shape;
     ull sizetsR = 1;
-    for (auto i : tsShape) sizetsR *= i;
+    for (auto i : tsShape)
+      sizetsR *= i;
     a = creatFun(shape);
     updateSuffix();
   }
@@ -209,11 +213,14 @@ class Tensor {
   //   a.push_back(v);
   // }
   Tensor(const std::vector<std::vector<ValueType>> &v) {
-    if (v.size() != 1) tsShape.push_back(v.size());
+    if (v.size() != 1)
+      tsShape.push_back(v.size());
     int my = 1e7;
-    for (auto &l : v) my = std::min(my, (int)l.size());
+    for (auto &l : v)
+      my = std::min(my, (int)l.size());
     tsShape.push_back(my);
-    for (auto &l : v) a.insert(a.end(), l.begin(), l.begin() + my);
+    for (auto &l : v)
+      a.insert(a.end(), l.begin(), l.begin() + my);
     updateSuffix();
   }
   Tensor(const std::vector<ValueType> &v, bool t) {
@@ -234,17 +241,17 @@ class Tensor {
     int im, jm = tsShape[0];
     try {
       switch (newShape.size()) {
-        case 1:
-          im = 1;
-          newShape.push_back(1);
-          break;
-        case 2:
-          im = tsShape[1];
-          std::swap(newShape[0], newShape[1]);
-          break;
-        default:
-          qprint(newShape.size());
-          throw "\033[1;31mTensor error: function t can only be applied to "
+      case 1:
+        im = 1;
+        newShape.push_back(1);
+        break;
+      case 2:
+        im = tsShape[1];
+        std::swap(newShape[0], newShape[1]);
+        break;
+      default:
+        qprint(newShape.size());
+        throw "\033[1;31mTensor error: function t can only be applied to "
               "transposed tensor with dimensions up to 2!\nIf you want to "
               "transpose this tensor, please use function "
               "transpose(times)!\033[0m";
@@ -264,9 +271,11 @@ class Tensor {
   virtual Tensor transpose(unsigned int i1 = 0, unsigned int i2 = 1) {
     auto newShape = tsShape;
     unsigned int im, jm;
-    if (newShape.size() <= 2) return t();
+    if (newShape.size() <= 2)
+      return t();
     try {
-      if (i1 > i2) std::swap(i1, i2);
+      if (i1 > i2)
+        std::swap(i1, i2);
       if (i1 + 1 != i2)
         throw "\033[1;31mTensor error: function transpose only works when "
               "both input parameters must be continuous!\033[0m";
@@ -293,7 +302,8 @@ class Tensor {
           ull hh = h * h2ts;
           ull rbe = hh + i * rtails + j * rmids;
           ull obe = hh + i * omids + j * otails;
-          for (unsigned int k = 0; k < rtails; ++k) ra[rbe + k] = oa[obe + k];
+          for (unsigned int k = 0; k < rtails; ++k)
+            ra[rbe + k] = oa[obe + k];
         }
     return result;
   }
@@ -379,10 +389,10 @@ class Tensor {
   }
 
   class iterator {
-   private:
+  private:
     ValueType *p;
 
-   public:
+  public:
     iterator(ValueType *p = nullptr) : p(p) {}
     ValueType &operator*() { return *p; }
     iterator &operator++() {
@@ -398,8 +408,9 @@ class Tensor {
 
   virtual iterator end() { return iterator(a.data() + a.size()); }
 
-  virtual void for_each_i(std::function<void(ValueType &)> func,
-                          const bool use_OpenMp = false) {
+  virtual void
+  for_each_i(std::function<void(ValueType &)> func,
+             const unsigned short use_thread_type = DYM_DEFAULT_THREAD) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       for (unsigned int i = ib; i < ie; ++i) {
@@ -407,22 +418,24 @@ class Tensor {
         func(tsi);
       }
     };
-    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
+    Launch(forI, 0, tsShapeSuffix[0], use_thread_type);
   }
 
-  virtual void for_each_i(std::function<void(ValueType &, int i)> func,
-                          const bool use_OpenMp = false) {
+  virtual void
+  for_each_i(std::function<void(ValueType &, int i)> func,
+             const unsigned short use_thread_type = DYM_DEFAULT_THREAD) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       for (unsigned int i = ib; i < ie; ++i) {
         func(ts[i], i);
       }
     };
-    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
+    Launch(forI, 0, tsShapeSuffix[0], use_thread_type);
   }
 
-  virtual void for_each_i(std::function<void(ValueType &, int i, int j)> func,
-                          const bool use_OpenMp = false) {
+  virtual void
+  for_each_i(std::function<void(ValueType &, int i, int j)> func,
+             const unsigned short use_thread_type = DYM_DEFAULT_THREAD) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       for (unsigned int i = ib; i < ie; ++i) {
@@ -446,12 +459,12 @@ class Tensor {
                        std::to_string(tsShape.size()) + ".\033[0m\n";
       exit(EXIT_FAILURE);
     }
-    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
+    Launch(forI, 0, tsShapeSuffix[0], use_thread_type);
   }
 
-  virtual void for_each_i(
-      std::function<void(ValueType &, int i, int j, int k)> func,
-      const bool use_OpenMp = false) {
+  virtual void
+  for_each_i(std::function<void(ValueType &, int i, int j, int k)> func,
+             const unsigned short use_thread_type = DYM_DEFAULT_THREAD) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       for (unsigned int i = ib; i < ie; ++i) {
@@ -477,11 +490,12 @@ class Tensor {
                        std::to_string(tsShape.size()) + ".\033[0m\n";
       exit(EXIT_FAILURE);
     }
-    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
+    Launch(forI, 0, tsShapeSuffix[0], use_thread_type);
   }
 
-  virtual void for_each(std::function<void(ValueType *, int i)> func,
-                        const bool use_OpenMp = false) {
+  virtual void
+  for_each(std::function<void(ValueType *, int i)> func,
+           const unsigned short use_thread_type = DYM_DEFAULT_THREAD) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       const auto &step = ts.tsShapeSuffix[1];
@@ -499,11 +513,12 @@ class Tensor {
                        std::to_string(tsShape.size()) + ".\033[0m\n";
       exit(EXIT_FAILURE);
     }
-    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
+    Launch(forI, 0, tsShapeSuffix[0], use_thread_type);
   }
 
-  virtual void for_each(std::function<void(ValueType *, int i, int j)> func,
-                        const bool use_OpenMp = false) {
+  virtual void
+  for_each(std::function<void(ValueType *, int i, int j)> func,
+           const unsigned short use_thread_type = DYM_DEFAULT_THREAD) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       for (unsigned int i = ib; i < ie; ++i) {
@@ -521,12 +536,12 @@ class Tensor {
                        std::to_string(tsShape.size()) + ".\033[0m\n";
       exit(EXIT_FAILURE);
     }
-    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
+    Launch(forI, 0, tsShapeSuffix[0], use_thread_type);
   }
 
-  virtual void for_each(
-      std::function<void(ValueType *, int i, int j, int k)> func,
-      const bool use_OpenMp = false) {
+  virtual void
+  for_each(std::function<void(ValueType *, int i, int j, int k)> func,
+           const unsigned short use_thread_type = DYM_DEFAULT_THREAD) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       for (unsigned int i = ib; i < ie; ++i) {
@@ -545,12 +560,12 @@ class Tensor {
                        std::to_string(tsShape.size()) + ".\033[0m\n";
       exit(EXIT_FAILURE);
     }
-    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
+    Launch(forI, 0, tsShapeSuffix[0], use_thread_type);
   }
 
-  virtual void for_each_i(
-      std::function<void(ValueType &, Index<shapeType> &i)> func,
-      const bool use_OpenMp = false) {
+  virtual void
+  for_each_i(std::function<void(ValueType &, Index<shapeType> &i)> func,
+             const unsigned short use_thread_type = DYM_DEFAULT_THREAD) {
     auto &ts = *this;
     auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
       auto tsS = ts.tsShape.size();
@@ -558,12 +573,14 @@ class Tensor {
       auto tsSuff = ts.tsShapeSuffix;
       for (unsigned int i = ib; i < ie; ++i) {
         Index<shapeType> in(tsS, i);
-        for (unsigned int j = 1; j < tsS; ++j) in[j] %= tsSuff[j];
-        for (unsigned int j = 0; j < tsS2; ++j) in[j] /= tsSuff[j + 1];
+        for (unsigned int j = 1; j < tsS; ++j)
+          in[j] %= tsSuff[j];
+        for (unsigned int j = 0; j < tsS2; ++j)
+          in[j] /= tsSuff[j + 1];
         func(ts[i], in);
       }
     };
-    launch(forI, 0, tsShapeSuffix[0], use_OpenMp);
+    Launch(forI, 0, tsShapeSuffix[0], use_thread_type);
   }
 
   virtual bool show(const std::string &colTabStr = "| ") {
@@ -600,7 +617,8 @@ class Tensor {
         ibegin++;
         continue;
       }
-      if (from[ibegin] + 1 > to[ibegin]) return result;
+      if (from[ibegin] + 1 > to[ibegin])
+        return result;
       break;
     }
     while (ibegin < iend) {
@@ -608,13 +626,15 @@ class Tensor {
         iend--;
         continue;
       }
-      if (from[iend] > to[iend]) return result;
+      if (from[iend] > to[iend])
+        return result;
       break;
     }
     // qprint("here");
     ++iend;
     int tsShapeSize = iend - ibegin;
-    if (tsShapeSize <= 0) return result;
+    if (tsShapeSize <= 0)
+      return result;
     result.tsShape.resize(tsShapeSize);
     ull len = 1;
     for (int i = ibegin, ri = 0; i < iend; ++i, ++ri) {
@@ -638,28 +658,28 @@ class Tensor {
     return true;
   }
 
-#define _dym_tensor_operator_binary_(op)                                    \
-  friend Tensor operator op(const ValueType &first, const Tensor &second) { \
-    Tensor result(second);                                                  \
-    result.for_each_i([&first](ValueType &e) { e = first op e; });          \
-    return result;                                                          \
-  }                                                                         \
-  friend Tensor operator op(const Tensor &first, const ValueType &second) { \
-    Tensor result(first);                                                   \
-    result.for_each_i([&second](ValueType &e) { e = e op second; });        \
-    return result;                                                          \
+#define _dym_tensor_operator_binary_(op)                                       \
+  friend Tensor operator op(const ValueType &first, const Tensor &second) {    \
+    Tensor result(second);                                                     \
+    result.for_each_i([&first](ValueType &e) { e = first op e; });             \
+    return result;                                                             \
+  }                                                                            \
+  friend Tensor operator op(const Tensor &first, const ValueType &second) {    \
+    Tensor result(first);                                                      \
+    result.for_each_i([&second](ValueType &e) { e = e op second; });           \
+    return result;                                                             \
   }
 
-#define _dym_tentensor_operator_binary_(op)                                 \
-  virtual Tensor operator op(const Tensor &ts) {                            \
-    return computer(*this, ts, [](const ValueType &a, const ValueType &b) { \
-      return a op b;                                                        \
-    });                                                                     \
+#define _dym_tentensor_operator_binary_(op)                                    \
+  virtual Tensor operator op(const Tensor &ts) {                               \
+    return computer(*this, ts, [](const ValueType &a, const ValueType &b) {    \
+      return a op b;                                                           \
+    });                                                                        \
   }
 
-#define _dym_tensor_operator_unary_(op)                             \
-  friend void operator op(Tensor &first, const ValueType &second) { \
-    first.for_each_i([&second](ValueType &e) { e op second; });     \
+#define _dym_tensor_operator_unary_(op)                                        \
+  friend void operator op(Tensor &first, const ValueType &second) {            \
+    first.for_each_i([&second](ValueType &e) { e op second; });                \
   }
 
   _dym_tentensor_operator_binary_(+);
@@ -690,4 +710,4 @@ class Tensor {
   // _dym_tensor_operator_unary_(|=);
   // _dym_tensor_operator_unary_(^=);
 };
-}  // namespace dym
+} // namespace dym

@@ -1,3 +1,6 @@
+#include <string>
+#define DYM_DEFAULT_THREAD 1
+#include <dyGraphic.hpp>
 #include <dyMath.hpp>
 #include <dyPicture.hpp>
 #include <random>
@@ -6,7 +9,7 @@ typedef unsigned int u_int;
 #define cconst constexpr const
 
 const u_int dim = 3, n_grid = 48, steps = 25;
-const Real dt = 5e-5f;
+const Real dt = 1e-4f;
 
 const u_int n_particles = std::pow(n_grid, dim) / (std::pow(2, dim - 1));
 const Real dx = 1 / Real(n_grid), inv_dx = Real(n_grid);
@@ -198,7 +201,58 @@ void add_object(Vector3 center, int begin, int end, int material_index) {
   }
 }
 
+// int main(int argc, char const *argv[]) {
+//   u_int n3 = n_particles / 3;
+//   qprint(dym::vector::sqr(Vector3(1.5f)));
+//   add_object(Vector3({0.25, 0.25, 0.5}), 0, n3, m_LIQUID);
+//   add_object(Vector3({0.45, 0.45, 0.5}), n3, 2 * n3, m_JELLY);
+//   add_object(Vector3({0.65, 0.65, 0.5}), 2 * n3, n_particles, m_PLASTIC);
+//   qprint(n3, n_particles);
+//   int frame = 0;
+//   dym::Tensor<Real> pic(0, dym::gi(500, 500, 3));
+//   dym::Tensor<dym::Vector<Real, 2>> point(0, dym::gi(n3, 1));
+//   auto Tp = [&](int begin) {
+//     point.for_each_i([&](dym::Vector<Real, 2> &e, int i) {
+//       auto &pos = x[begin + i];
+//       float PI = 3.14159265f;
+//       float phi = (28.0 / 180) * PI, theta = (32.0 / 180) * PI;
+//       Vector3 a = pos / 1.5f - 0.35f;
+//       float c = std::cos(phi), s = std::sin(phi), C = std::cos(theta),
+//             S = std::sin(theta);
+//       float x = a.x() * c + a.z() * s, z = a.z() * c - a.x() * s;
+//       float u = x + 0.5, v = a.y() * C + z * S + 0.5;
+//       e[0] = u, e[1] = v;
+//     });
+//   };
+//   int pic_c = 0;
+//   dym::TimeLog time;
+//   for (int step = 0; step < 20000; step++) {
+//     if (step % int(steps) == 0) {
+//       // qprint("Average Frame: ", (double)step / time.getRecord());
+//       time.record();
+//       time.reStart();
+//       dym::clear(pic, dym::gi(17, 47, 65));
+//       int ans = 0;
+//       Tp(0);
+//       // qprint(x[10], point[10]);
+//       ans = dym::scatter(pic, point, dym::gi(6, 133, 135), 1);
+//       Tp(n3);
+//       ans = dym::scatter(pic, point, dym::gi(237, 85, 59), 1);
+//       Tp(2 * n3);
+//       ans = dym::scatter(pic, point, dym::gi(255, 255, 255), 1);
+//       std::string cs_ = std::to_string(pic_c);
+//       while (cs_.length() != 5)
+//         cs_ = "0" + cs_;
+//       dym::imwrite(pic, "./mpm_out/frame_" + cs_ + ".png");
+//       qprint("writing: " + std::to_string(pic_c));
+//       pic_c++;
+//     }
+//     advance(dt);
+//   }
+//   return 0;
+// }
 int main(int argc, char const *argv[]) {
+  dym::GUI gui("mpm-test", dym::gi(17, 47, 65));
   u_int n3 = n_particles / 3;
   qprint(dym::vector::sqr(Vector3(1.5f)));
   add_object(Vector3({0.25, 0.25, 0.5}), 0, n3, m_LIQUID);
@@ -207,10 +261,10 @@ int main(int argc, char const *argv[]) {
   qprint(n3, n_particles);
   int frame = 0;
   dym::Tensor<Real> pic(0, dym::gi(500, 500, 3));
-  dym::Tensor<Real> point(0, dym::gi(n3, 2));
-  auto Tp = [&](int begin) {
-    point.for_each([&](Real *e, int i) {
-      auto &pos = x[begin + i];
+  dym::Tensor<dym::Vector<Real, 2>> point(0, dym::gi(n_particles, 1));
+  auto Tp = [&]() {
+    point.for_each_i([&](dym::Vector<Real, 2> &e, int i) {
+      auto &pos = x[i];
       float PI = 3.14159265f;
       float phi = (28.0 / 180) * PI, theta = (32.0 / 180) * PI;
       Vector3 a = pos / 1.5f - 0.35f;
@@ -218,25 +272,30 @@ int main(int argc, char const *argv[]) {
             S = std::sin(theta);
       float x = a.x() * c + a.z() * s, z = a.z() * c - a.x() * s;
       float u = x + 0.5, v = a.y() * C + z * S + 0.5;
-      e[0] = u * 500, e[1] = v * 500;
+      e[0] = u, e[1] = v;
     });
   };
   int pic_c = 0;
+  dym::TimeLog time;
   for (int step = 0; step < 20000; step++) {
     if (step % int(steps) == 0) {
+      // qprint("Average Frame: ", (double)step / time.getRecord());
+      time.record();
+      time.reStart();
       dym::clear(pic, dym::gi(17, 47, 65));
       int ans = 0;
-      Tp(0);
+      Tp();
+      // qprint(x[10], point[10]);
       ans = dym::scatter(pic, point, dym::gi(6, 133, 135), 1);
-      Tp(n3);
+      // Tp(n3);
       ans = dym::scatter(pic, point, dym::gi(237, 85, 59), 1);
-      Tp(2 * n3);
+      // Tp(2 * n3);
       ans = dym::scatter(pic, point, dym::gi(255, 255, 255), 1);
-      std::string cs_ = std::to_string(pic_c);
-      while (cs_.length() != 5)
-        cs_ = "0" + cs_;
-      dym::imwrite(pic, "./mpm_out/frame_" + cs_ + ".png");
-      qprint("writing: " + std::to_string(pic_c));
+      // std::string cs_ = std::to_string(pic_c);
+      // while (cs_.length() != 5)
+      //   cs_ = "0" + cs_;
+      // dym::imwrite(pic, "./mpm_out/frame_" + cs_ + ".png");
+      // qprint("writing: " + std::to_string(pic_c));
       pic_c++;
     }
     advance(dt);

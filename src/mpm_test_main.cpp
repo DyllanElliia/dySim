@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-25 14:46:24
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-27 19:31:31
+ * @LastEditTime: 2022-01-27 19:39:12
  * @Description:
  */
 
@@ -269,6 +269,12 @@ void add_object(Vector3 center, int begin, int end, int material_index) {
 }
 
 int main(int argc, char const *argv[]) {
+  u_int n3 = n_particles / 3;
+  qprint(dym::vector::sqr(Vector3(1.5f)));
+  add_object(Vector3({0.25, 0.25, 0.5}), 0, n3, m_LIQUID);
+  add_object(Vector3({0.45, 0.45, 0.5}), n3, 2 * n3, m_JELLY);
+  add_object(Vector3({0.65, 0.65, 0.5}), 2 * n3, n_particles, m_PLASTIC);
+  qprint(n3, n_particles);
   // qprint(dym::real::clamp(2, 1.f - 2.5e-2f, 1.f + 8.5e-3f),
   //        dym::real::clamp(0, 1.f - 2.5e-2f, 1.f + 8.5e-3f),
   //        dym::matrix::outer_product(Vector3({1.f, 2.f, 3.f}),
@@ -288,12 +294,6 @@ int main(int argc, char const *argv[]) {
   // qprint("dpos:", Xp, base, fx, dpos);
   // qprint(particles[0].v, particles[0].C, particles[0].F, particles[0].Jp);
 
-  u_int n3 = n_particles / 3;
-  qprint(dym::vector::sqr(Vector3(1.5f)));
-  add_object(Vector3({0.25, 0.25, 0.5}), 0, n3, m_LIQUID);
-  add_object(Vector3({0.45, 0.45, 0.5}), n3, 2 * n3, m_JELLY);
-  add_object(Vector3({0.65, 0.65, 0.5}), 2 * n3, n_particles, m_PLASTIC);
-  qprint(n3, n_particles);
   // qprint(x[100]);
   // x[0] = Vector3({0.25, 0.25, 0.5});
 

@@ -23,13 +23,13 @@ namespace tColor {
 const std::string BLACK("30"), RED("31"), GREEN("32"), YELLOW("33"), BLUE("34"),
     MAGENTA("35"), CYAN("36");
 }
-template <typename T, typename... Ts>
-void qp_ctrl(T v, Ts... vl) {
+template <typename T, typename... Ts> void qp_ctrl(T v, Ts... vl) {
   std::string ctrl("\033[");
   ctrl += std::string(v);
   if constexpr (sizeof...(vl) > 0) {
     std::array cl = {std::string(vl)...};
-    for (auto &c : cl) ctrl += ";" + c;
+    for (auto &c : cl)
+      ctrl += ";" + c;
   }
   ctrl += "m";
   std::cout << ctrl;
@@ -37,8 +37,7 @@ void qp_ctrl(T v, Ts... vl) {
 void qp_ctrl() { std::cout << "\033[0m"; }
 
 // Print the values no line break.
-template <typename T, typename... Ts>
-void qprint_nlb(T v, Ts... vl) {
+template <typename T, typename... Ts> void qprint_nlb(T v, Ts... vl) {
   std::cout << v << " ";
   if constexpr (sizeof...(vl) > 0) {
     qprint_nlb(vl...);
@@ -48,8 +47,7 @@ void qprint_nlb(T v, Ts... vl) {
 }
 
 // Print the values with line break.
-template <typename T, typename... Ts>
-void qprint(T v, Ts... vl) {
+template <typename T, typename... Ts> void qprint(T v, Ts... vl) {
   std::cout << v << " ";
   if constexpr (sizeof...(vl) > 0) {
     qprint(vl...);
@@ -64,7 +62,7 @@ inline void qprint() { printf("\n"); }
 #include <ctime>
 namespace dym {
 class TimeLog {
- private:
+private:
   // double timep;
   std::chrono::steady_clock::time_point timep;
   std::vector<std::pair<float, float>> timeLogs;
@@ -76,13 +74,20 @@ class TimeLog {
   // #define ONE_SECOND 1000000
   // #endif // USE_WIN
 
- public:
+public:
+  auto getRecord(double scale = 1) {
+    flag = false;
+    auto end = std::chrono::steady_clock::now();
+    auto tt =
+        std::chrono::duration_cast<std::chrono::duration<float>>(end - timep);
+    return tt.count() * scale;
+  }
   void record(double scale = 1) {
     flag = false;
     auto end = std::chrono::steady_clock::now();
     auto tt =
         std::chrono::duration_cast<std::chrono::duration<float>>(end - timep);
-    std::cout << "Run time: " << tt.count() * scale << "s" << std::endl;
+    std::cout << "Run time: " << tt.count() << "s" << std::endl;
   }
 
   void reStart() { timep = std::chrono::steady_clock::now(); }
@@ -112,4 +117,4 @@ class TimeLog {
     }
   }
 };
-}  // namespace dym
+} // namespace dym

@@ -18,20 +18,18 @@ int main() {
   std::uniform_real_distribution<Real> u(0.f, 1.f);
   float t1 = 0, t2 = 0;
   int count = 0;
-  dym::Tensor<Real> pos(0, dym::gi(10000, 2));
-  pos.for_each_i([&](Real &e) { e = u(re); });
-  dym::Tensor<Real> pos2(0, dym::gi(10000, 2));
-  pos2.for_each_i([&](Real &e, int i, int j) {
-    if (j == 1)
-      e = -u(re);
-    else
-      e = u(re);
+  dym::Tensor<dym::Vector<Real, 2>> pos(0, dym::gi(10000));
+  pos.for_each_i([&](dym::Vector<Real, 2> &e) { e = u(re); });
+  dym::Tensor<dym::Vector<Real, 2>> pos2(0, dym::gi(10000));
+  pos2.for_each_i([&](dym::Vector<Real, 2> &e, int i) {
+    e[1] = -u(re);
+    e[0] = u(re);
   });
 
   // GUI part:
   dym::GUI gui("dymathTest", dym::gi(0, 100, 100));
   gui.init(400, 400);
-  dym::TimeLog tt;  // timer
+  dym::TimeLog tt; // timer
   gui.update([&]() {
     auto pos1_ = pos * std::sin(t1), pos2_ = pos2 * std::sin(t2);
     t1 += 3e-2, t2 += 2e-2, ++count;

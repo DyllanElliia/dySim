@@ -1,5 +1,9 @@
 # dySim
+
+![logoAddWord](README.assets/logoAddWord.png)
+
 ## installation
+
 ```bash
 git clone --recursive https://github.com/DyllanElliia/dySim.git
 ```
@@ -16,3 +20,4 @@ make
 - GLFW
 - ASSIMP
 - (Optional) CUDA
+

@@ -27,10 +27,13 @@ int main() {
   qprint(dym::pi(pic.shape()), ret);
   auto r = dym::clear(pic_l, dym::gi(0, 150, 150));
   qprint("fin", r);
-  dym::Tensor<float> loc({{10, 200}, {50, 150}, {100, 50}, {200, 200}});
+  dym::Tensor<dym::Vector<float, 2>> loc(
+      {dym::Vector<float, 2>({0.1, 0.2}), dym::Vector<float, 2>({0.3, 0.4}),
+       dym::Vector<float, 2>({0.5, 0.6}), dym::Vector<float, 2>({0.7, 0.8})},
+      true);
   loc.show();
   qprint(dym::pi(loc.shape()), loc[0], loc[1]);
-  auto ans = dym::scatter(pic_l, loc, dym::gi(200, 50, 50), 3);
+  auto ans = dym::scatter(pic_l, loc, dym::gi(200, 50, 50), 1);
   qprint(ans, dym::pi(pic_l.shape()));
   dym::imwrite(pic_l, "./image_out/newPic2.jpg");
   return 0;

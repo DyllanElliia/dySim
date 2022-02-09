@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-10-06 17:00:50
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-26 15:24:58
+ * @LastEditTime: 2022-02-09 16:50:29
  * @Description:
  */
 
@@ -19,9 +19,7 @@
 namespace dym {
 template <class InputType>
 Tensor<InputType> abs(Tensor<InputType> in) {
-  in.for_each_i([](InputType &e) {
-    if (e < 0) e = -e;
-  });
+  in.for_each_i([](InputType &e) { e = dym::max(e, (InputType)0); });
   return in;
 }
 

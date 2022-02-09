@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-23 19:33:53
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-23 20:00:27
+ * @LastEditTime: 2022-02-09 15:10:57
  * @Description:
  */
 #include <cmath>
@@ -19,17 +19,15 @@ int main() {
   float t1 = 0, t2 = 0;
   int count = 0;
   dym::Tensor<dym::Vector<Real, 2>> pos(0, dym::gi(10000));
-  pos.for_each_i([&](dym::Vector<Real, 2> &e) { e = u(re); });
+  pos.for_each_i([&](dym::Vector<Real, 2> &e) { e[0] = u(re), e[1] = u(re); });
   dym::Tensor<dym::Vector<Real, 2>> pos2(0, dym::gi(10000));
-  pos2.for_each_i([&](dym::Vector<Real, 2> &e, int i) {
-    e[1] = -u(re);
-    e[0] = u(re);
-  });
+  pos2.for_each_i(
+      [&](dym::Vector<Real, 2> &e, int i) { e[0] = u(re), e[1] = -u(re); });
 
   // GUI part:
   dym::GUI gui("dymathTest", dym::gi(0, 100, 100));
   gui.init(400, 400);
-  dym::TimeLog tt; // timer
+  dym::TimeLog tt;  // timer
   gui.update([&]() {
     auto pos1_ = pos * std::sin(t1), pos2_ = pos2 * std::sin(t2);
     t1 += 3e-2, t2 += 2e-2, ++count;

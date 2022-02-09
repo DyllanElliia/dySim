@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-30 17:00:48
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2021-10-17 16:36:19
+ * @LastEditTime: 2022-02-09 16:08:45
  * @Description:
  */
 
@@ -18,11 +18,11 @@ int main() {
 
   dym::TimeLog t;
   // Read Picture
-  auto pic = dym::imread("./image/luna.png", float(0), dym::PIC_GRAY);
+  auto pic = dym::imread<float, dym::PIC_RGB>("./image/luna.png");
 
   // Create Laplacian kernel
-  dym::Tensor<float> kernel_L(-1, dym::gi(3, 3));
-  kernel_L[dym::gi(1, 1)] = 8;
+  dym::Matrix<float, 3, 3> kernel_L(-1);
+  kernel_L[1][1] = 8;
   qprint(kernel_L);
   // run!
   auto pic_L = dym::filter2D(pic, kernel_L, dym::BORDER_REPLICATE);
@@ -30,15 +30,9 @@ int main() {
   t.record();
   t.reStart();
   // Create Roberts kernel
-  dym::Tensor<float> kernel_S1(dym::gi(2, 2), []() {
-    std::vector<float> v{-1, 0, 0, 1};
-    return v;
-  });
+  dym::Matrix<float, 2, 2> kernel_S1({{-1, 0}, {0, 1}});
   qprint(kernel_S1);
-  dym::Tensor<float> kernel_S2(dym::gi(2, 2), []() {
-    std::vector<float> v{0, -1, 1, 0};
-    return v;
-  });
+  dym::Matrix<float, 2, 2> kernel_S2({{0, -1}, {1, 0}});
   qprint(kernel_S2);
   // run!
   auto pic_S = dym::abs(dym::filter2D(pic, kernel_S1, dym::BORDER_REPLICATE)) +

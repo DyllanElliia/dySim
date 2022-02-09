@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-12 16:02:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-23 19:49:05
+ * @LastEditTime: 2022-02-09 15:37:44
  * @Description:
  */
 #pragma once
@@ -31,10 +31,10 @@ namespace dym {
 enum ViewMode { VIEWER_2D, VIEWER_3D };
 
 class GUI {
-private:
+ private:
   ViewMode viewMode;
   std::vector<std::function<void(GLFWwindow *)>> processInput;
-  std::vector<unsigned int> VAO, VBO_v, VBO_c, u_shader; // VAO -> VBO : 1 -> 2
+  std::vector<unsigned int> VAO, VBO_v, VBO_c, u_shader;  // VAO -> VBO : 1 -> 2
   std::vector<glm::vec3> color_l;
   std::vector<std::pair<unsigned short, unsigned int>> draw_property;
   unsigned int VxO_i;
@@ -98,7 +98,7 @@ private:
 
     GLfloat xoffset = xpos - lastX;
     GLfloat yoffset =
-        lastY - ypos; // Reversed since y-coordinates go from bottom to left
+        lastY - ypos;  // Reversed since y-coordinates go from bottom to left
 
     lastX = xpos;
     lastY = ypos;
@@ -112,7 +112,7 @@ private:
     // camera.ProcessMouseScroll(yoffset);
   }
 
-public:
+ public:
   GLFWwindow *window;
   std::string windowName;
   Index<float> background_color;
@@ -123,11 +123,12 @@ public:
   GUI(std::string windowName_ = "dyMath",
       Index<int> background_color_ = Index<int>(3, 0),
       ViewMode viewMode_ = VIEWER_2D)
-      : window(nullptr), windowName(windowName_), viewMode(viewMode_),
+      : window(nullptr),
+        windowName(windowName_),
+        viewMode(viewMode_),
         VxO_i(0) {
     keys = new bool[1024];
-    for (auto &bc : background_color_)
-      background_color.push_back(bc / 255.0);
+    for (auto &bc : background_color_) background_color.push_back(bc / 255.0);
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -139,12 +140,10 @@ public:
 #endif
   }
   ~GUI() {
-    for (auto &v : VAO)
-      glDeleteVertexArrays(1, &v);
+    for (auto &v : VAO) glDeleteVertexArrays(1, &v);
     // for (auto &v : VBO_c)
     //   glDeleteBuffers(1, &v);
-    for (auto &v : VBO_v)
-      glDeleteBuffers(1, &v);
+    for (auto &v : VBO_v) glDeleteBuffers(1, &v);
     glfwTerminate();
     delete[] keys;
     qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::GREEN);
@@ -188,19 +187,19 @@ public:
     });
     // add default shader
     switch (viewMode) {
-    case VIEWER_2D:
-      shaderList.push_back(
-          Shader("../shader/default2D.vs", "../shader/default2D.frag"));
-      break;
-    case VIEWER_3D:
-      shaderList.push_back(
-          Shader("../shader/default3D.vs", "../shader/default3D.frag"));
-      break;
-    default:
-      qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::RED);
-      qprint("GUI ERROR: Init default shader failure!");
-      qp_ctrl();
-      return false;
+      case VIEWER_2D:
+        shaderList.push_back(
+            Shader("../shader/default2D.vs", "../shader/default2D.frag"));
+        break;
+      case VIEWER_3D:
+        shaderList.push_back(
+            Shader("../shader/default3D.vs", "../shader/default3D.frag"));
+        break;
+      default:
+        qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::RED);
+        qprint("GUI ERROR: Init default shader failure!");
+        qp_ctrl();
+        return false;
     }
     // qprint("fin");
 
@@ -237,8 +236,7 @@ public:
     //   qp_ctrl();
     //   return false;
     // }
-    if (end == -1)
-      end = vec_num;
+    if (end > vec_num) end = vec_num;
     // Index<float> color;
     // for (auto &c : color_default)
     //   color.push_back(c / 255.0);
@@ -252,9 +250,9 @@ public:
     glBindVertexArray(VAO[VxO_i]);
     // add vertex
     glBindBuffer(GL_ARRAY_BUFFER, VBO_v[VxO_i]);
-    glBufferData(GL_ARRAY_BUFFER, (end - begin) * sizeof(float), &loc[begin],
-                 GL_STREAM_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float),
+    glBufferData(GL_ARRAY_BUFFER, (end - begin) * sizeof(Vector<float, 2>),
+                 &loc[begin], GL_STREAM_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vector<float, 2>),
                           (void *)0);
     glEnableVertexAttribArray(0);
     // glBindBuffer(GL_ARRAY_BUFFER, VBO_c[VxO_i]);
@@ -275,8 +273,7 @@ public:
     qprint("dySim GUI run!");
     qp_ctrl();
     while (!glfwWindowShouldClose(window)) {
-      for (auto &fun : processInput)
-        fun(window);
+      for (auto &fun : processInput) fun(window);
       auto save_i = VxO_i;
       // update all
       updateFun();
@@ -309,16 +306,11 @@ public:
           m_xoffset = 0, m_yoffset = 0, s_yoffset = 0;
 
           // Camera controls
-          if (keys[GLFW_KEY_W])
-            camera.ProcessKeyboard(FORWARD, deltaTime);
-          if (keys[GLFW_KEY_S])
-            camera.ProcessKeyboard(BACKWARD, deltaTime);
-          if (keys[GLFW_KEY_A])
-            camera.ProcessKeyboard(LEFT, deltaTime);
-          if (keys[GLFW_KEY_D])
-            camera.ProcessKeyboard(RIGHT, deltaTime);
-          if (keys[GLFW_KEY_SPACE])
-            run = false;
+          if (keys[GLFW_KEY_W]) camera.ProcessKeyboard(FORWARD, deltaTime);
+          if (keys[GLFW_KEY_S]) camera.ProcessKeyboard(BACKWARD, deltaTime);
+          if (keys[GLFW_KEY_A]) camera.ProcessKeyboard(LEFT, deltaTime);
+          if (keys[GLFW_KEY_D]) camera.ProcessKeyboard(RIGHT, deltaTime);
+          if (keys[GLFW_KEY_SPACE]) run = false;
         };
         // Create camera transformation
         glm::mat4 view;
@@ -348,4 +340,4 @@ public:
     return true;
   }
 };
-} // namespace dym
+}  // namespace dym

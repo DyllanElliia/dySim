@@ -1,4 +1,3 @@
-#include <string>
 #define DYM_DEFAULT_THREAD 1
 #include <dyGraphic.hpp>
 #include <dyMath.hpp>
@@ -84,15 +83,15 @@ std::array<std::function<void(Real &)>, 5> yield_criteria = {
     [](Real &new_Sig) {},
     // Plastic
     [](Real &new_Sig) {
-      new_Sig = dym::real::clamp(new_Sig, 1.f - 2.5e-2f, 1.f + 8.5e-3f);
+      new_Sig = dym::clamp(new_Sig, 1.f - 2.5e-2f, 1.f + 8.5e-3f);
     },
     // Sand
     [](Real &new_Sig) {
-      new_Sig = dym::real::clamp(new_Sig, 1.f - 2.5e-2f, 1.f + 8.5e-3f);
+      new_Sig = dym::clamp(new_Sig, 1.f - 2.5e-2f, 1.f + 8.5e-3f);
     },
     // Soil
     [](Real &new_Sig) {
-      new_Sig = dym::real::clamp(new_Sig, 1.f - 2.5e-2f, 1.f + 8.5e-3f);
+      new_Sig = dym::clamp(new_Sig, 1.f - 2.5e-2f, 1.f + 8.5e-3f);
     }};
 
 std::array<std::function<void(Matrix3 &, Matrix3 &, Matrix3 &, Matrix3 &)>, 5>
@@ -122,10 +121,9 @@ void advance(const Real &dt) {
     auto Xp = px / dx;
     auto base = (Xp - Vector3(0.5f)).cast<int>();
     Vector3 fx = Xp - base.cast<Real>();
-    std::array<Vector3, 3> w = {
-        Vector3(0.50f) * dym::vector::sqr(Vector3(1.5f) - fx),
-        Vector3(0.75f) - dym::vector::sqr(fx - Vector3(1.0f)),
-        Vector3(0.50f) * dym::vector::sqr(fx - Vector3(0.5f))};
+    std::array<Vector3, 3> w = {Vector3(0.50f) * dym::sqr(Vector3(1.5f) - fx),
+                                Vector3(0.75f) - dym::sqr(fx - Vector3(1.0f)),
+                                Vector3(0.50f) * dym::sqr(fx - Vector3(0.5f))};
     auto &p = particles[pi];
     p.F = (identity3 + dt * p.C) * p.F;
     Matrix3 U, Sig, V;
@@ -143,7 +141,7 @@ void advance(const Real &dt) {
     c_F[p.material](p.F, U, Sig, V);
     Matrix3 stress = 2.f * mu * ((p.F - U * V.transpose()) * p.F.transpose()) +
                      identity3 * lambda * J * (J - 1.f);
-    stress = (-dt * p_vol * 4) * stress * dym::real::sqr(inv_dx);
+    stress = (-dt * p_vol * 4) * stress * dym::sqr(inv_dx);
     Matrix3 affine = stress + p_mass * p.C;
     for (int i = 0; i < dim; ++i)
       for (int j = 0; j < dim; ++j)
@@ -162,22 +160,20 @@ void advance(const Real &dt) {
       if ((i < bound || k < bound) ||
           (i > n_grid - bound || j > n_grid - bound || k > n_grid - bound))
         gvm = 0;
-      if (j < bound)
-        gvm[1] = std::max(gvm[1], 0.f);
+      if (j < bound) gvm[1] = std::max(gvm[1], 0.f);
     }
   });
   x.for_each_i([&](Vector3 &px, int pi) {
     auto Xp = px / dx;
     auto base = (Xp - Vector3(0.5f)).cast<int>();
     Vector3 fx = Xp - base.cast<Real>();
-    std::array<Vector3, 3> w = {
-        Vector3(0.50f) * dym::vector::sqr(Vector3(1.5f) - fx),
-        Vector3(0.75f) - dym::vector::sqr(fx - Vector3(1.0f)),
-        Vector3(0.50f) * dym::vector::sqr(fx - Vector3(0.5f))};
+    std::array<Vector3, 3> w = {Vector3(0.50f) * dym::sqr(Vector3(1.5f) - fx),
+                                Vector3(0.75f) - dym::sqr(fx - Vector3(1.0f)),
+                                Vector3(0.50f) * dym::sqr(fx - Vector3(0.5f))};
     auto &p = particles[pi];
     Vector3 new_v(0.f);
     Matrix3 new_C(0.f);
-    auto nc_d = 4 * dym::real::sqr(inv_dx);
+    auto nc_d = 4 * dym::sqr(inv_dx);
     for (int i = 0; i < dim; ++i)
       for (int j = 0; j < dim; ++j)
         for (int k = 0; k < dim; ++k) {
@@ -196,14 +192,14 @@ std::default_random_engine re;
 std::uniform_real_distribution<float> u(-1.f, 1.f);
 void add_object(Vector3 center, int begin, int end, int material_index) {
   for (int i = begin; i < end; ++i) {
-    x[i] = Vector3({u(re), u(re), u(re)}) * 0.15f + center;
+    x[i] = Vector3({u(re), u(re), u(re)}) * 0.1f + center;
     particles[i].material = material_index;
   }
 }
 
 // int main(int argc, char const *argv[]) {
 //   u_int n3 = n_particles / 3;
-//   qprint(dym::vector::sqr(Vector3(1.5f)));
+//   qprint(dym::sqr(Vector3(1.5f)));
 //   add_object(Vector3({0.25, 0.25, 0.5}), 0, n3, m_LIQUID);
 //   add_object(Vector3({0.45, 0.45, 0.5}), n3, 2 * n3, m_JELLY);
 //   add_object(Vector3({0.65, 0.65, 0.5}), 2 * n3, n_particles, m_PLASTIC);
@@ -254,14 +250,10 @@ void add_object(Vector3 center, int begin, int end, int material_index) {
 int main(int argc, char const *argv[]) {
   dym::GUI gui("mpm-test", dym::gi(17, 47, 65));
   u_int n3 = n_particles / 3;
-  qprint(dym::vector::sqr(Vector3(1.5f)));
-  add_object(Vector3({0.25, 0.25, 0.5}), 0, n3, m_LIQUID);
-  add_object(Vector3({0.45, 0.45, 0.5}), n3, 2 * n3, m_JELLY);
-  add_object(Vector3({0.65, 0.65, 0.5}), 2 * n3, n_particles, m_PLASTIC);
-  qprint(n3, n_particles);
-  int frame = 0;
-  dym::Tensor<Real> pic(0, dym::gi(500, 500, 3));
-  dym::Tensor<dym::Vector<Real, 2>> point(0, dym::gi(n_particles, 1));
+  add_object(Vector3({0.35, 0.43, 0.5}), 0, n3, m_LIQUID);
+  add_object(Vector3({0.50, 0.64, 0.5}), n3, 2 * n3, m_JELLY);
+  add_object(Vector3({0.65, 0.85, 0.5}), 2 * n3, n_particles, m_PLASTIC);
+  dym::Tensor<dym::Vector<Real, 2>> point(0, dym::gi(n_particles));
   auto Tp = [&]() {
     point.for_each_i([&](dym::Vector<Real, 2> &e, int i) {
       auto &pos = x[i];
@@ -271,34 +263,24 @@ int main(int argc, char const *argv[]) {
       float c = std::cos(phi), s = std::sin(phi), C = std::cos(theta),
             S = std::sin(theta);
       float x = a.x() * c + a.z() * s, z = a.z() * c - a.x() * s;
-      float u = x + 0.5, v = a.y() * C + z * S + 0.5;
-      e[0] = u, e[1] = v;
+      float u = x, v = a.y() * C + z * S;
+      e[0] = 2 * u, e[1] = 2 * v;
     });
   };
   int pic_c = 0;
   dym::TimeLog time;
-  for (int step = 0; step < 20000; step++) {
-    if (step % int(steps) == 0) {
-      // qprint("Average Frame: ", (double)step / time.getRecord());
-      time.record();
-      time.reStart();
-      dym::clear(pic, dym::gi(17, 47, 65));
-      int ans = 0;
-      Tp();
-      // qprint(x[10], point[10]);
-      ans = dym::scatter(pic, point, dym::gi(6, 133, 135), 1);
-      // Tp(n3);
-      ans = dym::scatter(pic, point, dym::gi(237, 85, 59), 1);
-      // Tp(2 * n3);
-      ans = dym::scatter(pic, point, dym::gi(255, 255, 255), 1);
-      // std::string cs_ = std::to_string(pic_c);
-      // while (cs_.length() != 5)
-      //   cs_ = "0" + cs_;
-      // dym::imwrite(pic, "./mpm_out/frame_" + cs_ + ".png");
-      // qprint("writing: " + std::to_string(pic_c));
-      pic_c++;
+  gui.init(500, 500);
+  int step = 0;
+  gui.update([&]() {
+    time.record();
+    time.reStart();
+    Tp();
+    gui.scatter2D(point, dym::gi(6, 133, 135), 0, 0, n3);
+    gui.scatter2D(point, dym::gi(237, 85, 59), 0, n3, 2 * n3);
+    gui.scatter2D(point, dym::gi(255, 255, 255), 0, 2 * n3);
+    for (int i = 0; i < steps; ++i) {
+      advance(dt);
+      ++step;
     }
-    advance(dt);
-  }
-  return 0;
+  });
 }

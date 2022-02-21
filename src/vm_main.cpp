@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 15:30:45
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-09 17:32:20
+ * @LastEditTime: 2022-02-16 15:36:56
  * @Description:
  */
 #include "../core/src/matALG.hpp"
@@ -127,6 +127,7 @@ int main(int argc, char** argv) {
 
   qprint(dym::pow(dym::Vector<Real, 3>({1.f, 2.f, 3.f}), 1.2f));
   qprint(dym::min(dym::Vector<int, 3>({-2, 0, 2}), dym::Vector<int, 3>(0)));
+  qprint(dym::exp(10.f));
 
   return 0;
 }

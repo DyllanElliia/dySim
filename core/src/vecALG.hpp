@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-26 15:14:37
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-09 18:31:04
+ * @LastEditTime: 2022-02-16 15:12:59
  * @Description:
  */
 #pragma once
@@ -18,7 +18,7 @@ _DYM_FORCE_INLINE_ Vector<Type, dim> clamp(const Vector<Type, dim>& v,
 }
 template <typename Type, std::size_t dim>
 _DYM_FORCE_INLINE_ Vector<Type, dim> pow(const Vector<Type, dim>& v,
-                                         const Type& s) {
+                                         const int& s) {
   return Vector<Type, dim>([&](Type& e, int i) { e = pow(v[i], s); });
 }
 template <typename Type, std::size_t dim>

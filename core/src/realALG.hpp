@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-26 15:16:30
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-09 18:30:59
+ * @LastEditTime: 2022-02-16 15:38:00
  * @Description:
  */
 #pragma once
@@ -20,7 +20,7 @@ _DYM_FORCE_INLINE_ Type sqr(const Type &v) {
   return v * v;
 }
 template <typename Type>
-_DYM_FORCE_INLINE_ Type pow(const Type &v, const Type &s) {
+_DYM_FORCE_INLINE_ Type pow(const Type &v, const int &s) {
   return std::pow(v, s);
 }
 
@@ -38,10 +38,10 @@ _DYM_FORCE_INLINE_ Type abs(const Type &v) {
   return v > 0 ? v : -v;
 }
 
-#define _dym_real_use_std_(fun)                \
-  template <typename Type>                     \
-  _DYM_FORCE_INLINE_ Type fun(const Type &v) { \
-    return std::fun;                           \
+#define _dym_real_use_std_(fun)                          \
+  template <typename Type>                               \
+  constexpr _DYM_FORCE_INLINE_ Type fun(const Type &v) { \
+    return std::fun(v);                                  \
   }
 _dym_real_use_std_(sqrt);
 _dym_real_use_std_(cos);

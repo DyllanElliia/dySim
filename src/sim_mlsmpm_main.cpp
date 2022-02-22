@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-02-16 15:30:48
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-17 17:45:35
+ * @LastEditTime: 2022-02-22 16:55:32
  * @Description:
  */
 #define DYM_DEFAULT_THREAD 1
@@ -12,26 +12,30 @@
 typedef dym::Vector<Real, 3> Vector3;
 
 int main(int argc, char const *argv[]) {
-  dym::init(dym::MidGrid);
-  dym::setGlobalForce(Vector3({0.f, -9.8 * 2.f, 0.f}));
+  dym::MLSMPM<dym::MidGrid, dym::OneSeparateOtherSticky> sim;
+  sim.globalForce = Vector3({0.f, -9.8 * 2.f, 0.f});
   std::default_random_engine re;
   std::uniform_real_distribution<float> u(-1.f, 1.f);
-  dym::Tensor<Vector3> asdf(0, dym::gi(5000));
-  int particles_num = dym::addParticle(asdf.for_each_i([&](Vector3 &v) {
-    v = Vector3({u(re), u(re), u(re)}) * 0.2f + Vector3({0.5, 0.3, 0.5});
-  }),
-                                       dym::addLiquidMateria(0, 0.f));
+  u_int n3 = 3000;
+  dym::Tensor<Vector3> newX(0, dym::gi(n3));
+  newX.for_each_i([&](Vector3 &pos) {
+    pos = Vector3({u(re), u(re), u(re)}) * 0.1f;
+  });
+
+  sim.addParticle(newX + Vector3({0.35, 0.43, 0.5}), sim.addLiquidMaterial());
+  sim.addParticle(newX + Vector3({0.50, 0.64, 0.5}), sim.addJellyMaterial());
+  sim.addParticle(newX + Vector3({0.65, 0.84, 0.5}), sim.addPlasticMaterial());
+
   dym::GUI gui("simMpm-test", dym::gi(17, 47, 65));
-  gui.init(500, 500);
-  const Real dt = 5e-5;
-  dym::Tensor<dym::Vector<Real, 2>> point(0, dym::gi(particles_num));
-  const int steps = 25, n3 = particles_num / 3;
+  gui.init(800, 800);
+  const Real dt = 1e-4;
+  qprint("asdf:", dym::Vector<Real, 4>(dt * sim.globalForce));
+  getchar();
+  dym::Tensor<dym::Vector<Real, 2>> point(0, dym::gi(sim.getParticlesNum()));
+  const int steps = 25;
   auto Tp = [&](dym::Tensor<Vector3> &x) {
     point.for_each_i([&](dym::Vector<Real, 2> &e, int i) {
       auto &pos = x[i];
-      if (pos[0] <= 0 || pos[1] <= 0 || pos[2] <= 0 || pos[0] >= 1 ||
-          pos[1] >= 1 || pos[2] >= 1)
-        qprint(pos);
       float PI = 3.14159265f;
       float phi = (28.0 / 180) * PI, theta = (32.0 / 180) * PI;
       Vector3 a = pos / 1.5f - 0.35f;
@@ -43,15 +47,16 @@ int main(int argc, char const *argv[]) {
     });
   };
   dym::TimeLog time;
-  qprint(particles_num, n3);
+  qprint(sim.getParticlesNum(), n3);
   gui.update([&]() {
-    // time.record();
-    // time.reStart();
-    Tp(dym::getPos());
+    time.record();
+    time.reStart();
+    Tp(sim.getPos());
     // qprint("here");
-    gui.scatter2D(point, dym::gi(6, 133, 135), 0, 0, particles_num);
-    // qprint("here");
-    for (int i = 0; i < steps; ++i) dym::advance(dt);
+    gui.scatter2D(point, dym::gi(6, 133, 135), 0, 0, n3);
+    gui.scatter2D(point, dym::gi(237, 85, 59), 0, n3, 2 * n3);
+    gui.scatter2D(point, dym::gi(255, 255, 255), 0, 2 * n3);  // qprint("here");
+    for (int i = 0; i < steps; ++i) sim.advance(dt);
 
     // qprint("here");
     // qprint(sim.x[100]);

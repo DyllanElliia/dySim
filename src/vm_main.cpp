@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 15:30:45
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-16 15:36:56
+ * @LastEditTime: 2022-02-22 15:50:51
  * @Description:
  */
 #include "../core/src/matALG.hpp"
@@ -129,5 +129,6 @@ int main(int argc, char** argv) {
   qprint(dym::min(dym::Vector<int, 3>({-2, 0, 2}), dym::Vector<int, 3>(0)));
   qprint(dym::exp(10.f));
 
+  dym::Loop<int, 10>([&](auto i) { qprint("Loop: ", i); });
   return 0;
 }

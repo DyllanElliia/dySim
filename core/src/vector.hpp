@@ -2,11 +2,12 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:32:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-09 18:15:27
+ * @LastEditTime: 2022-02-22 16:09:58
  * @Description:
  */
 #pragma once
 #include "Index.hpp"
+#include "realALG.hpp"
 namespace dym {
 template <typename Type, std::size_t dim>
 struct Vector {
@@ -190,5 +191,18 @@ _dym_vector_operator_cmp_unary_(<=);
 _dym_vector_operator_cmp_unary_(>);
 _dym_vector_operator_cmp_unary_(>=);
 // _dym_vector_operator_cmp_unary_(==);
+
+template <typename Type, std::size_t dim>
+inline bool operator==(const Vector<Type, dim> &f, const Vector<Type, dim> &s) {
+  for (int i = 0; i < dim; ++i)
+    if (!(dym::abs(f[i] - s[i]) < 1e-7)) return false;
+  return true;
+}
+template <typename Type, std::size_t dim>
+inline bool operator==(const Vector<Type, dim> &f, const Type &s) {
+  for (int i = 0; i < dim; ++i)
+    if (!(dym::abs(f[i] - s) < 1e-7)) return false;
+  return true;
+}
 
 }  // namespace dym

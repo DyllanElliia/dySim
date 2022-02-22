@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-02-10 15:49:14
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-17 17:52:38
+ * @LastEditTime: 2022-02-22 16:52:16
  * @Description: mls-mpm based simulator.
  */
 #pragma once
@@ -18,45 +18,6 @@ typedef dym::Vector<Real, 3> Vector3;
 typedef dym::Vector<Real, 4> Vector4;
 typedef dym::Vector<int, 3> Vector3i;
 #define identity3 dym::matrix::identity<Real, 3>()
-Real dx, inv_dx;
-u_int n_particles;
-u_short bound;
-u_short n_grid;
-Vector3 globalForce;
-
-Real p_rho = 1, p_vol = std::pow(dx * 0.5, 2), p_mass = p_vol * p_rho,
-     hardening = 10.f;
-Real E = 0.1e4f, nu = 0.2f;
-Real mu_0 = E / (2 * (1 + nu)), lambda_0 = E * nu / ((1 + nu) * (1 - 2 * nu));
-// struct material {
-//   Real p_rho, p_vol, p_mass, hardening, mu_0, lambda_0;
-//   material(const Real &E, const Real &nu, const Real &hardening,
-//            const Real &p_rho, const Real &p_vol)
-//       : mu_0(E / (2 * (1 + nu))),
-//         lambda_0(E * nu / ((1 + nu) * (1 - 2 * nu))),
-//         hardening(hardening),
-//         p_rho(p_rho),
-//         p_vol(p_vol),
-//         p_mass(p_vol * p_rho) {}
-// };
-struct Particle_o {
-  Vector3 v;
-  Matrix3 C, F;
-  Real Jp;
-  unsigned short material;
-  Particle_o() : v(0), C(0), F(identity3), Jp(1.f), material(0) {}
-};
-
-// std::vector<material> material_l;
-std::vector<Particle_o> particles;
-
-dym::Tensor<Vector4> grid_vm;
-
-std::vector<std::function<void(Real &, Real &, Particle_o &)>> c_mu_la;
-std::vector<std::function<void(Real &)>> yield_criteria;
-std::vector<std::function<void(Matrix3 &, Matrix3 &, Matrix3 &, Matrix3 &)>>
-    c_F;
-dym::Tensor<Vector3> x;
 }  // namespace
 
 enum SimGridAcc {
@@ -65,183 +26,289 @@ enum SimGridAcc {
   HighGrid = (u_short)64
 };
 
-void init(SimGridAcc gridNum = SimGridAcc::MidGrid) {
-  n_particles = 0, n_grid = gridNum;
-  dx = 1 / Real(n_grid), inv_dx = Real(n_grid), bound = n_grid / 16;
-  grid_vm =
-      dym::Tensor<Vector4>(0, dym::gi(n_grid + 1, n_grid + 1, n_grid + 1));
-  x = dym::Tensor<Vector3>(0, dym::gi(0));
-}
+enum BoundConditionOpt {
+  OneSeparateOtherSticky = (u_short)0,
+  OneStickyOtherSeparate = (u_short)1
+};
 
-Vector3 addGlobalForce(const Vector3 &f) {
-  globalForce += f;
-  return globalForce;
-}
-Vector3 setGlobalForce(const Vector3 &f) {
-  globalForce = f;
-  return globalForce;
-}
-auto &getPos() { return x; }
-auto getParticlesNum() { return n_particles; }
+template <u_short n_grid = SimGridAcc::MidGrid,
+          u_short BC = BoundConditionOpt::OneStickyOtherSeparate>
+class MLSMPM {
+ private:
+  u_int n_particles;
+  Real dx, inv_dx;
+  int bound;
+  struct Particle_o {
+    Vector3 v;
+    Matrix3 C, F;
+    Real Jp;
+    unsigned short material;
+    Particle_o() : v(0), C(0), F(identity3), Jp(1.f), material(0) {}
+  };
+  std::vector<Particle_o> particles;
 
-// u_int addMaterial(const Real &E = 0.1e4f, const Real &nu = 0.2f,
-//                   const Real &hardening = 10.f, const Real &p_rho = 1.f,
-//                   Real p_vol = -1) {
-//   if (p_vol < 0) p_vol = dym::pow(dx * 0.5, 2);
-//   material_l.push_back(material(E, nu, hardening, p_rho, p_vol));
-//   return material_l.size() - 1;
-// }
-u_int addLiquidMateria(const u_int &material_index, const Real &mu_ = 0.f) {
-  if (c_mu_la.size() != material_index ||
-      yield_criteria.size() != material_index || c_F.size() != material_index)
-    return -1;
-  // material &ma = material_l[material_index];
-  // Real hardening = ma.hardening, mu_0 = ma.mu_0, lambda_0 = ma.lambda_0;
-  qprint(hardening, mu_0, lambda_0, material_index);
-  c_mu_la.push_back([&](Real &mu, Real &lambda, Particle_o &p) {
-    auto h = dym::exp(hardening * (1.0f - p.Jp));
-    mu = mu_, lambda = lambda_0 * h;
-  });
-  yield_criteria.push_back([&](Real &new_Sig) {});
-  c_F.push_back([&](Matrix3 &F, Matrix3 &U, Matrix3 &Sig, Matrix3 &V) {});
-  return material_index;
-}
-u_int addJellyMateria(const u_int &material_index, const Real &h_) {
-  if (c_mu_la.size() != material_index - 1 ||
-      yield_criteria.size() != material_index - 1 ||
-      c_F.size() != material_index - 1)
-    return -1;
-  // material &ma = material_l[material_index];
-  // Real hardening = ma.hardening, mu_0 = ma.mu_0, lambda_0 = ma.lambda_0;
-  c_mu_la.push_back([&](Real &mu, Real &lambda, Particle_o &p) {
-    auto h = h_;
-    mu = mu_0 * h, lambda = lambda_0 * h;
-  });
-  yield_criteria.push_back([&](Real &new_Sig) {});
-  c_F.push_back([&](Matrix3 &F, Matrix3 &U, Matrix3 &Sig, Matrix3 &V) {});
-  return material_index;
-}
-u_int addPlasticMateria(const u_int &material_index, const Real &yield_min,
-                        const Real &yield_max) {
-  if (c_mu_la.size() != material_index - 1 ||
-      yield_criteria.size() != material_index - 1 ||
-      c_F.size() != material_index - 1)
-    return -1;
-  // material &ma = material_l[material_index];
-  // Real hardening = ma.hardening, mu_0 = ma.mu_0, lambda_0 = ma.lambda_0;
-  c_mu_la.push_back([&](Real &mu, Real &lambda, Particle_o &p) {
-    auto h = dym::exp(hardening * (1.0f - p.Jp));
-    mu = mu_0 * h, lambda = lambda_0 * h;
-  });
-  yield_criteria.push_back([&](Real &new_Sig) {
-    new_Sig = dym::clamp(new_Sig, yield_min, yield_max);
-  });
-  c_F.push_back([&](Matrix3 &F, Matrix3 &U, Matrix3 &Sig, Matrix3 &V) {
-    F = U * Sig * V.transpose();
-  });
-  return material_index;
-}
+  dym::Tensor<Vector3> x;
+  dym::Tensor<Vector4> grid_vm;
 
-u_int addParticle(Tensor<Vector3> &newX, const u_int &material_index) {
-  qprint(material_index);
-  int par_num = newX.shape()[0];
-  Particle_o par;
-  par.material = material_index;
-  particles.insert(particles.end(), par_num, par);
-  x.reShape(dym::gi(n_particles + par_num));
-  newX.for_each_i([&](Vector3 &pos, int i) {
-    if (pos > 1.f) qprint(i, pos);
-    x[n_particles + i] = pos;
-  });
-  n_particles += par_num;
-  // qprint(particles.size(), particles[100].F, particles[100].material,
-  //        material_l[material_index].p_vol,
-  //        material_l[material_index].p_mass);
-  // qprint(material_l.size(), c_mu_la.size(), yield_criteria.size(),
-  // c_F.size());
-  return par_num;
-}
+#define m_LIQUID int(0)
+#define m_JELLY int(1)
+#define m_PLASTIC int(2)
 
-void advance(const Real &dt) {
-  // qprint(grid_vm[dym::gi(24, 5, 24)]);
-  grid_vm = Vector4(0.f);
-  // qprint(grid_vm[dym::gi(24, 5, 24)]);
+  std::array<std::function<void(Real &mu, Real &lambda, const Particle_o &p,
+                                const Real &hardening, const Real &mu_0,
+                                const Real &lambda_0, const Real &opt)>,
+             3>
+      c_mu_la = {
+          // Liquid
+          [](Real &mu, Real &lambda, const Particle_o &p, const Real &hardening,
+             const Real &mu_0, const Real &lambda_0, const Real &opt) {
+            auto h = exp(hardening * (1.0f - p.Jp));
+            mu = opt, lambda = lambda_0 * h;
+          },
+          // Jelly
+          [](Real &mu, Real &lambda, const Particle_o &p, const Real &hardening,
+             const Real &mu_0, const Real &lambda_0, const Real &opt) {
+            auto h = opt;
+            mu = mu_0 * h, lambda = lambda_0 * h;
+          },
+          // Plastic
+          [](Real &mu, Real &lambda, const Particle_o &p, const Real &hardening,
+             const Real &mu_0, const Real &lambda_0, const Real &opt) {
+            auto h = exp(hardening * (1.0f - p.Jp));
+            mu = mu_0 * h, lambda = lambda_0 * h;
+          }};
 
-  x.for_each_i([&](Vector3 &px, int pi) {
-    auto Xp = px / dx;
-    auto base = (Xp - Vector3(0.5f)).cast<int>();
-    Vector3 fx = Xp - base.cast<Real>();
-    std::array<Vector3, 3> w = {Vector3(0.50f) * dym::sqr(Vector3(1.5f) - fx),
-                                Vector3(0.75f) - dym::sqr(fx - Vector3(1.0f)),
-                                Vector3(0.50f) * dym::sqr(fx - Vector3(0.5f))};
-    auto &p = particles[pi];
-    // auto &material_data = material_l[p.material];
-    // auto &p_vol = material_data.p_vol, &p_mass = material_data.p_mass;
-    p.F = (identity3 + dt * p.C) * p.F;
-    Matrix3 U, Sig, V;
-    dym::matrix::svd(p.F, U, Sig, V);
-    Real mu, lambda;
-    c_mu_la[p.material](mu, lambda, p);
-    Real J = 1.f;
-    auto &y_c_f = yield_criteria[p.material];
-    for (int d = 0; d < dim; ++d) {
-      auto new_Sig = Sig[d][d];
-      y_c_f(new_Sig);
-      p.Jp *= Sig[d][d] / new_Sig;
-      Sig[d][d] = new_Sig, J *= new_Sig;
+  std::array<
+      std::function<void(Real &new_Sig, const Real &y_min, const Real &y_max)>,
+      3>
+      yield_criteria = {
+          // Liquid
+          [](Real &new_Sig, const Real &y_min, const Real &y_max) {},
+          // Jelly
+          [](Real &new_Sig, const Real &y_min, const Real &y_max) {},
+          // Plastic
+          [](Real &new_Sig, const Real &y_min, const Real &y_max) {
+            new_Sig = dym::clamp(new_Sig, y_min, y_max);
+          }};
+
+  std::array<
+      std::function<void(Matrix3 &F, Matrix3 &U, Matrix3 &Sig, Matrix3 &V)>, 3>
+      c_F = {
+          // Liquid
+          [](Matrix3 &F, Matrix3 &U, Matrix3 &Sig, Matrix3 &V) {},
+          // Jelly
+          [](Matrix3 &F, Matrix3 &U, Matrix3 &Sig, Matrix3 &V) {},
+          // Plastic
+          [](Matrix3 &F, Matrix3 &U, Matrix3 &Sig, Matrix3 &V) {
+            F = U * Sig * V.transpose();
+          }};
+
+  struct Material {
+    Real p_rho, p_vol, p_mass, hardening, mu_0, lambda_0, y_min, y_max, opt;
+    u_short mat_fun_i;
+    Material(const Real &E, const Real &nu, const Real &hardening,
+             const Real &p_rho, const Real &p_vol, const Real &y_min,
+             const Real &y_max, const Real &opt, const u_short &mat_fun_i)
+        : mu_0(E / (2 * (1 + nu))),
+          lambda_0(E * nu / ((1 + nu) * (1 - 2 * nu))),
+          hardening(hardening),
+          p_rho(p_rho),
+          p_vol(p_vol),
+          p_mass(p_vol * p_rho),
+          y_min(y_min),
+          y_max(y_max),
+          opt(opt),
+          mat_fun_i(mat_fun_i) {
+      qprint(this->p_rho, this->p_vol, this->p_mass, this->hardening,
+             this->mu_0, this->lambda_0);
     }
-    c_F[p.material](p.F, U, Sig, V);
-    Matrix3 stress = 2.f * mu * ((p.F - U * V.transpose()) * p.F.transpose()) +
-                     identity3 * lambda * J * (J - 1.f);
-    stress = (-dt * p_vol * 4) * stress * dym::sqr(inv_dx);
-    Matrix3 affine = stress + p_mass * p.C;
-    for (int i = 0; i < dim; ++i)
-      for (int j = 0; j < dim; ++j)
-        for (int k = 0; k < dim; ++k) {
-          Vector3 dpos = (Vector3({Real(i), Real(j), Real(k)}) - fx) * dx;
-          Real weight = w[i].x() * w[j].y() * w[k].z();
-          grid_vm[dym::gi(base.x() + i, base.y() + j, base.z() + k)] +=
-              Vector4(weight * (p_mass * p.v + affine * dpos), weight * p_mass);
+  };
+  std::vector<Material> material_l;
+
+ public:
+  Vector3 globalForce;
+  MLSMPM() {
+    n_particles = 0, dx = 1 / Real(n_grid), inv_dx = Real(n_grid),
+    bound = n_grid / 16, globalForce = Vector3(0.f);
+    grid_vm.reShape(dym::gi(n_grid + 1, n_grid + 1, n_grid + 1));
+    x.reShape(dym::gi(0));
+  }
+  ~MLSMPM() {
+    grid_vm.reShape(dym::gi(0)), x.reShape(dym::gi(0));
+    material_l.clear(), particles.clear();
+  }
+
+  _DYM_FORCE_INLINE_ u_int addMaterial(
+      const u_short &material_model, const Real &E = 0.1e4f,
+      const Real &nu = 0.2f, const Real &hardening = 10.f,
+      const Real &y_min = 1.f - 2.5e-2f, const Real &y_max = 1.f + 8.5e-3f,
+      const Real &opt = 0.f, const Real &p_rho = 1.f, Real p_vol = -1) {
+    if (p_vol < 0) p_vol = dym::pow(dx * 0.5, 2);
+    material_l.push_back(Material(E, nu, hardening, p_rho, p_vol, y_min, y_max,
+                                  opt, material_model));
+    return material_l.size() - 1;
+  }
+
+  _DYM_FORCE_INLINE_ u_int addLiquidMaterial(
+      const Real &mu = 0.f, const Real &E = 0.1e4f, const Real &nu = 0.2f,
+      const Real &hardening = 10.f, const Real &p_rho = 1.f, Real p_vol = -1) {
+    return addMaterial(0, E, nu, hardening, 1.f, 1.f, mu, p_rho, p_vol);
+  }
+
+  _DYM_FORCE_INLINE_ u_int addJellyMaterial(
+      const Real &h = 0.3f, const Real &E = 0.1e4f, const Real &nu = 0.2f,
+      const Real &hardening = 10.f, const Real &p_rho = 1.f, Real p_vol = -1) {
+    return addMaterial(1, E, nu, hardening, 1.f, 1.f, h, p_rho, p_vol);
+  }
+
+  _DYM_FORCE_INLINE_ u_int addPlasticMaterial(
+      const Real &y_min = 1.f - 2.5e-2f, const Real &y_max = 1.f + 8.5e-3f,
+      const Real &E = 0.1e4f, const Real &nu = 0.2f,
+      const Real &hardening = 10.f, const Real &p_rho = 1.f, Real p_vol = -1) {
+    return addMaterial(2, E, nu, hardening, y_min, y_max, 0.f, p_rho, p_vol);
+  }
+
+  _DYM_FORCE_INLINE_ auto &getPos() { return x; }
+  _DYM_FORCE_INLINE_ auto getParticlesNum() { return n_particles; }
+
+  u_int addParticle(Tensor<Vector3> newX, const u_int &material_index) {
+    qprint(material_index);
+    int par_num = newX.shape()[0];
+    Particle_o par;
+    par.material = material_index;
+    particles.insert(particles.end(), par_num, par);
+    x.reShape(dym::gi(n_particles + par_num));
+    newX.for_each_i([&](Vector3 &pos, int i) {
+      if (pos > 1.f) qprint(i, pos);
+      x[n_particles + i] = pos;
+    });
+    n_particles += par_num;
+    return getParticlesNum();
+  }
+
+  void advance(
+      const Real &dt = 1e-4,
+      std::function<Vector3(const Vector3 &, Vector3)> collision =
+          [](const Vector3 &pos, Vector3 vul) { return vul; }) {
+    grid_vm = Vector4(0.f);
+    x.for_each_i([&](Vector3 &px, int pi) {
+      auto Xp = px / dx;
+      auto base = (Xp - Vector3(0.5f)).cast<int>();
+      Vector3 fx = Xp - base.cast<Real>();
+      std::array<Vector3, 3> w = {
+          Vector3(0.50f) * dym::sqr(Vector3(1.5f) - fx),
+          Vector3(0.75f) - dym::sqr(fx - Vector3(1.0f)),
+          Vector3(0.50f) * dym::sqr(fx - Vector3(0.5f))};
+      auto &p = particles[pi];
+      const auto &mat_data = material_l[p.material];
+      const auto &p_vol = mat_data.p_vol, &p_mass = mat_data.p_mass;
+      const auto &mat_fun_i = mat_data.mat_fun_i;
+      p.F = (identity3 + dt * p.C) * p.F;
+      Matrix3 U, Sig, V;
+      dym::matrix::svd(p.F, U, Sig, V);
+      Real mu, lambda;
+      c_mu_la[mat_fun_i](mu, lambda, p, mat_data.hardening, mat_data.mu_0,
+                         mat_data.lambda_0, mat_data.opt);
+      Real J = 1.f;
+      auto &y_c_f = yield_criteria[mat_fun_i];
+      const auto &y_min = mat_data.y_min, &y_max = mat_data.y_max;
+      for (int d = 0; d < dim; ++d) {
+        auto new_Sig = Sig[d][d];
+        y_c_f(new_Sig, y_min, y_max);
+        p.Jp *= Sig[d][d] / new_Sig;
+        Sig[d][d] = new_Sig, J *= new_Sig;
+      }
+      c_F[mat_fun_i](p.F, U, Sig, V);
+      Matrix3 stress =
+          2.f * mu * ((p.F - U * V.transpose()) * p.F.transpose()) +
+          identity3 * lambda * J * (J - 1.f);
+      stress = (-dt * p_vol * 4) * stress * dym::sqr(inv_dx);
+      Matrix3 affine = stress + p_mass * p.C;
+      for (int i = 0; i < dim; ++i)
+        for (int j = 0; j < dim; ++j)
+          for (int k = 0; k < dim; ++k) {
+            Vector3 dpos = (Vector3({Real(i), Real(j), Real(k)}) - fx) * dx;
+            Real weight = w[i].x() * w[j].y() * w[k].z();
+            grid_vm[dym::gi(base.x() + i, base.y() + j, base.z() + k)] +=
+                Vector4(weight * (p_mass * p.v + affine * dpos),
+                        weight * p_mass);
+          }
+    });
+    grid_vm.for_each_i([&](Vector4 &gvm, int i, int j, int k) {
+      auto &g_m = gvm[dim];
+      if (g_m > 0.f) {
+        if (!(dym::isnan(gvm) == 0.f)) {
+          qprint("isnan:", i, j, k);
+          gvm = Vector3(0.f);
         }
-  });
-  grid_vm.for_each_i([&](Vector4 &gvm, int i, int j, int k) {
-    auto &g_m = gvm[dim];
-    if (g_m > 0.f) {
-      gvm /= g_m;
-      gvm += Vector4(dt * globalForce);
-      // gvm[1] -= dt * 9.8 * 2;
-      if ((i < bound || k < bound) ||
-          (i > n_grid - bound || j > n_grid - bound || k > n_grid - bound))
-        gvm = 0;
-      if (j < bound) gvm[1] = std::max(gvm[1], 0.f);
-    }
-  });
-  x.for_each_i([&](Vector3 &px, int pi) {
-    auto Xp = px / dx;
-    auto base = (Xp - Vector3(0.5f)).cast<int>();
-    Vector3 fx = Xp - base.cast<Real>();
-    std::array<Vector3, 3> w = {Vector3(0.50f) * dym::sqr(Vector3(1.5f) - fx),
-                                Vector3(0.75f) - dym::sqr(fx - Vector3(1.0f)),
-                                Vector3(0.50f) * dym::sqr(fx - Vector3(0.5f))};
-    auto &p = particles[pi];
-    Vector3 new_v(0.f);
-    Matrix3 new_C(0.f);
-    auto nc_d = 4 * dym::sqr(inv_dx);
-    for (int i = 0; i < dim; ++i)
-      for (int j = 0; j < dim; ++j)
-        for (int k = 0; k < dim; ++k) {
-          Vector3 dpos = (Vector3({Real(i), Real(j), Real(k)}) - fx) * dx;
-          Real weight = w[i].x() * w[j].y() * w[k].z();
-          auto g_v = Vector3(
-              grid_vm[dym::gi(base.x() + i, base.y() + j, base.z() + k)]);
-          new_v += weight * g_v;
-          new_C += (nc_d * weight) * dym::matrix::outer_product(g_v, dpos);
+        gvm /= g_m;
+        // gvm[1] -= dt * 9.8 * 2.f;
+        gvm += Vector4(dt * globalForce);
+
+        auto old = gvm;
+        gvm = collision(Vector3({Real(i), Real(j), Real(k)}), Vector3(gvm));
+        gvm.for_each([&](Real &v, int iii) {
+          if (gvm[iii] != old[iii] && iii != 3) qprint("bug!", old, gvm);
+        });
+
+        if constexpr (BC == BoundConditionOpt::OneSeparateOtherSticky) {
+          if ((i < bound || k < bound) ||
+              (i > n_grid - bound || j > n_grid - bound || k > n_grid - bound))
+            gvm = 0;
+          if (j < bound) gvm[1] = std::max(gvm[1], 0.f);
         }
-    p.v = new_v, p.C = new_C;
-    px += dt * p.v;
-    // px[1] = dym::max(px[1], dx * bound);
-    if (pi == 100) qprint(px, p.v, dx / dt, dx * bound);
-  });
-}
+
+#define bound_judge(which, index)                            \
+  if (which < bound) gvm[index] = dym::max(gvm[index], 0.f); \
+  if (which > n_grid - bound) gvm[index] = dym::min(gvm[index], 0.f);
+
+        if constexpr (BC == BoundConditionOpt::OneStickyOtherSeparate) {
+          bound_judge(i, 0);
+          bound_judge(j, 1);
+          // bound_judge(k, 2);
+          if (k < bound) gvm[2] = dym::max(gvm[2], 0.f);
+          if (k > n_grid - bound) gvm = 0.f;
+        }
+      }
+    });
+    x.for_each_i([&](Vector3 &px, int pi) {
+      auto Xp = px / dx;
+      auto base = (Xp - Vector3(0.5f)).cast<int>();
+      Vector3 fx = Xp - base.cast<Real>();
+      std::array<Vector3, 3> w = {
+          Vector3(0.50f) * dym::sqr(Vector3(1.5f) - fx),
+          Vector3(0.75f) - dym::sqr(fx - Vector3(1.0f)),
+          Vector3(0.50f) * dym::sqr(fx - Vector3(0.5f))};
+      auto &p = particles[pi];
+      Vector3 new_v(0.f);
+      Matrix3 new_C(0.f);
+      auto nc_d = 4 * dym::sqr(inv_dx);
+      for (int i = 0; i < dim; ++i)
+        for (int j = 0; j < dim; ++j)
+          for (int k = 0; k < dim; ++k) {
+            Vector3 dpos = (Vector3({Real(i), Real(j), Real(k)}) - fx) * dx;
+            Real weight = w[i].x() * w[j].y() * w[k].z();
+            auto g_v = Vector3(
+                grid_vm[dym::gi(base.x() + i, base.y() + j, base.z() + k)]);
+            new_v += weight * g_v;
+            new_C += (nc_d * weight) * dym::matrix::outer_product(g_v, dpos);
+          }
+      p.v = new_v, p.C = new_C;
+      auto old = px;
+      px += dt * p.v;
+      if (!(dym::isnan(px) == 0.f)) {
+        qprint(old);
+        px = old;
+      }
+      if (!(dym::isnan(p.v) == 0.f)) {
+        qprint("-------------v");
+        Particle_o par;
+        par.material = p.material;
+        std::swap(par, p);
+      }
+      px = dym::clamp(px, Vector3(1.5f * dx), Vector3(1 - 0.5f * dx));
+    });
+  }
+};
 
 }  // namespace dym

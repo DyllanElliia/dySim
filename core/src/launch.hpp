@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:19:52
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-22 15:50:14
+ * @LastEditTime: 2022-02-24 16:46:00
  * @Description:
  */
 #pragma once
@@ -72,14 +72,15 @@ void Launch(Func& fun, const int begin_i, const int end_i,
 namespace detail {
 
 template <class T, T... inds, class F>
-constexpr void loop(std::integer_sequence<T, inds...>, F&& f) {
+constexpr _DYM_FORCE_INLINE_ void loop(std::integer_sequence<T, inds...>,
+                                       F&& f) {
   (f(std::integral_constant<T, inds>{}), ...);
 }
 
 }  // namespace detail
 
 template <class T, T count, class F>
-constexpr void Loop(F&& f) {
+constexpr _DYM_FORCE_INLINE_ void Loop(F&& f) {
   detail::loop(std::make_integer_sequence<T, count>{}, std::forward<F>(f));
 }
 

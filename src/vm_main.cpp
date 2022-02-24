@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 15:30:45
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-22 15:50:51
+ * @LastEditTime: 2022-02-24 16:10:30
  * @Description:
  */
 #include "../core/src/matALG.hpp"
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
   dym::TimeLog t;
 
   // long long times = 9223372036854775807;
-  long long times = 1e3;
+  long long times = 1e2;
   double scale = 1;
   std::default_random_engine re;
   std::uniform_real_distribution<float> u(0.f, 1.f);
@@ -130,5 +130,31 @@ int main(int argc, char** argv) {
   qprint(dym::exp(10.f));
 
   dym::Loop<int, 10>([&](auto i) { qprint("Loop: ", i); });
+
+  auto c4 = dym::cross(dym::Vector<Real, 4>({1.f, 2.f, 3.f, 4.f}),
+                       dym::Vector<Real, 4>({-4.f, -2.f, 3.f, 1.f}),
+                       dym::Vector<Real, 4>({10.f, -8.f, 6.f, 5.f}));
+  qprint(c4, c4.dot(dym::Vector<Real, 4>({1.f, 2.f, 3.f, 4.f})),
+         c4.dot(dym::Vector<Real, 4>({-4.f, -2.f, 3.f, 1.f})),
+         c4.dot(dym::Vector<Real, 4>({10.f, -8.f, 6.f, 5.f})));
+  qprint(dym::cross(dym::Vector<Real, 3>({1.f, 0.f, 0.f}),
+                    dym::Vector<Real, 3>({0.f, 1.f, 0.f})));
+  qprint(dym::cross(dym::Vector<Real, 2>({0.3f, 0.2f})));
+
+  qprint(
+      dym::matrix::det(dym::Matrix<Real, 3, 3>(
+          {{1.f, 2.f, 3.f}, {0.f, 2.f, 3.f}, {0.f, 0.f, 3.f}})),
+      dym::matrix::det(dym::Matrix<Real, 5, 5>({{1.f, 2.f, 3.f, 4.f, 5.f},
+                                                {0.f, 2.f, 3.f, 4.f, 5.f},
+                                                {0.f, 0.f, 3.f, 4.f, 5.f},
+                                                {0.f, 0.f, 0.f, 4.f, 5.f},
+                                                {0.f, 0.f, 0.f, 0.f, 5.f}})));
+  qprint(dym::Matrix<Real, 5, 5>({{1.f, 2.f, 3.f, 4.f, 5.f},
+                                  {0.f, 2.f, 3.f, 4.f, 5.f},
+                                  {0.f, 0.f, 3.f, 4.f, 5.f},
+                                  {0.f, 0.f, 0.f, 4.f, 5.f},
+                                  {0.f, 0.f, 0.f, 0.f, 5.f}})
+             .sub(1, 1));
+
   return 0;
 }

@@ -2,54 +2,59 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-07 12:19:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-26 16:26:42
+ * @LastEditTime: 2022-02-24 17:03:19
  * @Description:
  */
 #pragma once
 #include "vector.hpp"
 
 namespace dym {
-template <typename Type, std::size_t m, std::size_t n> struct Matrix {
-private:
+template <typename Type, std::size_t m, std::size_t n>
+struct Matrix {
+ private:
   Vector<Type, n> a[m];
 
-public:
+ public:
   Matrix(const Type &num = 0) {
-    for (auto &i : a)
-      i = num;
+    for (auto &i : a) i = num;
   }
   // template <typename... v_args>
   Matrix(const std::vector<std::vector<Type>> &v) {
-    for (int i = 0; i < m; ++i)
-      for (int j = 0; j < n; ++j)
-        a[i][j] = v[i][j];
+    Loop<int, m>(
+        [&](auto i) { Loop<int, n>([&](auto j) { a[i][j] = v[i][j]; }); });
+    // for (int i = 0; i < m; ++i)
+    //   for (int j = 0; j < n; ++j) a[i][j] = v[i][j];
+  }
+  Matrix(const std::vector<Vector<Type, n>> &v) {
+    Loop<int, m>([&](auto i) { a[i] = v[i]; });
+    // for (int i = 0; i < m; ++i) a[i] = v[i];
   }
   Matrix(std::function<void(Type &)> fun) {
-    for (int i = 0; i < m; ++i)
-      for (int j = 0; j < n; ++j)
-        fun(a[i][j]);
-  };
+    Loop<int, m>([&](auto i) { Loop<int, n>([&](auto j) { fun(a[i][j]); }); });
+    // for (int i = 0; i < m; ++i)
+    //   for (int j = 0; j < n; ++j) fun(a[i][j]);
+  }
   Matrix(std::function<void(Type &, int, int)> fun) {
-    for (int i = 0; i < m; ++i)
-      for (int j = 0; j < n; ++j)
-        fun(a[i][j], i, j);
-  };
+    Loop<int, m>(
+        [&](auto i) { Loop<int, n>([&](auto j) { fun(a[i][j], i, j); }); });
+    // for (int i = 0; i < m; ++i)
+    //   for (int j = 0; j < n; ++j) fun(a[i][j], i, j);
+  }
   Matrix(std::function<void(Vector<Type, n> &)> fun) {
-    for (auto &e : a)
-      fun(e);
-  };
+    Loop<int, m>([&](auto i) { fun(a[i]); });
+    // for (auto &e : a) fun(e);
+  }
   Matrix(std::function<void(Vector<Type, n> &, int)> fun) {
-    int i = 0;
-    for (auto &e : a)
-      fun(e, i++);
-  };
+    Loop<int, m>([&](auto i) { fun(a[i], i); });
+    // int i = 0;
+    // for (auto &e : a) fun(e, i++);
+  }
   template <std::size_t inRank_m, std::size_t inRank_n>
   Matrix(const Matrix<Type, inRank_m, inRank_n> &v, const Type &vul = 0) {
     constexpr int for_min = std::min(m, inRank_m);
-    for (int i = 0; i < for_min; ++i)
-      a[i] = v[i];
-    for (int i = for_min; i < m && i < n; ++i)
-      a[i][i] = vul;
+    Loop<int, for_min>([&](auto i) { a[i] = v[i]; });
+    // for (int i = 0; i < for_min; ++i) a[i] = v[i];
+    for (int i = for_min; i < m && i < n; ++i) a[i][i] = vul;
   }
 
   Matrix(const Matrix<Type, m, n> &&v) { std::memcpy(a, v.a, sizeof(Matrix)); }
@@ -58,21 +63,25 @@ public:
   void show() const {
     std::string res = "Mat: [\n";
     for (auto &v : a) {
-      for (int i = 0; i < n; ++i)
-        res += std::to_string(v[i]) + " ";
+      for (int i = 0; i < n; ++i) res += std::to_string(v[i]) + " ";
       res += "\n";
     }
     res += "]";
     std::cout << res << std::endl;
   }
-  inline void for_each(std::function<void(Type &)> func) {
-    for (auto &e : a)
-      func(e);
+  _DYM_FORCE_INLINE_ Matrix &for_each(std::function<void(Type &)> func) {
+    Loop<int, m>([&](auto i) { func(a[i]); });
+    // for (auto &e : a) func(e);
+    return *this;
   }
-  inline void for_each(std::function<void(Type &, int, int)> func) {
-    int i = 0;
-    for (auto &v : a)
-      v.for_each([&](Type &e, int j) { func(e, i, j); }), i++;
+  _DYM_FORCE_INLINE_ Matrix &for_each(
+      std::function<void(Type &, int, int)> func) {
+    Loop<int, m>(
+        [&](auto i) { a[i].for_each([&](Type &e, int j) { func(e, i, j); }); });
+    // int i = 0;
+    // for (auto &v : a) v.for_each([&](Type &e, int j) { func(e, i, j); }),
+    // i++;
+    return *this;
   }
 
   Vector<Type, n> &operator[](const int &i) { return a[i]; }
@@ -81,8 +90,8 @@ public:
   template <std::size_t inRank_m, std::size_t inRank_n>
   Matrix operator=(const Matrix<Type, inRank_m, inRank_n> &v) {
     constexpr int for_min = std::min(m, inRank_m);
-    for (int i = 0; i < for_min; ++i)
-      a[i] = v[i];
+    Loop<int, for_min>([&](auto i) { a[i] = v[i]; });
+    // for (int i = 0; i < for_min; ++i) a[i] = v[i];
     return *this;
   }
   inline Matrix operator=(const Matrix &v) {
@@ -91,26 +100,26 @@ public:
   }
 
   Matrix operator=(const Type &num) {
-    for (auto &v : a)
-      v = num;
+    for (auto &v : a) v = num;
     return *this;
   }
   friend std::ostream &operator<<(std::ostream &output, const Matrix &v) {
     std::string res = "Mat: [\n";
     for (auto &v : v.a) {
-      for (int i = 0; i < n; ++i)
-        res += std::to_string(v[i]) + " ";
+      for (int i = 0; i < n; ++i) res += std::to_string(v[i]) + " ";
       res += "\n";
     }
     res += "]";
     output << res;
     return output;
   }
-  template <typename cType> Matrix<cType, m, n> cast() {
+  template <typename cType>
+  _DYM_FORCE_INLINE_ Matrix<cType, m, n> cast() const {
     Matrix<cType, m, n> o;
-    for (int i = 0; i < m; ++i)
-      for (int j = 0; j < n; ++j)
-        o[i][j] = a[i][j];
+    Loop<int, m>(
+        [&](auto i) { Loop<int, n>([&](auto j) { o[i][j] = a[i][j]; }); });
+    // for (int i = 0; i < m; ++i)
+    //   for (int j = 0; j < n; ++j) o[i][j] = a[i][j];
     return o;
   }
 
@@ -119,11 +128,17 @@ public:
   inline Matrix<Type, n, m> transpose() const {
     return Matrix<Type, n, m>([&](Type &e, int i, int j) { e = a[j][i]; });
   }
-  inline Vector<Type, m> getColVec(const int col) {
+  inline Vector<Type, m> getColVec(const int &col) const {
     return Vector<Type, m>([&](Type &e, int i) { e = a[i][col]; });
   }
-  inline void setColVec(const int col, Vector<Type, m> v) {
+  inline void setColVec(const int &col, Vector<Type, m> v) {
     v.for_each([&](Type &e, int i) { a[i][col] = e; });
+  }
+  inline Matrix<Type, m - 1, n - 1> sub(const unsigned short &i,
+                                        const unsigned short &j) const {
+    return Matrix<Type, m - 1, n - 1>([&](Type &e, int ii, int jj) {
+      e = a[ii >= i ? ii + 1 : ii][jj >= j ? jj + 1 : jj];
+    });
   }
 };
 
@@ -142,10 +157,14 @@ inline Matrix<Type, m1, n2> operator*(const Matrix<Type, m1, n1> &a,
   // dym::matrix::mul_swap
   // mul_fast is better, but difficult to implement. Because of const & ptr
   Matrix<Type, m1, n2> o(0);
+  // Loop<int, m1>([&](auto r) {
+  //   Loop<int, n1>([&](auto i) {
+  //     for (int c = 0; c < n2; ++c) o[r][c] += a[r][i] * b[i][c];
+  //   });
+  // });
   for (int r = 0; r < m1; ++r)
     for (int i = 0; i < n1; ++i)
-      for (int c = 0; c < n2; ++c)
-        o[r][c] += a[r][i] * b[i][c];
+      for (int c = 0; c < n2; ++c) o[r][c] += a[r][i] * b[i][c];
   return o;
 }
 
@@ -154,45 +173,43 @@ inline Matrix<Type, m, n> operator-(const Matrix<Type, m, n> &v) {
   return Matrix<Type, m, n>([&](Type &e, int i, int j) { e = -v[i][j]; });
 }
 
-#define _dym_matrix_type_operator_binary_(op)                                  \
-  template <typename Type, std::size_t m, std::size_t n>                       \
-  inline Matrix<Type, m, n> operator op(const Type &f,                         \
-                                        const Matrix<Type, m, n> &s) {         \
-    return Matrix<Type, m, n>(                                                 \
-        [&](Type &e, int i, int j) { e = f op s[i][j]; });                     \
-  }                                                                            \
-  template <typename Type, std::size_t m, std::size_t n>                       \
-  inline Matrix<Type, m, n> operator op(const Matrix<Type, m, n> &f,           \
-                                        const Type &s) {                       \
-    return Matrix<Type, m, n>(                                                 \
-        [&](Type &e, int i, int j) { e = f[i][j] op s; });                     \
+#define _dym_matrix_type_operator_binary_(op)                          \
+  template <typename Type, std::size_t m, std::size_t n>               \
+  inline Matrix<Type, m, n> operator op(const Type &f,                 \
+                                        const Matrix<Type, m, n> &s) { \
+    return Matrix<Type, m, n>(                                         \
+        [&](Type &e, int i, int j) { e = f op s[i][j]; });             \
+  }                                                                    \
+  template <typename Type, std::size_t m, std::size_t n>               \
+  inline Matrix<Type, m, n> operator op(const Matrix<Type, m, n> &f,   \
+                                        const Type &s) {               \
+    return Matrix<Type, m, n>(                                         \
+        [&](Type &e, int i, int j) { e = f[i][j] op s; });             \
   }
 
 _dym_matrix_type_operator_binary_(*);
 _dym_matrix_type_operator_binary_(/);
 
-#define _dym_matrix_operator_binary_(op)                                       \
-  template <typename Type, std::size_t m, std::size_t n>                       \
-  inline Matrix<Type, m, n> operator op(const Matrix<Type, m, n> &f,           \
-                                        const Matrix<Type, m, n> &s) {         \
-    return Matrix<Type, m, n>(                                                 \
-        [&](Type &e, int i, int j) { e = f[i][j] op s[i][j]; });               \
-  }                                                                            \
+#define _dym_matrix_operator_binary_(op)                               \
+  template <typename Type, std::size_t m, std::size_t n>               \
+  inline Matrix<Type, m, n> operator op(const Matrix<Type, m, n> &f,   \
+                                        const Matrix<Type, m, n> &s) { \
+    return Matrix<Type, m, n>(                                         \
+        [&](Type &e, int i, int j) { e = f[i][j] op s[i][j]; });       \
+  }                                                                    \
   _dym_matrix_type_operator_binary_(op);
 
-#define _dym_matrix_operator_unary_(op)                                        \
-  template <typename Type, std::size_t m, std::size_t n>                       \
-  inline void operator op(Matrix<Type, m, n> &f,                               \
-                          const Matrix<Type, m, n> &s) {                       \
-    for (int i = 0; i < m; ++i)                                                \
-      for (int j = 0; j < n; ++j)                                              \
-        f[i][j] op s[i][j];                                                    \
-  }                                                                            \
-  template <typename Type, std::size_t m, std::size_t n>                       \
-  inline void operator op(Matrix<Type, m, n> &f, const Type &s) {              \
-    for (int i = 0; i < m; ++i)                                                \
-      for (int j = 0; j < n; ++j)                                              \
-        f[i][j] op s;                                                          \
+#define _dym_matrix_operator_unary_(op)                                      \
+  template <typename Type, std::size_t m, std::size_t n>                     \
+  inline void operator op(Matrix<Type, m, n> &f,                             \
+                          const Matrix<Type, m, n> &s) {                     \
+    Loop<int, m>(                                                            \
+        [&](auto i) { Loop<int, n>([&](auto j) { f[i][j] op s[i][j]; }); }); \
+  }                                                                          \
+  template <typename Type, std::size_t m, std::size_t n>                     \
+  inline void operator op(Matrix<Type, m, n> &f, const Type &s) {            \
+    Loop<int, m>(                                                            \
+        [&](auto i) { Loop<int, n>([&](auto j) { f[i][j] op s; }); });       \
   }
 
 _dym_matrix_operator_binary_(+);
@@ -203,4 +220,4 @@ _dym_matrix_operator_unary_(-=);
 _dym_matrix_operator_unary_(*=);
 _dym_matrix_operator_unary_(/=);
 
-} // namespace dym
+}  // namespace dym

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-14 14:51:57
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-26 16:45:29
+ * @LastEditTime: 2022-02-24 16:23:41
  * @Description:
  */
 #pragma once
@@ -72,5 +72,41 @@ inline Matrix<Type, dim, dim> outer_product(const Vector<Type, dim> &a,
       [&](Vector<Type, dim> &e, int i) { e = a[i] * b; });
 }
 
+template <typename Type, std::size_t dim>
+_DYM_FORCE_INLINE_ Type det(const Matrix<Type, dim, dim> &mat) {
+  if constexpr (dim == 1) return mat[0][0];
+  if constexpr (dim == 2)
+    return mat[0][0] * mat[1][1] - mat[1][0] * mat[0][1];
+  else {
+    Type ans = 0;
+    Loop<int, dim>([&](auto i) {
+      ans += (i % 2 ? -1 : 1) * det(mat.sub(0, i)) * mat[0][i];
+    });
+    return ans;
+  }
+}
+
 }  // namespace matrix
+
+template <typename Type, std::size_t dim>
+template <typename... Vs>
+_DYM_FORCE_INLINE_ Vector<Type, dim> Vector<Type, dim>::cross(Vs... vec) {
+  if constexpr ((std::is_same_v<Vs, Vector<Type, dim>> && ...) &&
+                sizeof...(vec) == dim - 2) {
+    if constexpr (dim == 1) return Vector<Type, dim>(Type(0));
+    if constexpr (dim == 2) return Vector<Type, dim>({a[1], -a[0]});
+    Matrix<Type, dim, dim> mat({Vector<Type, dim>((Type)0), *this, vec...});
+    return Vector<Type, dim>([&](Type &v, int i) {
+      v = (i % 2 ? -1 : 1) * matrix::det(mat.sub(0, i));
+    });
+  } else {
+    qp_ctrl(tColor::RED, tType::BOLD, tType::UNDERLINE);
+    qprint(
+        "Vector Error: please check the input vector dimensions of "
+        "function "
+        "cross.");
+    qp_ctrl();
+    return Vector(0);
+  }
+}
 }  // namespace dym

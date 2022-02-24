@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-02-10 15:49:14
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-22 16:52:16
+ * @LastEditTime: 2022-02-23 15:06:28
  * @Description: mls-mpm based simulator.
  */
 #pragma once
@@ -264,10 +264,10 @@ class MLSMPM {
 
         if constexpr (BC == BoundConditionOpt::OneStickyOtherSeparate) {
           bound_judge(i, 0);
-          bound_judge(j, 1);
-          // bound_judge(k, 2);
-          if (k < bound) gvm[2] = dym::max(gvm[2], 0.f);
-          if (k > n_grid - bound) gvm = 0.f;
+          // bound_judge(j, 1);
+          bound_judge(k, 2);
+          if (j < bound) gvm[1] = dym::max(gvm[1], 0.f);
+          if (j > n_grid - bound) gvm = 0.f;
         }
       }
     });
@@ -297,11 +297,11 @@ class MLSMPM {
       auto old = px;
       px += dt * p.v;
       if (!(dym::isnan(px) == 0.f)) {
-        qprint(old);
+        // qprint(old);
         px = old;
       }
       if (!(dym::isnan(p.v) == 0.f)) {
-        qprint("-------------v");
+        // qprint("-------------v");
         Particle_o par;
         par.material = p.material;
         std::swap(par, p);

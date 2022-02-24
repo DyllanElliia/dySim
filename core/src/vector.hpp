@@ -2,12 +2,13 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:32:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-22 16:09:58
+ * @LastEditTime: 2022-02-24 17:31:21
  * @Description:
  */
 #pragma once
 #include "Index.hpp"
 #include "realALG.hpp"
+#include "launch.hpp"
 namespace dym {
 template <typename Type, std::size_t dim>
 struct Vector {
@@ -16,16 +17,19 @@ struct Vector {
 
  public:
   Vector(const Type &num = 0) {
-    for (auto &i : a) i = num;
+    Loop<int, dim>([&](auto i) { a[i] = num; });
+    // for (auto &i : a) i = num;
   }
   // template <Type... args>
   Vector(std::array<Type, dim> v) { a = v; }
   Vector(std::function<void(Type &)> fun) {
-    for (auto &e : a) fun(e);
+    Loop<int, dim>([&](auto i) { fun(a[i]); });
+    // for (auto &e : a) fun(e);
   }
   Vector(std::function<void(Type &, int)> fun) {
-    int i = 0;
-    for (auto &e : a) fun(e, i++);
+    Loop<int, dim>([&](auto i) { fun(a[i], i); });
+    // int i = 0;
+    // for (auto &e : a) fun(e, i++);
   }
   template <std::size_t inDim>
   Vector(const Vector<Type, inDim> &v, const Type &vul = 0) {
@@ -48,12 +52,14 @@ struct Vector {
     std::cout << res << std::endl;
   }
   _DYM_FORCE_INLINE_ auto data() const { return a.data(); }
-  inline void for_each(std::function<void(Type &)> func) {
-    for (auto &e : a) func(e);
+  _DYM_FORCE_INLINE_ void for_each(std::function<void(Type &)> func) {
+    // for (auto &e : a) func(e);
+    Loop<int, dim>([&](auto i) { func(a[i]); });
   }
-  inline void for_each(std::function<void(Type &, int)> func) {
-    int i = 0;
-    for (auto &e : a) func(e, i++);
+  _DYM_FORCE_INLINE_ void for_each(std::function<void(Type &, int)> func) {
+    // int i = 0;
+    // for (auto &e : a) func(e, i++);
+    Loop<int, dim>([&](auto i) { func(a[i], i); });
   }
 
   Type &operator[](const int &i) { return a[i]; }
@@ -99,17 +105,25 @@ struct Vector {
   inline Vector<cType, dim> cast() {
     return Vector<cType, dim>([&](cType &e, int i) { e = a[i]; });
   }
-  Type dot(const Vector &v) const {
+  inline Type dot(const Vector &v) const {
     Type res = 0;
-    for (int i = 0; i < dim; ++i) res += a[i] * v[i];
+    Loop<int, dim>([&](auto i) { res += a[i] * v[i]; });
+    // for (int i = 0; i < dim; ++i) res += a[i] * v[i];
     return res;
   }
+  template <typename... Vs>
+  inline Vector<Type, dim> cross(Vs... vec);
 };
 
 template <typename Type, std::size_t dim>
 _DYM_FORCE_INLINE_ Type dot(const Vector<Type, dim> &v1,
                             const Vector<Type, dim> &v2) {
   return v1.dot(v2);
+}
+
+template <typename Type, std::size_t dim, typename... Vs>
+_DYM_FORCE_INLINE_ Vector<Type, dim> cross(Vector<Type, dim> v, Vs... vec) {
+  return v.cross(vec...);
 }
 
 // template <typename Type, std::size_t dim>

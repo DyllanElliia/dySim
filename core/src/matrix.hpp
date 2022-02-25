@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-07 12:19:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-24 17:03:19
+ * @LastEditTime: 2022-02-25 16:21:58
  * @Description:
  */
 #pragma once
@@ -140,12 +140,18 @@ struct Matrix {
       e = a[ii >= i ? ii + 1 : ii][jj >= j ? jj + 1 : jj];
     });
   }
+
+  _DYM_FORCE_INLINE_ Type det() const;
+
+  inline Matrix<Type, m, n> inverse() const;
+
+  _DYM_FORCE_INLINE_ Matrix<Type, m, n> inv() const { return inverse(); }
 };
 
 template <typename Type, std::size_t m, std::size_t n>
 inline Vector<Type, m> operator*(const Matrix<Type, m, n> &ma,
                                  const Vector<Type, n> &ve) {
-  return Vector<Type, m>([&](Type &e, int i) { e = dot(ma[i], ve); });
+  return Vector<Type, m>([&](Type &e, int i) { e = vector::dot(ma[i], ve); });
 }
 
 template <typename Type, std::size_t m1, std::size_t n1, std::size_t m2,

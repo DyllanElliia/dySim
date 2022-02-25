@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 15:30:45
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-24 16:10:30
+ * @LastEditTime: 2022-02-25 16:33:11
  * @Description:
  */
 #include "../core/src/matALG.hpp"
@@ -131,30 +131,41 @@ int main(int argc, char** argv) {
 
   dym::Loop<int, 10>([&](auto i) { qprint("Loop: ", i); });
 
-  auto c4 = dym::cross(dym::Vector<Real, 4>({1.f, 2.f, 3.f, 4.f}),
-                       dym::Vector<Real, 4>({-4.f, -2.f, 3.f, 1.f}),
-                       dym::Vector<Real, 4>({10.f, -8.f, 6.f, 5.f}));
+  auto c4 = dym::vector::cross(dym::Vector<Real, 4>({1.f, 2.f, 3.f, 4.f}),
+                               dym::Vector<Real, 4>({-4.f, -2.f, 3.f, 1.f}),
+                               dym::Vector<Real, 4>({10.f, -8.f, 6.f, 5.f}));
   qprint(c4, c4.dot(dym::Vector<Real, 4>({1.f, 2.f, 3.f, 4.f})),
          c4.dot(dym::Vector<Real, 4>({-4.f, -2.f, 3.f, 1.f})),
          c4.dot(dym::Vector<Real, 4>({10.f, -8.f, 6.f, 5.f})));
-  qprint(dym::cross(dym::Vector<Real, 3>({1.f, 0.f, 0.f}),
-                    dym::Vector<Real, 3>({0.f, 1.f, 0.f})));
-  qprint(dym::cross(dym::Vector<Real, 2>({0.3f, 0.2f})));
+  qprint(dym::vector::cross(dym::Vector<Real, 3>({1.f, 0.f, 0.f}),
+                            dym::Vector<Real, 3>({0.f, 1.f, 0.f})));
+  qprint(dym::vector::cross(dym::Vector<Real, 2>({0.3f, 0.2f})));
 
-  qprint(
-      dym::matrix::det(dym::Matrix<Real, 3, 3>(
-          {{1.f, 2.f, 3.f}, {0.f, 2.f, 3.f}, {0.f, 0.f, 3.f}})),
-      dym::matrix::det(dym::Matrix<Real, 5, 5>({{1.f, 2.f, 3.f, 4.f, 5.f},
-                                                {0.f, 2.f, 3.f, 4.f, 5.f},
-                                                {0.f, 0.f, 3.f, 4.f, 5.f},
-                                                {0.f, 0.f, 0.f, 4.f, 5.f},
-                                                {0.f, 0.f, 0.f, 0.f, 5.f}})));
+  qprint(dym::matrix::det(dym::Matrix<Real, 3, 3>(
+             {{1.f, 2.f, 3.f}, {0.f, 2.f, 3.f}, {0.f, 0.f, 3.f}})),
+         dym::matrix::det(dym::Matrix<Real, 5, 5>({{1.f, 2.f, 3.f, 4.f, 5.f},
+                                                   {0.f, 2.f, 3.f, 4.f, 5.f},
+                                                   {0.f, 0.f, 3.f, 4.f, 5.f},
+                                                   {0.f, 0.f, 0.f, 4.f, 5.f},
+                                                   {0.f, 0.f, 0.f, 0.f, 5.f}})),
+         dym::Matrix<Real, 5, 5>({{1.f, 2.f, 3.f, 4.f, 5.f},
+                                  {0.f, 2.f, 3.f, 4.f, 5.f},
+                                  {0.f, 0.f, 3.f, 4.f, 5.f},
+                                  {0.f, 0.f, 0.f, 4.f, 5.f},
+                                  {0.f, 0.f, 0.f, 0.f, 5.f}})
+             .det());
   qprint(dym::Matrix<Real, 5, 5>({{1.f, 2.f, 3.f, 4.f, 5.f},
                                   {0.f, 2.f, 3.f, 4.f, 5.f},
                                   {0.f, 0.f, 3.f, 4.f, 5.f},
                                   {0.f, 0.f, 0.f, 4.f, 5.f},
                                   {0.f, 0.f, 0.f, 0.f, 5.f}})
              .sub(1, 1));
+  auto mat_t_inv = dym::Matrix<Real, 3, 3>(
+      {{2.f, 6.f, 4.f}, {8.f, 4.f, 2.f}, {9.f, 0.f, 2.f}});
+  qprint(mat_t_inv * mat_t_inv.inv());
+  qprint(dym::Vector<Real, 3>({1.f, 2.f, 3.f})
+             .reflect(dym::Vector<Real, 3>({0.f, 1.f, 0.f})),
+         dym::Vector<Real, 3>({1.f, 2.f, 3.f}).normalize().length());
 
   return 0;
 }

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-18 17:50:20
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-20 17:55:26
+ * @LastEditTime: 2022-02-25 16:19:33
  * @Description:
  */
 #pragma once
@@ -148,9 +148,9 @@ inline void svd(Matrix3 A, Matrix3 &U, Matrix3 &Sig, Matrix3 &V) {
 
   Matrix3 B = A * V;
   // sort singular values
-  real rho0 = dot(B.getColVec(0), B.getColVec(0));
-  real rho1 = dot(B.getColVec(1), B.getColVec(1));
-  real rho2 = dot(B.getColVec(2), B.getColVec(2));
+  real rho0 = vector::dot(B.getColVec(0), B.getColVec(0));
+  real rho1 = vector::dot(B.getColVec(1), B.getColVec(1));
+  real rho2 = vector::dot(B.getColVec(2), B.getColVec(2));
   if (rho0 < rho1) {
     Vector3 temp = B.getColVec(1);
     B.setColVec(1, -B.getColVec(0));

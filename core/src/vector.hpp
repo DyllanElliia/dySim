@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:32:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-24 17:31:21
+ * @LastEditTime: 2022-02-25 16:28:11
  * @Description:
  */
 #pragma once
@@ -21,7 +21,7 @@ struct Vector {
     // for (auto &i : a) i = num;
   }
   // template <Type... args>
-  Vector(std::array<Type, dim> v) { a = v; }
+  Vector(const std::array<Type, dim> &v) { a = v; }
   Vector(std::function<void(Type &)> fun) {
     Loop<int, dim>([&](auto i) { fun(a[i]); });
     // for (auto &e : a) fun(e);
@@ -51,7 +51,7 @@ struct Vector {
     res += "]";
     std::cout << res << std::endl;
   }
-  _DYM_FORCE_INLINE_ auto data() const { return a.data(); }
+  constexpr _DYM_FORCE_INLINE_ auto data() const { return a.data(); }
   _DYM_FORCE_INLINE_ void for_each(std::function<void(Type &)> func) {
     // for (auto &e : a) func(e);
     Loop<int, dim>([&](auto i) { func(a[i]); });
@@ -102,7 +102,7 @@ struct Vector {
     return output;
   }
   template <typename cType>
-  inline Vector<cType, dim> cast() {
+  inline Vector<cType, dim> cast() const {
     return Vector<cType, dim>([&](cType &e, int i) { e = a[i]; });
   }
   inline Type dot(const Vector &v) const {
@@ -112,9 +112,31 @@ struct Vector {
     return res;
   }
   template <typename... Vs>
-  inline Vector<Type, dim> cross(Vs... vec);
+  inline Vector<Type, dim> cross(Vs... vec) const;
+
+  inline Type length_sqr() const {
+    Type ans = 0;
+    Loop<int, dim>([&](auto i) { ans += dym::sqr(a[i]); });
+    return ans;
+  }
+  constexpr _DYM_FORCE_INLINE_ Type length() const {
+    return dym::sqrt(length_sqr());
+  }
+
+  constexpr _DYM_FORCE_INLINE_ Vector<Type, dim> normalize() const {
+    return *this / length();
+  }
+
+  _DYM_FORCE_INLINE_ Vector<Type, dim> reflect(
+      const Vector<Type, dim> &normal) const {
+    auto &vec = *this;
+    return vec - 2 * (vec.dot(normal)) * normal;
+  }
+
+  constexpr _DYM_FORCE_INLINE_ auto shape() const { return dym::gi(dim); }
 };
 
+namespace vector {
 template <typename Type, std::size_t dim>
 _DYM_FORCE_INLINE_ Type dot(const Vector<Type, dim> &v1,
                             const Vector<Type, dim> &v2) {
@@ -122,9 +144,16 @@ _DYM_FORCE_INLINE_ Type dot(const Vector<Type, dim> &v1,
 }
 
 template <typename Type, std::size_t dim, typename... Vs>
-_DYM_FORCE_INLINE_ Vector<Type, dim> cross(Vector<Type, dim> v, Vs... vec) {
+_DYM_FORCE_INLINE_ Vector<Type, dim> cross(const Vector<Type, dim> &v,
+                                           Vs... vec) {
   return v.cross(vec...);
 }
+
+template <typename Type, std::size_t dim>
+constexpr _DYM_FORCE_INLINE_ Type normalized(const Vector<Type, dim> &v) {
+  return v.normalize();
+}
+}  // namespace vector
 
 // template <typename Type, std::size_t dim>
 // _DYM_FORCE_INLINE_ Type operator*(const Vector<Type, dim> &f, const

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-12 16:02:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-09 15:37:44
+ * @LastEditTime: 2022-02-28 18:09:01
  * @Description:
  */
 #pragma once
@@ -23,6 +23,16 @@
 #include <learnopengl/camera.h>
 #include <learnopengl/shader.h>
 #include <string>
+
+#ifndef STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+#endif
+#ifndef STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb/stb_image_write.h>
+#endif
+
 bool *keys;
 GLfloat lastX, lastY;
 double m_xoffset = 0, m_yoffset = 0, s_yoffset = 0;
@@ -34,7 +44,8 @@ class GUI {
  private:
   ViewMode viewMode;
   std::vector<std::function<void(GLFWwindow *)>> processInput;
-  std::vector<unsigned int> VAO, VBO_v, VBO_c, u_shader;  // VAO -> VBO : 1 -> 2
+  std::vector<unsigned int> VAO, VBO_v, VBO_c, u_shader,
+      EBO;  // VAO -> VBO : 1 -> 2
   std::vector<glm::vec3> color_l;
   std::vector<std::pair<unsigned short, unsigned int>> draw_property;
   unsigned int VxO_i;
@@ -53,12 +64,14 @@ class GUI {
       VAO.push_back(0);
       VBO_v.push_back(0);
       // VBO_c.push_back(0);
+      EBO.push_back(0);
       color_l.push_back(glm::vec3(0));
       draw_property.push_back(std::make_pair(0, 0));
       u_shader.push_back(0);
       glGenVertexArrays(1, &VAO[i]);
       glGenBuffers(1, &VBO_v[i]);
       // glGenBuffers(1, &VBO_c[i]);
+      glGenBuffers(1, &EBO[i]);
     }
     return true;
   }
@@ -190,10 +203,14 @@ class GUI {
       case VIEWER_2D:
         shaderList.push_back(
             Shader("../shader/default2D.vs", "../shader/default2D.frag"));
+        shaderList.push_back(
+            Shader("../shader/default2Dpic.vs", "../shader/default2Dpic.frag"));
         break;
       case VIEWER_3D:
         shaderList.push_back(
             Shader("../shader/default3D.vs", "../shader/default3D.frag"));
+        shaderList.push_back(
+            Shader("../shader/default2Dpic.vs", "../shader/default2Dpic.frag"));
         break;
       default:
         qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::RED);
@@ -227,19 +244,7 @@ class GUI {
                  unsigned int end = -1) {
     Index locShape = loc.shape();
     auto &vec_num = locShape[0];
-    // auto &vec_d = locShape[1];
-    // if (vec_d != 2) {
-    //   qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::RED);
-    //   qprint("GUI::scatter2D ERROW: vertex dimension is no equal to 2!\nSTOP
-    //   "
-    //          "DRAWING!");
-    //   qp_ctrl();
-    //   return false;
-    // }
     if (end > vec_num) end = vec_num;
-    // Index<float> color;
-    // for (auto &c : color_default)
-    //   color.push_back(c / 255.0);
     checkObjId(VxO_i);
     u_shader[VxO_i] = shader_index;
     // add color
@@ -255,16 +260,104 @@ class GUI {
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vector<float, 2>),
                           (void *)0);
     glEnableVertexAttribArray(0);
-    // glBindBuffer(GL_ARRAY_BUFFER, VBO_c[VxO_i]);
-    // glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float), color.a,
-    // GL_STATIC_DRAW); glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0,
-    // (void
-    // *)0); glEnableVertexAttribArray(1);
     glBindVertexArray(0);
 
     draw_property[VxO_i] = std::make_pair(GL_POINTS, end - begin);
 
     ++VxO_i;
+    return true;
+  }
+
+  template <std::size_t color_size>
+  bool imshow(Tensor<Vector<unsigned short, color_size>> &pic,
+              int shader_index = 1) {
+    Index picShape = pic.shape();
+    if (picShape.size() != 2) return false;
+    auto y = picShape[0], x = picShape[1];
+    checkObjId(VxO_i);
+    u_shader[VxO_i] = shader_index;
+    glEnable(GL_TEXTURE_2D);
+    // set up vertex data (and buffer(s)) and configure vertex attributes
+    // ------------------------------------------------------------------
+    float vertices[] = {
+        // positions        // colors         // texture coords
+        1.0f,  1.0f,  0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,  // top right
+        1.0f,  -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,  // bottom right
+        -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,  // bottom left
+        -1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f   // top left
+    };
+    unsigned int indices[] = {
+        0, 1, 3,  // first triangle
+        1, 2, 3   // second triangle
+    };
+    // unsigned int VBO, VAO, EBO;
+    glBindVertexArray(VAO[VxO_i]);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_v[VxO_i]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[VxO_i]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+                 GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+                          (void *)0);
+    glEnableVertexAttribArray(0);
+    // color attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+                          (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    // texture coord attribute
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+                          (void *)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    // load and create a texture
+    // -------------------------
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D,
+                  texture);  // all upcoming GL_TEXTURE_2D operations now have
+                             // effect on this texture object
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                    GL_REPEAT);  // set texture wrapping to GL_REPEAT (default
+                                 // wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // int channel;
+    // unsigned char *data =
+    //     stbi_load("./image/luna_rgb.png", &x, &y, &channel, 0);
+    // qprint(x, y, channel);
+    // getchar();
+
+    unsigned char *data = new unsigned char[x * y * color_size];
+    int xc = x * color_size;
+    pic.for_each_i([&](Vector<unsigned short, color_size> &e, int i, int j) {
+      Loop<int, color_size>(
+          [&](auto k) { data[i * xc + j * color_size + k] = e[k]; });
+    });
+
+    // unsigned char *data = new unsigned char[x * y * color_size];
+    // int xc = x * color_size;
+    // pic.for_each_i([&](Vector<unsigned short, color_size> &e, int i, int j) {
+    //   Loop<int, color_size>(
+    //       [&](auto k) { data[i * xc + j * color_size + k] = e[k]; });
+    // });
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 data);
+    // glGenerateMipmap(GL_TEXTURE_2D);
+
+    draw_property[VxO_i] = std::make_pair(texture, 0);
+
+    ++VxO_i;
+    delete[] data;
     return true;
   }
 
@@ -290,12 +383,38 @@ class GUI {
 
       if (viewMode == VIEWER_2D) {
         for (int i = 0; i < VxO_i; ++i) {
-          auto &ourShader = shaderList[u_shader[i]];
-          ourShader.use();
-          ourShader.setVec3("color", color_l[i]);
-          glBindVertexArray(VAO[i]);
-          glPointSize(3);
-          glDrawArrays(draw_property[i].first, 0, draw_property[i].second);
+          auto &u_shader_i = u_shader[i];
+          auto &ourShader = shaderList[u_shader_i];
+          switch (u_shader_i) {
+            case 0: {
+              ourShader.use();
+              ourShader.setVec3("color", color_l[i]);
+              glBindVertexArray(VAO[i]);
+              glPointSize(3);
+              glDrawArrays(draw_property[i].first, 0, draw_property[i].second);
+              break;
+            }
+            case 1: {
+              // bind Texture
+              glActiveTexture(GL_TEXTURE0);
+              glBindTexture(GL_TEXTURE_2D, draw_property[i].first);
+
+              // render container
+              ourShader.use();
+              ourShader.setInt("ourTexture", 0);
+              glBindVertexArray(VAO[i]);
+              glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+              break;
+            }
+            default: {
+              qp_ctrl(tColor::YELLOW, tType::BOLD, tType::UNDERLINE);
+              qprint("dyGUI Warning: Unknown shader index (", u_shader_i,
+                     ", in:", i, ").");
+              qp_ctrl();
+              getchar();
+              break;
+            }
+          }
         }
         glBindVertexArray(0);
       } else if (viewMode == VIEWER_3D) {

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-13 16:50:00
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-09 16:32:37
+ * @LastEditTime: 2022-02-28 16:20:15
  * @Description:
  */
 #pragma once
@@ -11,10 +11,14 @@
 #include "src/matrix.hpp"
 #include <string>
 
+#ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
+#endif
+#ifndef STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
+#endif
 
 #include "../../tools/str_hash.hpp"
 

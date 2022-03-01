@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-12 16:02:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-28 18:09:01
+ * @LastEditTime: 2022-03-01 15:50:02
  * @Description:
  */
 #pragma once
@@ -157,6 +157,7 @@ class GUI {
     // for (auto &v : VBO_c)
     //   glDeleteBuffers(1, &v);
     for (auto &v : VBO_v) glDeleteBuffers(1, &v);
+    for (auto &v : EBO) glDeleteBuffers(1, &v);
     glfwTerminate();
     delete[] keys;
     qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::GREEN);
@@ -269,7 +270,7 @@ class GUI {
   }
 
   template <std::size_t color_size>
-  bool imshow(Tensor<Vector<unsigned short, color_size>> &pic,
+  bool imshow(Tensor<Vector<unsigned char, color_size>> &pic,
               int shader_index = 1) {
     Index picShape = pic.shape();
     if (picShape.size() != 2) return false;
@@ -337,7 +338,7 @@ class GUI {
 
     unsigned char *data = new unsigned char[x * y * color_size];
     int xc = x * color_size;
-    pic.for_each_i([&](Vector<unsigned short, color_size> &e, int i, int j) {
+    pic.for_each_i([&](Vector<unsigned char, color_size> &e, int i, int j) {
       Loop<int, color_size>(
           [&](auto k) { data[i * xc + j * color_size + k] = e[k]; });
     });
@@ -351,7 +352,7 @@ class GUI {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 data);
+                 &(pic[0][0]));
     // glGenerateMipmap(GL_TEXTURE_2D);
 
     draw_property[VxO_i] = std::make_pair(texture, 0);

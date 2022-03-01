@@ -133,7 +133,8 @@ struct Vector {
     return vec - 2 * (vec.dot(normal)) * normal;
   }
 
-  constexpr _DYM_FORCE_INLINE_ auto shape() const { return dym::gi(dim); }
+  constexpr _DYM_FORCE_INLINE_ auto shape() const { return dim; }
+
 };
 
 namespace vector {

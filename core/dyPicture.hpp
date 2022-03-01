@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-13 16:50:00
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-28 16:20:15
+ * @LastEditTime: 2022-03-01 14:30:32
  * @Description:
  */
 #pragma once
@@ -132,6 +132,7 @@ Tensor<Vector<InputType, color_size>> filter2D(
   return result;
 }
 
+typedef unsigned char Pixel;
 const std::size_t PIC_GRAY = 1;
 const std::size_t PIC_RGB = 3;
 

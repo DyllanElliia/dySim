@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2022-02-16 15:49:07
+ * @LastEditTime: 2022-03-01 16:54:49
  * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */
@@ -9,6 +9,7 @@
 #pragma once
 
 #include "./Launch.hpp"
+#include "./vector.hpp"
 namespace dym {
 template <typename t>
 Index<t> addIndex(const Index<t> &i1, const Index<t> &i2, int i2begin = 0) {

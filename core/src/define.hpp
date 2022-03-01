@@ -61,3 +61,8 @@
 #define _DYM_FORCE_INLINE_ inline __attribute__((always_inline))
 
 typedef float Real;
+typedef double hReal;
+typedef int Reali;
+typedef long long hReali;
+typedef unsigned int uReali;
+typedef unsigned long long uhReali;

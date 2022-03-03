@@ -2,13 +2,13 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-19 15:52:08
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-21 15:09:57
+ * @LastEditTime: 2022-03-02 16:08:16
  * @Description:
  */
 
 #include "../core/src/matALG.hpp"
 #include <random>
-#include "../tools/sugar.hpp"
+#include "../core/tools/sugar.hpp"
 
 int main(int argc, char** argv) {
   std::default_random_engine re;

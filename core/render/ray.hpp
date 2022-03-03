@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 14:50:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-01 15:33:29
+ * @LastEditTime: 2022-03-03 16:34:17
  * @Description:
  */
 #pragma once
@@ -59,6 +59,14 @@ _DYM_FORCE_INLINE_ Vector3 random_in_hemisphere(const Vector3& normal) {
     return -in_unit_sphere;
 }
 
+Vector3 random_in_unit_disk() {
+  while (true) {
+    auto p = Vector3({random_real(-1, 1), random_real(-1, 1), 0});
+    if (p.length_sqr() >= 1) continue;
+    return p;
+  }
+}
+
 class Ray {
  public:
   Ray() {}
@@ -75,11 +83,13 @@ class Ray {
   Vector3 dir;  // direction vector
 };
 
+class Material;
 struct HitRecord {
   Point3 p;
   Vector3 normal;
   Real t;
   bool front_face;
+  shared_ptr<Material> mat_ptr;
 
   inline void set_face_normal(const Ray& r, const Vector3& outward_normal) {
     front_face = vector::dot(r.direction(), outward_normal) < 0;

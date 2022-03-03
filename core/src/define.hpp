@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-11-03 19:04:10
- * @LastEditTime: 2022-01-26 15:33:20
+ * @LastEditTime: 2022-03-02 16:02:36
  * @LastEditors: DyllanElliia
  * @Description:
  */
@@ -26,7 +26,8 @@
 #include <omp.h>
 #endif
 
-// #define _DYM_USE_CUDA_
+#include "../tools/str_hash.hpp"
+#include "../tools/sugar.hpp"
 
 #ifdef DYM_USE_CUDA
 #include <cuda_runtime.h>
@@ -50,11 +51,29 @@
 
 #define _DYM_LAMBDA_ _DYM_GENERAL_
 
+#define DYM_ERROR(str) __DYM_ERROR_CALL(str, __FILE__, __LINE__)
+
+inline void __DYM_ERROR_CALL(std::string err, const char *file,
+                             const int line) {
+  qp_ctrl(tColor::RED, tType::BOLD, tType::UNDERLINE);
+  qprint(err, "\n--- error in file <", file, ">, line", line, ".");
+  qp_ctrl();
+}
+
+#define DYM_WARNING(str) __DYM_WARNING_CALL(str, __FILE__, __LINE__)
+
+inline void __DYM_WARNING_CALL(std::string err, const char *file,
+                               const int line) {
+  qp_ctrl(tColor::YELLOW, tType::BOLD, tType::UNDERLINE);
+  qprint(err, "\n--- warning in file <", file, ">, line", line, ".");
+  qp_ctrl();
+}
+
 #define _DYM_ASSERT_(bool_opt, outstr) \
   try {                                \
     if (bool_opt) throw outstr;        \
   } catch (const char *str) {          \
-    std::error << str << std::endl;    \
+    DYM_ERROR(str);                    \
     exit(EXIT_FAILURE);                \
   }
 

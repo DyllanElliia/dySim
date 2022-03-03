@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-12 16:02:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-01 15:50:02
+ * @LastEditTime: 2022-03-03 16:32:51
  * @Description:
  */
 #pragma once
@@ -40,6 +40,10 @@ bool firstMouse;
 namespace dym {
 enum ViewMode { VIEWER_2D, VIEWER_3D };
 
+#ifndef _dym_pixel_typedef_
+#define _dym_pixel_typedef_
+typedef unsigned char Pixel;
+#endif
 class GUI {
  private:
   ViewMode viewMode;
@@ -270,8 +274,7 @@ class GUI {
   }
 
   template <std::size_t color_size>
-  bool imshow(Tensor<Vector<unsigned char, color_size>> &pic,
-              int shader_index = 1) {
+  bool imshow(Tensor<Vector<Pixel, color_size>> &pic, int shader_index = 1) {
     Index picShape = pic.shape();
     if (picShape.size() != 2) return false;
     auto y = picShape[0], x = picShape[1];
@@ -330,25 +333,6 @@ class GUI {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    // int channel;
-    // unsigned char *data =
-    //     stbi_load("./image/luna_rgb.png", &x, &y, &channel, 0);
-    // qprint(x, y, channel);
-    // getchar();
-
-    unsigned char *data = new unsigned char[x * y * color_size];
-    int xc = x * color_size;
-    pic.for_each_i([&](Vector<unsigned char, color_size> &e, int i, int j) {
-      Loop<int, color_size>(
-          [&](auto k) { data[i * xc + j * color_size + k] = e[k]; });
-    });
-
-    // unsigned char *data = new unsigned char[x * y * color_size];
-    // int xc = x * color_size;
-    // pic.for_each_i([&](Vector<unsigned short, color_size> &e, int i, int j) {
-    //   Loop<int, color_size>(
-    //       [&](auto k) { data[i * xc + j * color_size + k] = e[k]; });
-    // });
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE,
@@ -358,9 +342,21 @@ class GUI {
     draw_property[VxO_i] = std::make_pair(texture, 0);
 
     ++VxO_i;
-    delete[] data;
+    // delete[] data;
     return true;
   }
+
+  // template <std::size_t color_size>
+  // _DYM_FORCE_INLINE_ bool imshow(const Tensor<Vector<Real, color_size>> &pic,
+  //                                int shader_index = 1) {
+  //   qprint("here1");
+  //   Tensor<Vector<Pixel, color_size>> picPix(0, pic.shape());
+  //   picPix.for_each_i(
+  //       [&](Vector<Pixel, PIC_RGB> &e, int i) { e = pic[i].cast<Pixel>(); });
+  //   qprint(pic[1000], picPix[1000], pi(pic.shape()), pi(picPix.shape()));
+  //   qprint("here2");
+  //   imshow(picPix, shader_index);
+  // }
 
   bool update(std::function<void()> updateFun) {
     qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::GREEN);
@@ -375,7 +371,6 @@ class GUI {
       // draw src
 
       glfwPollEvents();
-
       // Clear the colorbuffer
       glClearColor(background_color[0], background_color[1],
                    background_color[2], 1.0f);
@@ -405,6 +400,7 @@ class GUI {
               ourShader.setInt("ourTexture", 0);
               glBindVertexArray(VAO[i]);
               glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
               break;
             }
             default: {

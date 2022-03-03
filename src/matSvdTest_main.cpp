@@ -2,13 +2,13 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-20 17:57:52
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-23 19:52:06
+ * @LastEditTime: 2022-03-02 16:07:15
  * @Description:
  */
 
 #include "../core/src/matALG.hpp"
 #include <random>
-#include "../tools/sugar.hpp"
+#include "../core/tools/sugar.hpp"
 
 Real errorCmp(dym::Matrix<Real, 3, 3>& a, dym::Matrix<Real, 3, 3>& b) {
   Real ans = 0.f;

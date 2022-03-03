@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:32:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-25 16:28:11
+ * @LastEditTime: 2022-03-02 16:27:12
  * @Description:
  */
 #pragma once
@@ -103,7 +103,7 @@ struct Vector {
   }
   template <typename cType>
   inline Vector<cType, dim> cast() const {
-    return Vector<cType, dim>([&](cType &e, int i) { e = a[i]; });
+    return Vector<cType, dim>([&](cType &e, int i) { e = (cType)a[i]; });
   }
   inline Type dot(const Vector &v) const {
     Type res = 0;
@@ -134,7 +134,6 @@ struct Vector {
   }
 
   constexpr _DYM_FORCE_INLINE_ auto shape() const { return dim; }
-
 };
 
 namespace vector {

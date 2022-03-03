@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:00:10
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-01 15:06:18
+ * @LastEditTime: 2022-03-03 15:21:46
  * @Description:
  */
 #pragma once
@@ -14,7 +14,8 @@ namespace rt {
 class Sphere : public Hittable {
  public:
   Sphere() {}
-  Sphere(Point3 cen, Real r) : center(cen), radius(r){};
+  Sphere(Point3 cen, Real r, shared_ptr<Material> m)
+      : center(cen), radius(r), mat_ptr(m){};
 
   virtual bool hit(const Ray& r, Real t_min, Real t_max,
                    HitRecord& rec) const override;
@@ -22,6 +23,7 @@ class Sphere : public Hittable {
  public:
   Point3 center;
   Real radius;
+  shared_ptr<Material> mat_ptr;
 };
 
 bool Sphere::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
@@ -45,6 +47,7 @@ bool Sphere::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
   rec.p = r.at(rec.t);
   Vector3 outward_normal = (rec.p - center) / radius;
   rec.set_face_normal(r, outward_normal);
+  rec.mat_ptr = mat_ptr;
   return true;
 }
 }  // namespace rt

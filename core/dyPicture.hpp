@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-13 16:50:00
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-01 14:30:32
+ * @LastEditTime: 2022-03-02 16:36:02
  * @Description:
  */
 #pragma once
@@ -19,8 +19,6 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
 #endif
-
-#include "../../tools/str_hash.hpp"
 
 namespace dym {
 enum BorderType { BORDER_CONSTANT = 1, BORDER_REFLECT, BORDER_REPLICATE };
@@ -75,7 +73,7 @@ template <class InputType, class KernelType, std::size_t color_size,
           std::size_t kernel_m, std::size_t kernel_n>
 Tensor<Vector<InputType, color_size>> filter2D(
     Tensor<Vector<InputType, color_size>> &in,
-    Matrix<KernelType, kernel_m, kernel_n> &kernel,
+    const Matrix<KernelType, kernel_m, kernel_n> &kernel,
     BorderType border = BORDER_CONSTANT,
     Vector<InputType, color_size> DefaultColor =
         Vector<InputType, color_size>(0)) {
@@ -131,8 +129,10 @@ Tensor<Vector<InputType, color_size>> filter2D(
   });
   return result;
 }
-
+#ifndef _dym_pixel_typedef_
+#define _dym_pixel_typedef_
 typedef unsigned char Pixel;
+#endif
 const std::size_t PIC_GRAY = 1;
 const std::size_t PIC_RGB = 3;
 

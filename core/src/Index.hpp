@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../tools/sugar.hpp"
 #include "./define.hpp"
 
 namespace dym {

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-03 15:24:14
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-03 15:36:37
+ * @LastEditTime: 2022-03-04 15:53:16
  * @Description:
  */
 #pragma once
@@ -11,7 +11,8 @@ namespace dym {
 namespace rt {
 class Lambertian : public Material {
  public:
-  Lambertian(const ColorRGB& a) : albedo(a) {}
+  Lambertian(const ColorRGB& a) : albedo(make_shared<SolidColor>(a)) {}
+  Lambertian(const shared_ptr<Texture> &a) : albedo(a) {}
 
   virtual bool scatter(const Ray& r_in, const HitRecord& rec,
                        ColorRGB& attenuation, Ray& scattered) const override {
@@ -21,12 +22,12 @@ class Lambertian : public Material {
     if (scatter_direction == 0.f) scatter_direction = rec.normal;
 
     scattered = Ray(rec.p, scatter_direction);
-    attenuation = albedo;
+    attenuation = albedo->value(rec.u, rec.v, rec.p);
     return true;
   }
 
  public:
-  ColorRGB albedo;
+  shared_ptr<Texture> albedo;
 };
 }  // namespace rt
 }  // namespace dym

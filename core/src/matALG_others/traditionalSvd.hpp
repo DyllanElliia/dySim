@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-18 17:50:20
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-25 16:19:33
+ * @LastEditTime: 2022-03-04 16:02:15
  * @Description:
  */
 #pragma once
@@ -10,6 +10,7 @@
 
 namespace dym {
 namespace traditionalSVD {
+namespace {
 #define GAMMA 5.8284271247
 #define C_STAR 0.9238795325
 #define S_STAR 0.3826834323
@@ -21,6 +22,7 @@ typedef Vector<Real, 4> Vector4;
 typedef Matrix<Real, 3, 3> Matrix3;
 typedef Matrix<Real, 4, 4> Matrix4;
 typedef Matrix<Real, 3, 3> Matrix3;
+
 template <std::size_t n>
 inline Matrix<Real, n, n> transpose(const Matrix<Real, n, n> &m) {
   return m.transpose();
@@ -142,6 +144,7 @@ inline QR_mats qr_decomp(Matrix3 B) {
   qr_decomp_result.Q = Q10 * Q20 * Q21;
   return qr_decomp_result;
 }
+}  // namespace
 
 inline void svd(Matrix3 A, Matrix3 &U, Matrix3 &Sig, Matrix3 &V) {
   V = symmetric_eigenanalysis(A);

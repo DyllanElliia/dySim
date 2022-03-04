@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:34:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-03 17:00:57
+ * @LastEditTime: 2022-03-04 14:31:19
  * @Description:
  */
 #include <dyRender.hpp>
@@ -86,7 +86,7 @@ int main(int argc, char const* argv[]) {
       e = image[i].cast<dym::Pixel>();
     });
     gui.imshow(imageP);
-    // dym::imwrite(image, "./image_out/rt_test.jpg");
+    // dym::imwrite(image, "./rt_out/rt_test.jpg");
     // qprint("fin");
     // getchar();
   });

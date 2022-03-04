@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:07:40
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-01 16:03:33
+ * @LastEditTime: 2022-03-04 14:59:17
  * @Description:
  */
 #pragma once
@@ -19,6 +19,7 @@ class HittableList : public Hittable {
 
   virtual bool hit(const Ray& r, Real t_min, Real t_max,
                    HitRecord& rec) const override;
+  virtual bool bounding_box(aabb& output_box) const override;
 
  public:
   std::vector<shared_ptr<Hittable>> objects;
@@ -39,6 +40,20 @@ bool HittableList::hit(const Ray& r, Real t_min, Real t_max,
   }
 
   return hit_anything;
+}
+bool HittableList::bounding_box(aabb& output_box) const {
+  if (objects.empty()) return false;
+
+  aabb temp_box;
+  bool first_box = true;
+
+  for (const auto& object : objects) {
+    if (!object->bounding_box(temp_box)) return false;
+    output_box = first_box ? temp_box : surrounding_box(output_box, temp_box);
+    first_box = false;
+  }
+
+  return true;
 }
 }  // namespace rt
 }  // namespace dym

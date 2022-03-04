@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 14:50:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-03 16:34:17
+ * @LastEditTime: 2022-03-04 15:39:24
  * @Description:
  */
 #pragma once
@@ -34,7 +34,8 @@ _DYM_FORCE_INLINE_ Real random_real(const Real& min = 0.f,
   return distribution(generator);
 }
 
-_DYM_FORCE_INLINE_ Vector3 vec_random(const Real& min, const Real& max) {
+_DYM_FORCE_INLINE_ Vector3 vec_random(const Real& min = 0.f,
+                                      const Real& max = 1.f) {
   return Vector3(
       {random_real(min, max), random_real(min, max), random_real(min, max)});
 }
@@ -70,17 +71,19 @@ Vector3 random_in_unit_disk() {
 class Ray {
  public:
   Ray() {}
-  Ray(const Point3& origin, const Vector3& direction)
-      : orig(origin), dir(direction) {}
+  Ray(const Point3& origin, const Vector3& direction, const Real& time = 0.f)
+      : orig(origin), dir(direction), tm(time) {}
 
   Point3 origin() const { return orig; }
   Vector3 direction() const { return dir; }
+  Real time() const { return tm; }
 
   Point3 at(Real t) const { return orig + t * dir; }
 
  public:
   Point3 orig;  // original point
   Vector3 dir;  // direction vector
+  Real tm;
 };
 
 class Material;
@@ -88,6 +91,7 @@ struct HitRecord {
   Point3 p;
   Vector3 normal;
   Real t;
+  Real u, v;
   bool front_face;
   shared_ptr<Material> mat_ptr;
 

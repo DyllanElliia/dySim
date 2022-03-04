@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-03 15:28:54
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-03 15:47:59
+ * @LastEditTime: 2022-03-04 15:52:48
  * @Description:
  */
 #pragma once
@@ -12,7 +12,10 @@ namespace rt {
 class Metal : public Material {
  public:
   Metal(const ColorRGB& color, const Real& fuzz = -1.f)
-      : albedo(color), fuzz(fuzz <= 1.f ? fuzz : 1.f) {}
+      : albedo(make_shared<SolidColor>(color)),
+        fuzz(fuzz <= 1.f ? fuzz : 1.f) {}
+  Metal(const shared_ptr<Texture>& tex, const Real& fuzz = -1.f)
+      : albedo(tex), fuzz(fuzz <= 1.f ? fuzz : 1.f) {}
 
   virtual bool scatter(const Ray& r_in, const HitRecord& rec,
                        ColorRGB& attenuation, Ray& scattered) const override {
@@ -21,12 +24,12 @@ class Metal : public Material {
 
     Vector3 reflected = r_in.direction().normalize().reflect(nor);
     scattered = Ray(rec.p, reflected);
-    attenuation = albedo;
+    attenuation = albedo->value(rec.u, rec.v, rec.p);
     return (scattered.direction().dot(rec.normal) > 0);
   }
 
  public:
-  ColorRGB albedo;
+  shared_ptr<Texture> albedo;
   Real fuzz;
 };
 }  // namespace rt

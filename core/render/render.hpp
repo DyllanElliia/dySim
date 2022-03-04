@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 14:31:38
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-03 16:12:02
+ * @LastEditTime: 2022-03-04 16:09:48
  * @Description:
  */
 #pragma once
@@ -11,10 +11,16 @@
 #include "camera.hpp"
 #include "hittableList.hpp"
 
+// Bvh
+#include "BVH/bvh_node.hpp"
+
 // material
 #include "material/lambertian.hpp"
 #include "material/metal.hpp"
 #include "material/dielectric.hpp"
+
+// texture
+#include "texture/solidColor.hpp"
 
 namespace dym {
 namespace rt {

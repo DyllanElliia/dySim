@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-03 15:56:56
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-03 16:09:15
+ * @LastEditTime: 2022-03-04 15:55:14
  * @Description:
  */
 #pragma once
@@ -22,11 +22,17 @@ _DYM_FORCE_INLINE_ Vector3 refract(const Vector3& uv, const Vector3& n,
 
 class Dielectric : public Material {
  public:
-  Dielectric(const Real& index_of_refraction) : ir(index_of_refraction) {}
+  Dielectric(const Real& index_of_refraction)
+      : ir(index_of_refraction),
+        albedo(make_shared<SolidColor>(ColorRGB(1.f))) {}
+  Dielectric(const ColorRGB& color, const Real& index_of_refraction)
+      : ir(index_of_refraction), albedo(make_shared<SolidColor>(color)) {}
+  Dielectric(const shared_ptr<Texture>& tex, const Real& index_of_refraction)
+      : ir(index_of_refraction), albedo(tex) {}
 
   virtual bool scatter(const Ray& r_in, const HitRecord& rec,
                        ColorRGB& attenuation, Ray& scattered) const override {
-    attenuation = ColorRGB(1.f);
+    attenuation = albedo->value(rec.u, rec.v, rec.p);
     Real refraction_ratio = rec.front_face ? (1.f / ir) : ir;
 
     Vector3 unit_direction = r_in.direction().normalize();
@@ -49,6 +55,8 @@ class Dielectric : public Material {
 
  public:
   Real ir;  // Index of Refraction
+  shared_ptr<Texture> albedo;
+
  private:
   static _DYM_FORCE_INLINE_ Real reflectance(const Real& cosine,
                                              const Real& ref_idx) {

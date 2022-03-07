@@ -18,8 +18,7 @@ class SolidColor : public Texture {
 
   SolidColor(const ColorRGB &color) : color_value(color) {}
 
-  virtual ColorRGB value(const Real &u, const Real &v,
-                         const Point3 &p) const override {
+  virtual ColorRGB value(Real u, Real v, const Point3 &p) const override {
     return color_value;
   }
 

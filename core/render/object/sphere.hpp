@@ -2,12 +2,12 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:00:10
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-04 14:55:00
+ * @LastEditTime: 2022-03-07 16:26:22
  * @Description:
  */
 #pragma once
 
-#include "baseClass.hpp"
+#include "../baseClass.hpp"
 
 namespace dym {
 namespace rt {
@@ -26,6 +26,7 @@ class Sphere : public Hittable {
 
     u = phi / (2 * pi);
     v = theta / pi;
+    if (isnan(v)) v = p.y() > 1.f ? 1 : 0;
   }
 
  public:

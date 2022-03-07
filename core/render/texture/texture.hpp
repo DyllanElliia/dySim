@@ -11,7 +11,7 @@ namespace dym {
 namespace rt {
 class Texture {
  public:
-  virtual ColorRGB value(const Real &u, const Real &v,
+  virtual ColorRGB value( Real u,  Real v,
                          const Point3 &p) const = 0;
 };
 }  // namespace rt

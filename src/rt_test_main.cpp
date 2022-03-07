@@ -2,13 +2,26 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:34:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-04 14:31:19
+ * @LastEditTime: 2022-03-07 16:39:41
  * @Description:
  */
 #include <dyRender.hpp>
 #include <dyPicture.hpp>
 #include <dyGraphic.hpp>
+_DYM_FORCE_INLINE_ auto earthSur() {
+  auto earth_texture =
+      std::make_shared<dym::rt::ImageTexture>("image/earthmap.jpg");
+  auto earth_surface = std::make_shared<dym::rt::Lambertian>(earth_texture);
 
+  return earth_surface;
+}
+_DYM_FORCE_INLINE_ auto lightEarthSur() {
+  auto earth_texture =
+      std::make_shared<dym::rt::ImageTexture>("image/earthmap.jpg");
+  auto earth_surface = std::make_shared<dym::rt::DiffuseLight>(earth_texture);
+
+  return earth_surface;
+}
 int main(int argc, char const* argv[]) {
   const auto aspect_ratio = 16.0 / 9.0;
   const int image_width = 800;
@@ -33,8 +46,10 @@ int main(int argc, char const* argv[]) {
 
   world.add(std::make_shared<dym::rt::Sphere>(
       dym::rt::Point3({0.0, -100.5, -1.0}), 100.0, material_ground));
+  // world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.0, 0.0,
+  // -1.0}), 0.5, material_center));
   world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.0, 0.0, -1.0}),
-                                              0.5, material_center));
+                                              0.5, lightEarthSur()));
   world.add(std::make_shared<dym::rt::Sphere>(
       dym::rt::Point3({-1.0, 0.0, -1.0}), 0.5, material_left));
   world.add(std::make_shared<dym::rt::Sphere>(
@@ -49,8 +64,8 @@ int main(int argc, char const* argv[]) {
   auto dist_to_focus = (lookfrom - lookat).length();
   auto aperture = 2.f;
 
-  dym::rt::Camera<true> cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture,
-                            dist_to_focus);
+  dym::rt::Camera<false> cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture,
+                             dist_to_focus);
 
   // GUI
   dym::GUI gui("rt");
@@ -66,7 +81,12 @@ int main(int argc, char const* argv[]) {
         auto u = (j + dym::rt::random_real()) / (image_width - 1);
         auto v = (i + dym::rt::random_real()) / (image_height - 1);
         dym::rt::Ray r = cam.get_ray(u, v);
-        color += ray_color(r, world, max_depth);
+        color += ray_color2(r, world, max_depth, [](const dym::rt::Ray& r) {
+          dym::Vector3 unit_direction = r.direction().normalize();
+          Real t = 0.5f * (unit_direction.y() + 1.f);
+          return (1.f - t) * dym::rt::ColorRGB(1.f) +
+                 t * dym::rt::ColorRGB({0.5f, 0.7f, 1.0f});
+        });
       }
       // qprint("here", color, color_p.cast<Real>());
       // color /= Real(samples_per_pixel);
@@ -81,11 +101,14 @@ int main(int argc, char const* argv[]) {
     ccc++;
     time.record();
     time.reStart();
-    image = dym::filter2D(image, dym::Matrix3(1.f / 9.f));
+
+    // image = dym::filter2D(image, dym::Matrix3(1.f / 9.f));
     imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB>& e, int i) {
       e = image[i].cast<dym::Pixel>();
     });
+
     gui.imshow(imageP);
+
     // dym::imwrite(image, "./rt_out/rt_test.jpg");
     // qprint("fin");
     // getchar();

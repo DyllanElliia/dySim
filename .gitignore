@@ -8,4 +8,4 @@ src/*_out
 
 # Executables
 *.exe
-*.out
+*.out 

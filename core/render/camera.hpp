@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:17:32
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-03 16:58:06
+ * @LastEditTime: 2022-03-07 15:17:01
  * @Description:
  */
 #pragma once
@@ -13,9 +13,18 @@ namespace rt {
 template <bool useFocus = true>
 class Camera {
  public:
-  Camera(Point3 lookfrom, Point3 lookat, Vector3 vup,
-         Real vfov,  // vertical field-of-view in degrees
-         Real aspect_ratio, Real aperture = 2.f, Real focus_dist = 1.f) {
+  Camera(const Point3& lookfrom, const Point3& lookat, const Vector3& vup,
+         const Real& vfov,  // vertical field-of-view in degrees
+         const Real& aspect_ratio, const Real& aperture = 2.f,
+         Real focus_dist = 1.f) {
+    setCamera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, focus_dist);
+  }
+
+  _DYM_FORCE_INLINE_ void setCamera(
+      const Point3& lookfrom, const Point3& lookat, const Vector3& vup,
+      const Real& vfov,  // vertical field-of-view in degrees
+      const Real& aspect_ratio, const Real& aperture = 2.f,
+      Real focus_dist = 1.f) {
     auto theta = degrees_to_radians(vfov);
     auto h = tan(theta / 2);
     auto viewport_height = 2.f * h;

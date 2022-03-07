@@ -23,6 +23,9 @@ class Material {
  public:
   virtual bool scatter(const Ray& r_in, const HitRecord& rec,
                        ColorRGB& attenuation, Ray& scattered) const = 0;
+  virtual ColorRGB emitted(Real u, Real v, const Point3& p) const {
+    return ColorRGB(0.f);
+  }
 };
 }  // namespace rt
 }  // namespace dym

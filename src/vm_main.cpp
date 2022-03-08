@@ -12,8 +12,8 @@
 int main(int argc, char** argv) {
   dym::Vector<float, 3> a(1);
   dym::Vector<float, 3> b({1, 2, 3});
-  std::cout << a + b << a * b << a - b << b + 1.f << b - 1.f << b * 2.f
-            << b / 2.f << b / 1e-4f;
+  std::cout << a + b << a * b << a - b << b + 1.f << b - 1 << b * 2.f << b / 2
+            << b / 1e-4;
   auto c = b;
   c.show();
   c *= 10.f;

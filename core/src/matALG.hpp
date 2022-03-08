@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-14 14:51:57
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-25 16:27:33
+ * @LastEditTime: 2022-03-08 15:14:04
  * @Description:
  */
 #pragma once
@@ -99,6 +99,11 @@ _DYM_FORCE_INLINE_ Matrix<Type, n, m> transposed(
 template <typename Type, std::size_t dim>
 inline Matrix<Type, dim, dim> inversed(const Matrix<Type, dim, dim> &mat) {
   return mat.inverse();
+}
+
+template <typename Type, std::size_t m, std::size_t n>
+_DYM_FORCE_INLINE_ Type tr(const Matrix<Type, m, n> &mat) {
+  return mat.trace();
 }
 
 }  // namespace matrix

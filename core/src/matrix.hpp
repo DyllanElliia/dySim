@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-07 12:19:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-25 16:21:58
+ * @LastEditTime: 2022-03-08 16:59:02
  * @Description:
  */
 #pragma once
@@ -146,6 +146,17 @@ struct Matrix {
   inline Matrix<Type, m, n> inverse() const;
 
   _DYM_FORCE_INLINE_ Matrix<Type, m, n> inv() const { return inverse(); }
+
+  _DYM_FORCE_INLINE_ Type trace() const {
+    Type ans = 0;
+    if constexpr (m < n)
+      Loop<int, m>([&](auto i) { ans += a[i][i]; });
+    else
+      Loop<int, n>([&](auto i) { ans += a[i][i]; });
+    return ans;
+  }
+
+  _DYM_FORCE_INLINE_ Type tr() const { return trace(); }
 };
 
 template <typename Type, std::size_t m, std::size_t n>

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-26 15:14:37
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-01 16:51:42
+ * @LastEditTime: 2022-03-08 16:56:43
  * @Description:
  */
 #pragma once
@@ -67,6 +67,30 @@ _dym_vector_use_std_(log2);
 _dym_vector_use_std_(log10);
 _dym_vector_use_std_(log1p);
 _dym_vector_use_std_(logb);
+
+template <typename Type, std::size_t dim>
+_DYM_FORCE_INLINE_ Vector<Type, dim> lerp(const Vector<Type, dim>& v0,
+                                          const Vector<Type, dim>& v1,
+                                          const Real& t) {
+  return (1 - t) * v0 + t * v1;
+}
+
+template <typename Type, std::size_t dim>
+_DYM_FORCE_INLINE_ Vector<Type, dim> Nlerp(const Vector<Type, dim>& v0,
+                                           const Vector<Type, dim>& v1,
+                                           const Real& t) {
+  Vector<Type, dim> r = lerp(v0, v1, t);
+  return r.normalize();
+}
+
+template <typename Type, std::size_t dim>
+_DYM_FORCE_INLINE_ Vector<Type, dim> Slerp(const Vector<Type, dim>& v0,
+                                           const Vector<Type, dim>& v1,
+                                           const Real& t) {
+  Type theta = 1 / cos(v0.dot(v1)), sintheta_inv = 1 / sin(theta);
+  return sin((1 - t) * theta) * sintheta_inv * v0 +
+         sin(t * theta) * sintheta_inv * v1;
+}
 
 // }  // namespace vector
 }  // namespace dym

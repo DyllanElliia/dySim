@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:32:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-02 16:27:12
+ * @LastEditTime: 2022-03-08 15:25:58
  * @Description:
  */
 #pragma once
@@ -168,14 +168,14 @@ inline Vector<Type, dim> operator-(const Vector<Type, dim> &v) {
 }
 
 #define _dym_vector_type_operator_binary_(op)                         \
-  template <typename Type, std::size_t dim>                           \
-  inline Vector<Type, dim> operator op(const Type &f,                 \
+  template <typename Type, typename TypeS, std::size_t dim>           \
+  inline Vector<Type, dim> operator op(const TypeS &f,                \
                                        const Vector<Type, dim> &s) {  \
     return Vector<Type, dim>([&](Type &e, int i) { e = f op s[i]; }); \
   }                                                                   \
-  template <typename Type, std::size_t dim>                           \
+  template <typename Type, typename TypeS, std::size_t dim>           \
   inline Vector<Type, dim> operator op(const Vector<Type, dim> &f,    \
-                                       const Type &s) {               \
+                                       const TypeS &s) {              \
     return Vector<Type, dim>([&](Type &e, int i) { e = f[i] op s; }); \
   }
 
@@ -200,8 +200,8 @@ _DYM_FORCE_INLINE_ Vector<Type, dim> operator/(const Vector<Type, dim> &f,
   inline void operator op(Vector<Type, dim> &f, const Vector<Type, dim> &s) { \
     for (int i = 0; i < dim; ++i) f[i] op s[i];                               \
   }                                                                           \
-  template <typename Type, std::size_t dim>                                   \
-  inline void operator op(Vector<Type, dim> &f, const Type &s) {              \
+  template <typename Type, typename TypeS, std::size_t dim>                   \
+  inline void operator op(Vector<Type, dim> &f, const TypeS &s) {             \
     for (int i = 0; i < dim; ++i) f[i] op s;                                  \
   }
 
@@ -214,19 +214,19 @@ _dym_vector_operator_unary_(-=);
 _dym_vector_operator_unary_(*=);
 _dym_vector_operator_unary_(/=);
 
-#define _dym_vector_operator_cmp_unary_(op)                            \
-  template <typename Type, std::size_t dim>                            \
-  inline bool operator op(const Vector<Type, dim> &f,                  \
-                          const Vector<Type, dim> &s) {                \
-    for (int i = 0; i < dim; ++i)                                      \
-      if (!(f[i] op s[i])) return false;                               \
-    return true;                                                       \
-  }                                                                    \
-  template <typename Type, std::size_t dim>                            \
-  inline bool operator op(const Vector<Type, dim> &f, const Type &s) { \
-    for (int i = 0; i < dim; ++i)                                      \
-      if (!(f[i] op s)) return false;                                  \
-    return true;                                                       \
+#define _dym_vector_operator_cmp_unary_(op)                             \
+  template <typename Type, std::size_t dim>                             \
+  inline bool operator op(const Vector<Type, dim> &f,                   \
+                          const Vector<Type, dim> &s) {                 \
+    for (int i = 0; i < dim; ++i)                                       \
+      if (!(f[i] op s[i])) return false;                                \
+    return true;                                                        \
+  }                                                                     \
+  template <typename Type, typename TypeS, std::size_t dim>             \
+  inline bool operator op(const Vector<Type, dim> &f, const TypeS &s) { \
+    for (int i = 0; i < dim; ++i)                                       \
+      if (!(f[i] op s)) return false;                                   \
+    return true;                                                        \
   }
 
 _dym_vector_operator_cmp_unary_(<);
@@ -241,8 +241,8 @@ inline bool operator==(const Vector<Type, dim> &f, const Vector<Type, dim> &s) {
     if (!(dym::abs(f[i] - s[i]) < 1e-7)) return false;
   return true;
 }
-template <typename Type, std::size_t dim>
-inline bool operator==(const Vector<Type, dim> &f, const Type &s) {
+template <typename Type, typename TypeS, std::size_t dim>
+inline bool operator==(const Vector<Type, dim> &f, const TypeS &s) {
   for (int i = 0; i < dim; ++i)
     if (!(dym::abs(f[i] - s) < 1e-7)) return false;
   return true;

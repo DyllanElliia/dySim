@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-04 14:59:47
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-04 16:40:13
+ * @LastEditTime: 2022-03-09 16:44:58
  * @Description:
  */
 #pragma once
@@ -13,7 +13,7 @@ namespace dym {
 namespace rt {
 class BvhNode : public Hittable {
  public:
-  BvhNode();
+  BvhNode() {}
 
   BvhNode(HittableList& list) : BvhNode(list.objects, 0, list.objects.size()) {}
 

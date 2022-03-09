@@ -7,8 +7,8 @@
  */
 #pragma once
 
-#include "src/tensor.hpp"
-#include "src/matrix.hpp"
+#include "math/tensor.hpp"
+#include "math/matrix.hpp"
 #include <string>
 
 #ifndef STB_IMAGE_IMPLEMENTATION

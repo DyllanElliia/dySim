@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-11-03 19:04:10
- * @LastEditTime: 2022-03-02 16:02:36
+ * @LastEditTime: 2022-03-09 15:39:38
  * @LastEditors: DyllanElliia
  * @Description:
  */
@@ -85,3 +85,7 @@ typedef int Reali;
 typedef long long hReali;
 typedef unsigned int uReali;
 typedef unsigned long long uhReali;
+
+namespace dym {
+const Real Pi = 3.1415926535897932385;
+}

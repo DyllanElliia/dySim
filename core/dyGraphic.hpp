@@ -13,8 +13,8 @@
 
 // #include <GL/glut.h>
 
-#include "src/tensor.hpp"
-#include "src/vector.hpp"
+#include "math/tensor.hpp"
+#include "math/vector.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

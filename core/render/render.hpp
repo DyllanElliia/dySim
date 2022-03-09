@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 14:31:38
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-07 17:14:22
+ * @LastEditTime: 2022-03-09 16:40:38
  * @Description:
  */
 #pragma once
@@ -15,6 +15,7 @@
 
 // object
 #include "object/sphere.hpp"
+#include "object/box.hpp"
 
 // material
 #include "material/lambertian.hpp"

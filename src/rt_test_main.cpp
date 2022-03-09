@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:34:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-07 16:39:41
+ * @LastEditTime: 2022-03-09 17:09:32
  * @Description:
  */
 #include <dyRender.hpp>
@@ -27,7 +27,7 @@ int main(int argc, char const* argv[]) {
   const int image_width = 800;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
   const int samples_per_pixel = 5;
-  const int max_depth = 10;
+  const int max_depth = 20;
   dym::Tensor<dym::Vector<Real, dym::PIC_RGB>> image(
       0, dym::gi(image_height, image_width));
   dym::Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> imageP(
@@ -37,25 +37,30 @@ int main(int argc, char const* argv[]) {
   dym::rt::HittableList world;
 
   auto material_ground =
-      std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({0.8, 0.8, 0.0}));
+      std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({0.8, 0.8, 0.4}));
   auto material_center =
       std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({0.1, 0.2, 0.5}));
   auto material_left = std::make_shared<dym::rt::Dielectric>(1.5);
   auto material_right =
       std::make_shared<dym::rt::Metal>(dym::rt::ColorRGB({0.8, 0.6, 0.2}));
+  auto material_box = std::make_shared<dym::rt::Metal>(dym::rt::ColorRGB(1.f));
 
   world.add(std::make_shared<dym::rt::Sphere>(
       dym::rt::Point3({0.0, -100.5, -1.0}), 100.0, material_ground));
   // world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.0, 0.0,
   // -1.0}), 0.5, material_center));
   world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.0, 0.0, -1.0}),
-                                              0.5, lightEarthSur()));
+                                              0.5, earthSur()));
   world.add(std::make_shared<dym::rt::Sphere>(
       dym::rt::Point3({-1.0, 0.0, -1.0}), 0.5, material_left));
   world.add(std::make_shared<dym::rt::Sphere>(
       dym::rt::Point3({-1.0, 0.0, -1.0}), -0.4, material_left));
   world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({1.0, 0.0, -1.0}),
                                               0.5, material_right));
+
+  world.add(std::make_shared<dym::rt::Box>(dym::rt::Point3({0.0, 0.0, -0.5}),
+                                           dym::rt::Point3({0.5, 0.5, 0.0}),
+                                           material_box));
 
   // Camera
   dym::rt::Point3 lookfrom({-2, 2, 1});

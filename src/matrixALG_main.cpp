@@ -6,7 +6,7 @@
  * @Description:
  */
 
-#include "../core/src/matALG.hpp"
+#include "../core/math/matALG.hpp"
 #include <random>
 #include "../core/tools/sugar.hpp"
 

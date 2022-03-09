@@ -2,10 +2,10 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 15:30:45
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-25 16:33:11
+ * @LastEditTime: 2022-03-09 15:18:03
  * @Description:
  */
-#include "../core/src/matALG.hpp"
+#include "../core/math/matALG.hpp"
 #include <dyMath.hpp>
 #include <random>
 

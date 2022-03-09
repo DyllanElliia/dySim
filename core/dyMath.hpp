@@ -2,19 +2,20 @@
  * @Author: DyllanElliia
  * @Date: 2021-10-06 17:00:50
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-01 14:49:47
+ * @LastEditTime: 2022-03-09 15:16:43
  * @Description:
  */
 
 #pragma once
 
 // #include "./picture.hpp"
-#include "src/tensor.hpp"
-#include "src/vector.hpp"
-#include "src/matrix.hpp"
-#include "src/realALG.hpp"
-#include "src/vecALG.hpp"
-#include "src/matALG.hpp"
+#include "math/tensor.hpp"
+#include "math/vector.hpp"
+#include "math/matrix.hpp"
+#include "math/realALG.hpp"
+#include "math/vecALG.hpp"
+#include "math/matALG.hpp"
+#include "math/quaternion.hpp"
 
 namespace dym {
 typedef Matrix<Real, 3, 3> Matrix3;

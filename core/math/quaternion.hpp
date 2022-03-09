@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-08 15:16:29
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-08 16:56:14
+ * @LastEditTime: 2022-03-09 16:30:12
  * @Description:
  */
 #pragma once
@@ -30,12 +30,27 @@ class Quaternion {
     return *this;
   }
 
+  void show() const {
+    std::string res = "Qua: [" + std::to_string(w) + ", (" +
+                      std::to_string(v[0]) + "i, " + std::to_string(v[1]) +
+                      "j, " + std::to_string(v[2]) + "k" + ")]";
+    std::cout << res << std::endl;
+  }
+
+  friend std::ostream& operator<<(std::ostream& output, const Quaternion& q) {
+    std::string res = "Qua: [" + std::to_string(q.w) + ", (" +
+                      std::to_string(q.v[0]) + "i, " + std::to_string(q.v[1]) +
+                      "j, " + std::to_string(q.v[2]) + "k" + ")]";
+    output << res;
+    return output;
+  }
+
   _DYM_FORCE_INLINE_ Type norm_sqr() const { return w * w + v.length_sqr(); }
   _DYM_FORCE_INLINE_ Type norm() const { return sqrt(norm_sqr()); }
 
   _DYM_FORCE_INLINE_ Quaternion normalize() const { return *this / norm(); }
 
-  _DYM_FORCE_INLINE_ Quaternion conjugate() const {return Quaternion(w, -v)}
+  _DYM_FORCE_INLINE_ Quaternion conjugate() const { return Quaternion(w, -v); }
 
   _DYM_FORCE_INLINE_ Quaternion inverse() const {
     return conjugate() / norm_sqr();
@@ -73,7 +88,7 @@ class Quaternion {
   template <typename Type, typename TypeS>                         \
   inline Quaternion<Type> operator op(const Quaternion<Type>& f,   \
                                       const TypeS& s) {            \
-    return Quaternion<Type>(f op s.w, f op s.v);                   \
+    return Quaternion<Type>(f.w op s, f.v op s);                   \
   }
 
 #define _dym_quaternion_type_operator_unary_(op)                 \
@@ -133,8 +148,15 @@ inline void operator*=(Quaternion<Type>& q1, const Quaternion<Type>& q2) {
 template <typename Type = Real>
 _DYM_FORCE_INLINE_ Quaternion<Type> getQuaternion(const Type& theta,
                                                   const Vector<Type, 3>& u) {
-  return Quaternion<Type>(cos(0.5 * theta, sin(0.5 * theta) * u));
+  return Quaternion<Type>(cos((Type)0.5 * theta), sin((Type)0.5 * theta) * u);
 }
+
+template <typename Type = Real>
+_DYM_FORCE_INLINE_ Quaternion<Type> getQuaternion(
+    const Type& theta, const std::array<Type, 3>& u) {
+  return getQuaternion(theta, Vector<Type, 3>(u).normalize());
+}
+
 namespace quaternion {
 template <typename Type>
 _DYM_FORCE_INLINE_ Quaternion<Type> lerp(const Quaternion<Type>& q0,

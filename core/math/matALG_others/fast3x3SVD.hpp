@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-19 16:45:56
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-21 14:50:39
+ * @LastEditTime: 2022-03-10 17:32:15
  * @Description: https://github.com/ericjang/svd3
  */
 /**************************************************************************
@@ -12,7 +12,7 @@
 ** Quick singular value decomposition as described by:
 ** A. McAdams, A. Selle, R. Tamstorf, J. Teran and E. Sifakis,
 ** "Computing the Singular Value Decomposition of 3x3 matrices
-** with minimal branching and elementary floating point operations",
+** with minimal branching and elementary Realing point operations",
 **  University of Wisconsin - Madison technical report TR1690, May 2011
 **
 **	OPTIMIZED CPU VERSION
@@ -21,9 +21,12 @@
 **  13 Apr 2014
 **
 **************************************************************************/
-
+#pragma once
 #include <math.h>
+
+#include "../matALG.hpp"
 namespace fast3x3SVD {
+// using dym::Real Real
 
 #ifndef SVD3_H
 #define SVD3_H
@@ -34,19 +37,19 @@ namespace fast3x3SVD {
 #define EPSILON 1e-6
 
 /* This is a novel and fast routine for the reciprocal square root of an
-IEEE float (single precision).
+IEEE Real (single precision).
 http://www.lomont.org/Math/Papers/2003/InvSqrt.pdf
 http://playstation2-linux.com/download/p2lsd/fastrsqrt.pdf
 http://www.beyond3d.com/content/articles/8/
 */
-inline float rsqrt(float x) {
+inline Real rsqrt(Real x) {
   // int ihalf = *(int *)&x - 0x00800000; // Alternative to next line,
-  // float xhalf = *(float *)&ihalf;      // for sufficiently large nos.
-  float xhalf = 0.5f * x;
+  // Real xhalf = *(Real *)&ihalf;      // for sufficiently large nos.
+  Real xhalf = 0.5f * x;
   int i = *(int *)&x;  // View x as an int.
   // i = 0x5f3759df - (i >> 1);   // Initial guess (traditional).
   i = 0x5f375a82 - (i >> 1);       // Initial guess (slightly better).
-  x = *(float *)&i;                // View i as float.
+  x = *(Real *)&i;                 // View i as Real.
   x = x * (1.5f - xhalf * x * x);  // Newton step.
   // x = x*(1.5008908 - xhalf*x*x);  // Newton step for a balanced error.
   return x;
@@ -56,41 +59,41 @@ inline float rsqrt(float x) {
 increased accuracy. The constant 0x5f37599e makes the relative error
 range from 0 to -0.00000463.
    You can't balance the error by adjusting the constant. */
-inline float rsqrt1(float x) {
-  float xhalf = 0.5f * x;
+inline Real rsqrt1(Real x) {
+  Real xhalf = 0.5f * x;
   int i = *(int *)&x;              // View x as an int.
   i = 0x5f37599e - (i >> 1);       // Initial guess.
-  x = *(float *)&i;                // View i as float.
+  x = *(Real *)&i;                 // View i as Real.
   x = x * (1.5f - xhalf * x * x);  // Newton step.
   x = x * (1.5f - xhalf * x * x);  // Newton step again.
   return x;
 }
 
-inline float accurateSqrt(float x) { return x * rsqrt1(x); }
+inline Real accurateSqrt(Real x) { return x * rsqrt1(x); }
 
-inline void condSwap(bool c, float &X, float &Y) {
+inline void condSwap(bool c, Real &X, Real &Y) {
   // used in step 2
-  float Z = X;
+  Real Z = X;
   X = c ? Y : X;
   Y = c ? Z : Y;
 }
 
-inline void condNegSwap(bool c, float &X, float &Y) {
+inline void condNegSwap(bool c, Real &X, Real &Y) {
   // used in step 2 and 3
-  float Z = -X;
+  Real Z = -X;
   X = c ? Y : X;
   Y = c ? Z : Y;
 }
 
 // matrix multiplication M = A * B
-inline void multAB(float a11, float a12, float a13, float a21, float a22,
-                   float a23, float a31, float a32, float a33,
+inline void multAB(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23,
+                   Real a31, Real a32, Real a33,
                    //
-                   float b11, float b12, float b13, float b21, float b22,
-                   float b23, float b31, float b32, float b33,
+                   Real b11, Real b12, Real b13, Real b21, Real b22, Real b23,
+                   Real b31, Real b32, Real b33,
                    //
-                   float &m11, float &m12, float &m13, float &m21, float &m22,
-                   float &m23, float &m31, float &m32, float &m33) {
+                   Real &m11, Real &m12, Real &m13, Real &m21, Real &m22,
+                   Real &m23, Real &m31, Real &m32, Real &m33) {
   m11 = a11 * b11 + a12 * b21 + a13 * b31;
   m12 = a11 * b12 + a12 * b22 + a13 * b32;
   m13 = a11 * b13 + a12 * b23 + a13 * b33;
@@ -103,14 +106,14 @@ inline void multAB(float a11, float a12, float a13, float a21, float a22,
 }
 
 // matrix multiplication M = Transpose[A] * B
-inline void multAtB(float a11, float a12, float a13, float a21, float a22,
-                    float a23, float a31, float a32, float a33,
+inline void multAtB(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23,
+                    Real a31, Real a32, Real a33,
                     //
-                    float b11, float b12, float b13, float b21, float b22,
-                    float b23, float b31, float b32, float b33,
+                    Real b11, Real b12, Real b13, Real b21, Real b22, Real b23,
+                    Real b31, Real b32, Real b33,
                     //
-                    float &m11, float &m12, float &m13, float &m21, float &m22,
-                    float &m23, float &m31, float &m32, float &m33) {
+                    Real &m11, Real &m12, Real &m13, Real &m21, Real &m22,
+                    Real &m23, Real &m31, Real &m32, Real &m33) {
   m11 = a11 * b11 + a21 * b21 + a31 * b31;
   m12 = a11 * b12 + a21 * b22 + a31 * b32;
   m13 = a11 * b13 + a21 * b23 + a31 * b33;
@@ -122,23 +125,23 @@ inline void multAtB(float a11, float a12, float a13, float a21, float a22,
   m33 = a13 * b13 + a23 * b23 + a33 * b33;
 }
 
-inline void quatToMat3(const float *qV, float &m11, float &m12, float &m13,
-                       float &m21, float &m22, float &m23, float &m31,
-                       float &m32, float &m33) {
-  float w = qV[3];
-  float x = qV[0];
-  float y = qV[1];
-  float z = qV[2];
+inline void quatToMat3(const Real *qV, Real &m11, Real &m12, Real &m13,
+                       Real &m21, Real &m22, Real &m23, Real &m31, Real &m32,
+                       Real &m33) {
+  Real w = qV[3];
+  Real x = qV[0];
+  Real y = qV[1];
+  Real z = qV[2];
 
-  float qxx = x * x;
-  float qyy = y * y;
-  float qzz = z * z;
-  float qxz = x * z;
-  float qxy = x * y;
-  float qyz = y * z;
-  float qwx = w * x;
-  float qwy = w * y;
-  float qwz = w * z;
+  Real qxx = x * x;
+  Real qyy = y * y;
+  Real qzz = z * z;
+  Real qxz = x * z;
+  Real qxy = x * y;
+  Real qyz = y * z;
+  Real qwx = w * x;
+  Real qwy = w * y;
+  Real qwz = w * z;
 
   m11 = 1 - 2 * (qyy + qzz);
   m12 = 2 * (qxy - qwz);
@@ -151,8 +154,8 @@ inline void quatToMat3(const float *qV, float &m11, float &m12, float &m13,
   m33 = 1 - 2 * (qxx + qyy);
 }
 
-inline void approximateGivensQuaternion(float a11, float a12, float a22,
-                                        float &ch, float &sh) {
+inline void approximateGivensQuaternion(Real a11, Real a12, Real a22, Real &ch,
+                                        Real &sh) {
   /*
    * Given givens angle computed by approximateGivensAngles,
    * compute the corresponding rotation quaternion.
@@ -164,28 +167,28 @@ inline void approximateGivensQuaternion(float a11, float a12, float a22,
   // rsqrt2
   // (https://code.google.com/p/lppython/source/browse/algorithm/HDcode/newCode/rsqrt.c?r=26)
   // is even faster but results in too much error
-  float w = rsqrt(ch * ch + sh * sh);
-  ch = b ? w * ch : (float)_cstar;
-  sh = b ? w * sh : (float)_sstar;
+  Real w = rsqrt(ch * ch + sh * sh);
+  ch = b ? w * ch : (Real)_cstar;
+  sh = b ? w * sh : (Real)_sstar;
 }
 
-inline void jacobiConjugation(const int x, const int y, const int z, float &s11,
-                              float &s21, float &s22, float &s31, float &s32,
-                              float &s33, float *qV) {
-  float ch, sh;
+inline void jacobiConjugation(const int x, const int y, const int z, Real &s11,
+                              Real &s21, Real &s22, Real &s31, Real &s32,
+                              Real &s33, Real *qV) {
+  Real ch, sh;
   approximateGivensQuaternion(s11, s21, s22, ch, sh);
 
-  float scale = ch * ch + sh * sh;
-  float a = (ch * ch - sh * sh) / scale;
-  float b = (2 * sh * ch) / scale;
+  Real scale = ch * ch + sh * sh;
+  Real a = (ch * ch - sh * sh) / scale;
+  Real b = (2 * sh * ch) / scale;
 
   // make temp copy of S
-  float _s11 = s11;
-  float _s21 = s21;
-  float _s22 = s22;
-  float _s31 = s31;
-  float _s32 = s32;
-  float _s33 = s33;
+  Real _s11 = s11;
+  Real _s21 = s21;
+  Real _s22 = s22;
+  Real _s31 = s31;
+  Real _s32 = s32;
+  Real _s33 = s33;
 
   // perform conjugation S = Q'*S*Q
   // Q already implicitly solved from a, b
@@ -197,7 +200,7 @@ inline void jacobiConjugation(const int x, const int y, const int z, float &s11,
   s33 = _s33;
 
   // update cumulative rotation qV
-  float tmp[3];
+  Real tmp[3];
   tmp[0] = qV[0] * sh;
   tmp[1] = qV[1] * sh;
   tmp[2] = qV[2] * sh;
@@ -230,13 +233,13 @@ inline void jacobiConjugation(const int x, const int y, const int z, float &s11,
   s33 = _s33;
 }
 
-inline float dist2(float x, float y, float z) { return x * x + y * y + z * z; }
+inline Real dist2(Real x, Real y, Real z) { return x * x + y * y + z * z; }
 
 // finds transformation that diagonalizes a symmetric matrix
 inline void jacobiEigenanlysis(  // symmetric matrix
-    float &s11, float &s21, float &s22, float &s31, float &s32, float &s33,
+    Real &s11, Real &s21, Real &s22, Real &s31, Real &s32, Real &s33,
     // quaternion representation of V
-    float *qV) {
+    Real *qV) {
   qV[3] = 1;
   qV[0] = 0;
   qV[1] = 0;
@@ -253,14 +256,14 @@ inline void jacobiEigenanlysis(  // symmetric matrix
 }
 
 inline void sortSingularValues(  // matrix that we want to decompose
-    float &b11, float &b12, float &b13, float &b21, float &b22, float &b23,
-    float &b31, float &b32, float &b33,
+    Real &b11, Real &b12, Real &b13, Real &b21, Real &b22, Real &b23, Real &b31,
+    Real &b32, Real &b33,
     // sort V simultaneously
-    float &v11, float &v12, float &v13, float &v21, float &v22, float &v23,
-    float &v31, float &v32, float &v33) {
-  float rho1 = dist2(b11, b21, b31);
-  float rho2 = dist2(b12, b22, b32);
-  float rho3 = dist2(b13, b23, b33);
+    Real &v11, Real &v12, Real &v13, Real &v21, Real &v22, Real &v23, Real &v31,
+    Real &v32, Real &v33) {
+  Real rho1 = dist2(b11, b21, b31);
+  Real rho2 = dist2(b12, b22, b32);
+  Real rho3 = dist2(b13, b23, b33);
   bool c;
   c = rho1 < rho2;
   condNegSwap(c, b11, b12);
@@ -287,32 +290,32 @@ inline void sortSingularValues(  // matrix that we want to decompose
   condNegSwap(c, v32, v33);
 }
 
-inline void QRGivensQuaternion(float a1, float a2, float &ch, float &sh) {
+inline void QRGivensQuaternion(Real a1, Real a2, Real &ch, Real &sh) {
   // a1 = pivot point on diagonal
   // a2 = lower triangular entry we want to annihilate
-  float epsilon = (float)EPSILON;
-  float rho = accurateSqrt(a1 * a1 + a2 * a2);
+  Real epsilon = (Real)EPSILON;
+  Real rho = accurateSqrt(a1 * a1 + a2 * a2);
 
   sh = rho > epsilon ? a2 : 0;
   ch = fabsf(a1) + fmaxf(rho, epsilon);
   bool b = a1 < 0;
   condSwap(b, sh, ch);
-  float w = rsqrt(ch * ch + sh * sh);
+  Real w = rsqrt(ch * ch + sh * sh);
   ch *= w;
   sh *= w;
 }
 
 inline void QRDecomposition(  // matrix that we want to decompose
-    float b11, float b12, float b13, float b21, float b22, float b23, float b31,
-    float b32, float b33,
+    Real b11, Real b12, Real b13, Real b21, Real b22, Real b23, Real b31,
+    Real b32, Real b33,
     // output Q
-    float &q11, float &q12, float &q13, float &q21, float &q22, float &q23,
-    float &q31, float &q32, float &q33,
+    Real &q11, Real &q12, Real &q13, Real &q21, Real &q22, Real &q23, Real &q31,
+    Real &q32, Real &q33,
     // output R
-    float &r11, float &r12, float &r13, float &r21, float &r22, float &r23,
-    float &r31, float &r32, float &r33) {
-  float ch1, sh1, ch2, sh2, ch3, sh3;
-  float a, b;
+    Real &r11, Real &r12, Real &r13, Real &r21, Real &r22, Real &r23, Real &r31,
+    Real &r32, Real &r33) {
+  Real ch1, sh1, ch2, sh2, ch3, sh3;
+  Real a, b;
 
   // first givens rotation (ch,0,0,sh)
   QRGivensQuaternion(b11, b21, ch1, sh1);
@@ -360,12 +363,12 @@ inline void QRDecomposition(  // matrix that we want to decompose
   r33 = -b * b23 + a * b33;
 
   // construct the cumulative rotation Q=Q1 * Q2 * Q3
-  // the number of floating point operations for three quaternion
+  // the number of Realing point operations for three quaternion
   // multiplications is more or less comparable to the explicit form of the
   // joined matrix. certainly more memory-efficient!
-  float sh12 = sh1 * sh1;
-  float sh22 = sh2 * sh2;
-  float sh32 = sh3 * sh3;
+  Real sh12 = sh1 * sh1;
+  Real sh22 = sh2 * sh2;
+  Real sh32 = sh3 * sh3;
 
   q11 = (-1 + 2 * sh12) * (-1 + 2 * sh22);
   q12 = 4 * ch2 * ch3 * (-1 + 2 * sh12) * sh2 * sh3 +
@@ -385,34 +388,34 @@ inline void QRDecomposition(  // matrix that we want to decompose
 }
 
 void svd(  // input A
-    float a11, float a12, float a13, float a21, float a22, float a23, float a31,
-    float a32, float a33,
+    Real a11, Real a12, Real a13, Real a21, Real a22, Real a23, Real a31,
+    Real a32, Real a33,
     // output U
-    float &u11, float &u12, float &u13, float &u21, float &u22, float &u23,
-    float &u31, float &u32, float &u33,
+    Real &u11, Real &u12, Real &u13, Real &u21, Real &u22, Real &u23, Real &u31,
+    Real &u32, Real &u33,
     // output S
-    float &s11, float &s12, float &s13, float &s21, float &s22, float &s23,
-    float &s31, float &s32, float &s33,
+    Real &s11, Real &s12, Real &s13, Real &s21, Real &s22, Real &s23, Real &s31,
+    Real &s32, Real &s33,
     // output V
-    float &v11, float &v12, float &v13, float &v21, float &v22, float &v23,
-    float &v31, float &v32, float &v33) {
+    Real &v11, Real &v12, Real &v13, Real &v21, Real &v22, Real &v23, Real &v31,
+    Real &v32, Real &v33) {
   // normal equations matrix
-  float ATA11, ATA12, ATA13;
-  float ATA21, ATA22, ATA23;
-  float ATA31, ATA32, ATA33;
+  Real ATA11, ATA12, ATA13;
+  Real ATA21, ATA22, ATA23;
+  Real ATA31, ATA32, ATA33;
 
   multAtB(a11, a12, a13, a21, a22, a23, a31, a32, a33, a11, a12, a13, a21, a22,
           a23, a31, a32, a33, ATA11, ATA12, ATA13, ATA21, ATA22, ATA23, ATA31,
           ATA32, ATA33);
 
   // symmetric eigenalysis
-  float qV[4];
+  Real qV[4];
   jacobiEigenanlysis(ATA11, ATA21, ATA22, ATA31, ATA32, ATA33, qV);
   quatToMat3(qV, v11, v12, v13, v21, v22, v23, v31, v32, v33);
 
-  float b11, b12, b13;
-  float b21, b22, b23;
-  float b31, b32, b33;
+  Real b11, b12, b13;
+  Real b21, b22, b23;
+  Real b31, b32, b33;
   multAB(a11, a12, a13, a21, a22, a23, a31, a32, a33, v11, v12, v13, v21, v22,
          v23, v31, v32, v33, b11, b12, b13, b21, b22, b23, b31, b32, b33);
 
@@ -428,24 +431,24 @@ void svd(  // input A
 
 /// polar decomposition can be reconstructed trivially from SVD result
 // A = UP
-void pd(float a11, float a12, float a13, float a21, float a22, float a23,
-        float a31, float a32, float a33,
+void pd(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23, Real a31,
+        Real a32, Real a33,
         // output U
-        float &u11, float &u12, float &u13, float &u21, float &u22, float &u23,
-        float &u31, float &u32, float &u33,
+        Real &u11, Real &u12, Real &u13, Real &u21, Real &u22, Real &u23,
+        Real &u31, Real &u32, Real &u33,
         // output P
-        float &p11, float &p12, float &p13, float &p21, float &p22, float &p23,
-        float &p31, float &p32, float &p33) {
-  float w11, w12, w13, w21, w22, w23, w31, w32, w33;
-  float s11, s12, s13, s21, s22, s23, s31, s32, s33;
-  float v11, v12, v13, v21, v22, v23, v31, v32, v33;
+        Real &p11, Real &p12, Real &p13, Real &p21, Real &p22, Real &p23,
+        Real &p31, Real &p32, Real &p33) {
+  Real w11, w12, w13, w21, w22, w23, w31, w32, w33;
+  Real s11, s12, s13, s21, s22, s23, s31, s32, s33;
+  Real v11, v12, v13, v21, v22, v23, v31, v32, v33;
 
   svd(a11, a12, a13, a21, a22, a23, a31, a32, a33, w11, w12, w13, w21, w22, w23,
       w31, w32, w33, s11, s12, s13, s21, s22, s23, s31, s32, s33, v11, v12, v13,
       v21, v22, v23, v31, v32, v33);
 
   // P = VSV'
-  float t11, t12, t13, t21, t22, t23, t31, t32, t33;
+  Real t11, t12, t13, t21, t22, t23, t31, t32, t33;
   multAB(v11, v12, v13, v21, v22, v23, v31, v32, v33, s11, s12, s13, s21, s22,
          s23, s31, s32, s33, t11, t12, t13, t21, t22, t23, t31, t32, t33);
 

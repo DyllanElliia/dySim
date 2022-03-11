@@ -2,14 +2,14 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-26 15:14:37
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-08 16:56:43
+ * @LastEditTime: 2022-03-11 15:36:22
  * @Description:
  */
 #pragma once
 #include "vector.hpp"
 namespace dym {
 // namespace vector {
-template <typename Type, std::size_t dim>
+template <typename Type, typename TypeS, std::size_t dim>
 _DYM_FORCE_INLINE_ Vector<Type, dim> clamp(const Vector<Type, dim>& v,
                                            const Vector<Type, dim>& min_v,
                                            const Vector<Type, dim>& max_v) {

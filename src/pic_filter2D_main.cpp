@@ -18,10 +18,10 @@ int main() {
 
   dym::TimeLog t;
   // Read Picture
-  auto pic = dym::imread<float, dym::PIC_RGB>("./image/luna.png");
+  auto pic = dym::imread<Real, dym::PIC_RGB>("./image/luna.png");
 
   // Create Laplacian kernel
-  dym::Matrix<float, 3, 3> kernel_L(-1);
+  dym::Matrix<Real, 3, 3> kernel_L(-1);
   kernel_L[1][1] = 8;
   qprint(kernel_L);
   // run!
@@ -30,9 +30,9 @@ int main() {
   t.record();
   t.reStart();
   // Create Roberts kernel
-  dym::Matrix<float, 2, 2> kernel_S1({{-1, 0}, {0, 1}});
+  dym::Matrix<Real, 2, 2> kernel_S1({{-1, 0}, {0, 1}});
   qprint(kernel_S1);
-  dym::Matrix<float, 2, 2> kernel_S2({{0, -1}, {1, 0}});
+  dym::Matrix<Real, 2, 2> kernel_S2({{0, -1}, {1, 0}});
   qprint(kernel_S2);
   // run!
   auto pic_S = dym::abs(dym::filter2D(pic, kernel_S1, dym::BORDER_REPLICATE)) +
@@ -42,5 +42,5 @@ int main() {
   imwrite(pic_L, "./image_out/p_L.png");
   imwrite(pic_S, "./image_out/p_S.png");
   qprint("sizeof pic: " + std::to_string(sizeof(pic_L)));
-  qprint("sizeof tensor: " + std::to_string(sizeof(dym::Tensor<float>)));
+  qprint("sizeof tensor: " + std::to_string(sizeof(dym::Tensor<Real>)));
 }

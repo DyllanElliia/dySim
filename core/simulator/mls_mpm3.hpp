@@ -2,13 +2,13 @@
  * @Author: DyllanElliia
  * @Date: 2022-02-17 16:02:02
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-21 16:56:52
+ * @LastEditTime: 2022-03-11 15:46:39
  * @Description:
  */
 #pragma once
-#include "../dyMath.hpp"
-
 #include <random>
+
+#include "../dyMath.hpp"
 
 namespace dym {
 namespace mpmt {
@@ -43,7 +43,7 @@ struct Particle_o {
   Matrix3 C, F;
   Real Jp;
   unsigned short material;
-  Particle_o() : v(0), C(0), F(identity3), Jp(1.f), material(0) {}
+  Particle_o() : v(0), C(0), F(identity3), Jp(1), material(0) {}
 };
 
 dym::Tensor<Vector3> x;
@@ -138,11 +138,11 @@ struct Material {
 std::vector<Material> material_l;
 Vector3 globalForce;
 
-_DYM_FORCE_INLINE_ u_int addMaterial(
-    const u_short &material_model, const Real &E = 0.1e4f,
-    const Real &nu = 0.2f, const Real &hardening = 10.f,
-    const Real &y_min = 1.f - 2.5e-2f, const Real &y_max = 1.f + 8.5e-3f,
-    const Real &opt = 0.f, const Real &p_rho = 1.f, Real p_vol = -1) {
+_DYM_FORCE_INLINE_ u_int
+addMaterial(const u_short &material_model, const Real &E = 0.1e4,
+            const Real &nu = 0.2, const Real &hardening = 10,
+            const Real &y_min = 1 - 2.5e-2, const Real &y_max = 1 + 8.5e-30,
+            const Real &opt = 0, const Real &p_rho = 1, Real p_vol = -1) {
   if (p_vol < 0) p_vol = dym::pow(dx * 0.5, 2);
   material_l.push_back(Material(E, nu, hardening, p_rho, p_vol, y_min, y_max,
                                 opt, material_model));
@@ -150,22 +150,22 @@ _DYM_FORCE_INLINE_ u_int addMaterial(
 }
 
 _DYM_FORCE_INLINE_ u_int addLiquidMaterial(
-    const Real &mu = 0.f, const Real &E = 0.1e4f, const Real &nu = 0.2f,
-    const Real &hardening = 10.f, const Real &p_rho = 1.f, Real p_vol = -1) {
-  return addMaterial(0, E, nu, hardening, 1.f, 1.f, mu, p_rho, p_vol);
+    const Real &mu = 0, const Real &E = 0.1e4, const Real &nu = 0.2,
+    const Real &hardening = 10, const Real &p_rho = 1, Real p_vol = -1) {
+  return addMaterial(0, E, nu, hardening, 1, 1, mu, p_rho, p_vol);
 }
 
 _DYM_FORCE_INLINE_ u_int addJellyMaterial(
-    const Real &h = 0.3f, const Real &E = 0.1e4f, const Real &nu = 0.2f,
-    const Real &hardening = 10.f, const Real &p_rho = 1.f, Real p_vol = -1) {
-  return addMaterial(1, E, nu, hardening, 1.f, 1.f, h, p_rho, p_vol);
+    const Real &h = 0.3, const Real &E = 0.1e4, const Real &nu = 0.2,
+    const Real &hardening = 10, const Real &p_rho = 1, Real p_vol = -1) {
+  return addMaterial(1, E, nu, hardening, 1, 1, h, p_rho, p_vol);
 }
 
 _DYM_FORCE_INLINE_ u_int addPlasticMaterial(
-    const Real &y_min = 1.f - 2.5e-2f, const Real &y_max = 1.f + 8.5e-3f,
-    const Real &E = 0.1e4f, const Real &nu = 0.2f, const Real &hardening = 10.f,
-    const Real &p_rho = 1.f, Real p_vol = -1) {
-  return addMaterial(2, E, nu, hardening, y_min, y_max, 0.f, p_rho, p_vol);
+    const Real &y_min = 1 - 2.5e-2, const Real &y_max = 1 + 8.5e-3,
+    const Real &E = 0.1e4, const Real &nu = 0.2, const Real &hardening = 10,
+    const Real &p_rho = 1, Real p_vol = -1) {
+  return addMaterial(2, E, nu, hardening, y_min, y_max, 0, p_rho, p_vol);
 }
 
 _DYM_FORCE_INLINE_ Vector3 addGlobalForce(const Vector3 &f) {
@@ -195,14 +195,14 @@ u_int addParticle(Tensor<Vector3> newX, const u_int &material_index) {
 }
 
 void advance(const Real &dt) {
-  grid_vm = Vector4(0.f);
+  grid_vm = Vector4(0);
   x.for_each_i([&](Vector3 &px, int pi) {
     auto Xp = px / dx;
-    auto base = (Xp - Vector3(0.5f)).cast<int>();
+    auto base = (Xp - Vector3(0.5)).cast<int>();
     Vector3 fx = Xp - base.cast<Real>();
-    std::array<Vector3, 3> w = {Vector3(0.50f) * dym::sqr(Vector3(1.5f) - fx),
-                                Vector3(0.75f) - dym::sqr(fx - Vector3(1.0f)),
-                                Vector3(0.50f) * dym::sqr(fx - Vector3(0.5f))};
+    std::array<Vector3, 3> w = {Vector3(0.50) * dym::sqr(Vector3(1.5) - fx),
+                                Vector3(0.75) - dym::sqr(fx - Vector3(1.0)),
+                                Vector3(0.50) * dym::sqr(fx - Vector3(0.5))};
     auto &p = particles[pi];
     const auto &mat_data = material_l[p.material];
     const auto &p_vol = mat_data.p_vol, &p_mass = mat_data.p_mass;
@@ -238,22 +238,22 @@ void advance(const Real &dt) {
   });
   grid_vm.for_each_i([&](Vector4 &gvm, int i, int j, int k) {
     auto &g_m = gvm[dim];
-    if (g_m > 0.f) {
+    if (g_m > 0) {
       gvm /= g_m;
-      gvm[1] -= dt * 9.8 * 2.f;
+      gvm[1] -= dt * 9.8 * 2.0;
       if ((i < bound || k < bound) ||
           (i > n_grid - bound || j > n_grid - bound || k > n_grid - bound))
         gvm = 0;
-      if (j < bound) gvm[1] = std::max(gvm[1], 0.f);
+      if (j < bound) gvm[1] = dym::max(gvm[1], 0.0);
     }
   });
   x.for_each_i([&](Vector3 &px, int pi) {
     auto Xp = px / dx;
     auto base = (Xp - Vector3(0.5f)).cast<int>();
     Vector3 fx = Xp - base.cast<Real>();
-    std::array<Vector3, 3> w = {Vector3(0.50f) * dym::sqr(Vector3(1.5f) - fx),
-                                Vector3(0.75f) - dym::sqr(fx - Vector3(1.0f)),
-                                Vector3(0.50f) * dym::sqr(fx - Vector3(0.5f))};
+    std::array<Vector3, 3> w = {Vector3(0.50) * dym::sqr(Vector3(1.5) - fx),
+                                Vector3(0.75) - dym::sqr(fx - Vector3(1.0)),
+                                Vector3(0.50) * dym::sqr(fx - Vector3(0.5))};
     auto &p = particles[pi];
     Vector3 new_v(0.f);
     Matrix3 new_C(0.f);

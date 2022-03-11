@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-26 15:16:30
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-01 16:29:38
+ * @LastEditTime: 2022-03-11 15:35:33
  * @Description:
  */
 #pragma once
@@ -10,10 +10,10 @@
 
 namespace dym {
 // namespace real {
-template <typename Type>
-_DYM_FORCE_INLINE_ Type clamp(const Type &v, const Type &min_v,
-                              const Type &max_v) {
-  return v < min_v ? min_v : (v > max_v ? max_v : v);
+template <typename Type, typename TypeS>
+_DYM_FORCE_INLINE_ Type clamp(const Type &v, const TypeS &min_v,
+                              const TypeS &max_v) {
+  return v < (Type)min_v ? min_v : (v > (Type)max_v ? max_v : v);
 }
 template <typename Type>
 _DYM_FORCE_INLINE_ Type sqr(const Type &v) {
@@ -24,12 +24,12 @@ _DYM_FORCE_INLINE_ Type pow(const Type &v, const int &s) {
   return std::pow(v, s);
 }
 
-template <typename Type>
-_DYM_FORCE_INLINE_ Type min(const Type &v1, const Type &v2) {
+template <typename Type, typename TypeS>
+_DYM_FORCE_INLINE_ Type min(const Type &v1, const TypeS &v2) {
   return v1 < v2 ? v1 : v2;
 }
-template <typename Type>
-_DYM_FORCE_INLINE_ Type max(const Type &v1, const Type &v2) {
+template <typename Type, typename TypeS>
+_DYM_FORCE_INLINE_ Type max(const Type &v1, const TypeS &v2) {
   return v1 > v2 ? v1 : v2;
 }
 

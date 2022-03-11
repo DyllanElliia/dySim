@@ -2,12 +2,13 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-20 17:57:52
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-02 16:07:15
+ * @LastEditTime: 2022-03-10 17:35:26
  * @Description:
  */
 
-#include "../core/math/matALG.hpp"
 #include <random>
+
+#include "../core/math/matALG.hpp"
 #include "../core/tools/sugar.hpp"
 
 Real errorCmp(dym::Matrix<Real, 3, 3>& a, dym::Matrix<Real, 3, 3>& b) {
@@ -18,14 +19,14 @@ Real errorCmp(dym::Matrix<Real, 3, 3>& a, dym::Matrix<Real, 3, 3>& b) {
 
 int main(int argc, char const* argv[]) {
   std::default_random_engine re;
-  std::uniform_real_distribution<float> u(-100.f, 100.f);
+  std::uniform_real_distribution<Real> u(-100.f, 100.f);
 
   int times = 100000;
   dym::TimeLog t;
   qprint("truncated Svd");
   t.reStart();
   for (int i = 0; i < times; ++i) {
-    dym::Matrix<Real, 3, 3> A([&](float&e) { e = u(re); }), U, Sig, V;
+    dym::Matrix<Real, 3, 3> A([&](Real&e) { e = u(re); }), U, Sig, V;
     dym::matrix::truncatedSvd(A, U, Sig, V);
     auto usv = U * Sig * V.transpose();
   }
@@ -34,7 +35,7 @@ int main(int argc, char const* argv[]) {
   qprint("\nfast 3x3 Svd");
   t.reStart();
   for (int i = 0; i < times; ++i) {
-    dym::Matrix<Real, 3, 3> A([&](float&e) { e = u(re); }), U, Sig, V;
+    dym::Matrix<Real, 3, 3> A([&](Real&e) { e = u(re); }), U, Sig, V;
     dym::matrix::fast3x3Svd(A, U, Sig, V);
     auto usv = U * Sig * V.transpose();
   }
@@ -43,7 +44,7 @@ int main(int argc, char const* argv[]) {
   qprint("\ntraditional 3x3 Svd");
   t.reStart();
   for (int i = 0; i < times; ++i) {
-    dym::Matrix<Real, 3, 3> A([&](float&e) { e = u(re); }), U, Sig, V;
+    dym::Matrix<Real, 3, 3> A([&](Real&e) { e = u(re); }), U, Sig, V;
     dym::matrix::traditionalSvd(A, U, Sig, V);
     auto usv = U * Sig * V.transpose();
   }
@@ -52,7 +53,7 @@ int main(int argc, char const* argv[]) {
   qprint("\ntruncated Svd");
   Real ans = 0.f;
   for (int i = 0; i < times; ++i) {
-    dym::Matrix<Real, 3, 3> A([&](float&e) { e = u(re); }), U, Sig, V;
+    dym::Matrix<Real, 3, 3> A([&](Real&e) { e = u(re); }), U, Sig, V;
     dym::matrix::truncatedSvd(A, U, Sig, V);
     auto usv = U * Sig * V.transpose();
     ans += errorCmp(A, usv);
@@ -62,7 +63,7 @@ int main(int argc, char const* argv[]) {
   ans = 0.f;
   qprint("fast 3x3 Svd");
   for (int i = 0; i < times; ++i) {
-    dym::Matrix<Real, 3, 3> A([&](float&e) { e = u(re); }), U, Sig, V;
+    dym::Matrix<Real, 3, 3> A([&](Real&e) { e = u(re); }), U, Sig, V;
     dym::matrix::fast3x3Svd(A, U, Sig, V);
     auto usv = U * Sig * V.transpose();
     ans += errorCmp(A, usv);
@@ -72,7 +73,7 @@ int main(int argc, char const* argv[]) {
   ans = 0.f;
   qprint("traditional 3x3 Svd");
   for (int i = 0; i < times; ++i) {
-    dym::Matrix<Real, 3, 3> A([&](float&e) { e = u(re); }), U, Sig, V;
+    dym::Matrix<Real, 3, 3> A([&](Real&e) { e = u(re); }), U, Sig, V;
     dym::matrix::traditionalSvd(A, U, Sig, V);
     auto usv = U * Sig * V.transpose();
     ans += errorCmp(A, usv);

@@ -2,27 +2,28 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-12 16:02:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-03 16:32:51
+ * @LastEditTime: 2022-03-11 16:18:45
  * @Description:
  */
 #pragma once
 
+// glad
 #include <glad/glad.h>
-
+// glad must include before the glfw library.
 #include <GLFW/glfw3.h>
 
 // #include <GL/glut.h>
 
-#include "math/tensor.hpp"
-#include "math/vector.hpp"
+#include <learnopengl/camera.h>
+#include <learnopengl/shader.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-#include <learnopengl/camera.h>
-#include <learnopengl/shader.h>
 #include <string>
+
+#include "math/tensor.hpp"
+#include "math/vector.hpp"
 
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -103,6 +104,7 @@ class GUI {
         keys[key] = true;
       else if (action == GLFW_RELEASE)
         keys[key] = false;
+      qprint("GUI message: reveive keyboard call key =", key, (char)key);
     }
   }
 
@@ -120,6 +122,8 @@ class GUI {
     lastX = xpos;
     lastY = ypos;
     m_xoffset += xoffset, m_yoffset += yoffset;
+    qprint("GUI message: reveive mouse call pos = (", xoffset, ",", yoffset,
+           ")");
     // camera.ProcessMouseMovement(xoffset, yoffset);
   }
 
@@ -236,15 +240,15 @@ class GUI {
     qprint("-------------------------------------------------");
     qprint("************* Welcome to use dySim! *************");
     qprint("-------------------------------------------------");
-    qprint("OpenGL  version: >=4.0");
-    qprint("dySim   version:   0.5 (Unreleased)");
+    qprint("OpenGL  version:  4.6");
+    qprint("dySim   version:  0.5 (Unreleased)");
     qprint("Author: DyllanElliia");
     qprint("Github: https://github.com/DyllanElliia/dySim\n");
 
     return true;
   }
 
-  bool scatter2D(Tensor<Vector<float, 2>> &loc, Index<int> color_default,
+  bool scatter2D(Tensor<Vector<Real, 2>> &loc, Index<int> color_default,
                  int shader_index = 0, unsigned int begin = 0,
                  unsigned int end = -1) {
     Index locShape = loc.shape();
@@ -260,9 +264,9 @@ class GUI {
     glBindVertexArray(VAO[VxO_i]);
     // add vertex
     glBindBuffer(GL_ARRAY_BUFFER, VBO_v[VxO_i]);
-    glBufferData(GL_ARRAY_BUFFER, (end - begin) * sizeof(Vector<float, 2>),
+    glBufferData(GL_ARRAY_BUFFER, (end - begin) * sizeof(Vector<Real, 2>),
                  &loc[begin], GL_STREAM_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vector<float, 2>),
+    glVertexAttribPointer(0, 2, GL_DOUBLE, GL_FALSE, sizeof(Vector<Real, 2>),
                           (void *)0);
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);

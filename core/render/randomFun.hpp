@@ -2,12 +2,13 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-07 16:56:57
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-07 16:56:57
+ * @LastEditTime: 2022-03-11 14:16:03
  * @Description:
  */
 #pragma once
-#include "../dyMath.hpp"
 #include <random>
+
+#include "../dyMath.hpp"
 
 namespace dym {
 namespace rt {
@@ -27,15 +28,18 @@ _DYM_FORCE_INLINE_ Real degrees_to_radians(const Real& degrees) {
   return degrees * pi / 180.0;
 }
 
-_DYM_FORCE_INLINE_ Real random_real(const Real& min = 0.f,
-                                    const Real& max = 1.f) {
-  static std::uniform_real_distribution<Real> distribution(min, max);
+namespace {}  // namespace
+
+_DYM_FORCE_INLINE_ Real random_real(const Real& min = 0.0,
+                                    const Real& max = 1.0) {
+  std::uniform_real_distribution<Real> distribution(min, max);
   static std::mt19937 generator;
+  // return (distribution(generator) * (max - min)) - min;
   return distribution(generator);
 }
 
-_DYM_FORCE_INLINE_ Vector3 vec_random(const Real& min = 0.f,
-                                      const Real& max = 1.f) {
+_DYM_FORCE_INLINE_ Vector3 vec_random(const Real& min = 0.0,
+                                      const Real& max = 1.0) {
   return Vector3(
       {random_real(min, max), random_real(min, max), random_real(min, max)});
 }

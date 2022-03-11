@@ -2,18 +2,18 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-07 17:08:29
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-09 16:41:12
+ * @LastEditTime: 2022-03-11 16:32:44
  * @Description:
  */
 #pragma once
-#include "aaRect.hpp"
 #include "../BVH/bvhNode.hpp"
+#include "aaRect.hpp"
 namespace dym {
 namespace rt {
 class Box : public Hittable {
  public:
   Box() {}
-  Box(const Point3& p0, const Point3& p1, shared_ptr<Material> ptr);
+  Box(const Point3& pmin, const Point3& pax, shared_ptr<Material> ptr);
 
   virtual bool hit(const Ray& r, Real t_min, Real t_max,
                    HitRecord& rec) const override;

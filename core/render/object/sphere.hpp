@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:00:10
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-07 16:26:22
+ * @LastEditTime: 2022-03-10 17:12:55
  * @Description:
  */
 #pragma once
@@ -26,6 +26,7 @@ class Sphere : public Hittable {
 
     u = phi / (2 * pi);
     v = theta / pi;
+    if (isnan(u)) qprint(p);
     if (isnan(v)) v = p.y() > 1.f ? 1 : 0;
   }
 

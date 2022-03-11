@@ -2,30 +2,31 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 14:31:38
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-09 16:40:38
+ * @LastEditTime: 2022-03-11 16:38:39
  * @Description:
  */
 #pragma once
-#include "ray.hpp"
 #include "camera.hpp"
 #include "hittableList.hpp"
+#include "ray.hpp"
 
 // Bvh
 #include "BVH/bvhNode.hpp"
 
 // object
-#include "object/sphere.hpp"
 #include "object/box.hpp"
+#include "object/sphere.hpp"
+#include "object/transform.hpp"
 
 // material
-#include "material/lambertian.hpp"
-#include "material/metal.hpp"
 #include "material/dielectric.hpp"
 #include "material/diffuseLight.hpp"
+#include "material/lambertian.hpp"
+#include "material/metal.hpp"
 
 // texture
-#include "texture/solidColor.hpp"
 #include "texture/imageTexture.hpp"
+#include "texture/solidColor.hpp"
 
 namespace dym {
 namespace rt {

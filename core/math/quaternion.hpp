@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-08 15:16:29
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-09 16:30:12
+ * @LastEditTime: 2022-03-11 16:49:43
  * @Description:
  */
 #pragma once
@@ -64,6 +64,17 @@ class Quaternion {
          {2 * (b * c + a * d), 1 - 2 * (sqr(b) + sqr(d)), 2 * (c * d - a * b)},
          {2 * (b * d - a * c), 2 * (a * b + c * d),
           1 - 2 * (sqr(b) + sqr(c))}});
+  }
+
+  _DYM_FORCE_INLINE_ Matrix<Type, 4, 4> to_matrix4() const {
+    const auto &a = w, &b = v[0], &c = v[1], &d = v[2];
+    return Matrix<Type, 4, 4>({{1 - 2 * (sqr(c) + sqr(d)), 2 * (b * c - a * d),
+                                2 * (a * c + b * d), 0},
+                               {2 * (b * c + a * d), 1 - 2 * (sqr(b) + sqr(d)),
+                                2 * (c * d - a * b), 0},
+                               {2 * (b * d - a * c), 2 * (a * b + c * d),
+                                1 - 2 * (sqr(b) + sqr(c)), 0},
+                               {0, 0, 0, 1}});
   }
 
   _DYM_FORCE_INLINE_ Quaternion pow(const Type& t) {

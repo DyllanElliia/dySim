@@ -2,12 +2,12 @@
  * @Author: DyllanElliia
  * @Date: 2022-02-16 15:30:48
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-23 14:43:49
+ * @LastEditTime: 2022-03-10 17:34:52
  * @Description:
  */
 #define DYM_DEFAULT_THREAD 1
-#include <dySimulator.hpp>
 #include <dyGraphic.hpp>
+#include <dySimulator.hpp>
 #include <random>
 typedef dym::Vector<Real, 3> Vector3;
 
@@ -15,7 +15,7 @@ int main(int argc, char const *argv[]) {
   dym::MLSMPM<dym::MidGrid, dym::OneSeparateOtherSticky> sim;
   sim.globalForce = Vector3({0.f, -9.8 * 2.f, 0.f});
   std::default_random_engine re;
-  std::uniform_real_distribution<float> u(-1.f, 1.f);
+  std::uniform_real_distribution<Real> u(-1.f, 1.f);
   u_int n3 = 3000;
   dym::Tensor<Vector3> newX(0, dym::gi(n3));
   newX.for_each_i([&](Vector3 &pos) {
@@ -36,13 +36,13 @@ int main(int argc, char const *argv[]) {
   auto Tp = [&](dym::Tensor<Vector3> &x) {
     point.for_each_i([&](dym::Vector<Real, 2> &e, int i) {
       auto &pos = x[i];
-      float PI = 3.14159265f;
-      float phi = (28.0 / 180) * PI, theta = (32.0 / 180) * PI;
+      Real PI = 3.14159265f;
+      Real phi = (28.0 / 180) * PI, theta = (32.0 / 180) * PI;
       Vector3 a = pos / 1.5f - 0.35f;
-      float c = std::cos(phi), s = std::sin(phi), C = std::cos(theta),
-            S = std::sin(theta);
-      float x = a.x() * c + a.z() * s, z = a.z() * c - a.x() * s;
-      float u = x, v = a.y() * C + z * S;
+      Real c = std::cos(phi), s = std::sin(phi), C = std::cos(theta),
+           S = std::sin(theta);
+      Real x = a.x() * c + a.z() * s, z = a.z() * c - a.x() * s;
+      Real u = x, v = a.y() * C + z * S;
       e[0] = 2 * u, e[1] = 2 * v;
     });
   };

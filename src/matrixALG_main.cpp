@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-19 15:52:08
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-02 16:08:16
+ * @LastEditTime: 2022-03-10 17:35:32
  * @Description:
  */
 
@@ -12,14 +12,14 @@
 
 int main(int argc, char** argv) {
   std::default_random_engine re;
-  std::uniform_real_distribution<float> u(0.f, 1.f);
+  std::uniform_real_distribution<Real> u(0.f, 1.f);
   const int m = 3, n = 3;
-  // dym::Matrix<float, m, n> A([&](float& e) { e = u(re); });
-  dym::Matrix<float, m, n> A({{3, 1, 0}, {1, 2, 2}, {0, 1, 1}});
+  // dym::Matrix<Real, m, n> A([&](Real& e) { e = u(re); });
+  dym::Matrix<Real, m, n> A({{3, 1, 0}, {1, 2, 2}, {0, 1, 1}});
 
-  dym::Matrix<float, m, (m <= n ? m : n)> U;
-  dym::Matrix<float, (m <= n ? m : n), (m <= n ? m : n)> Sig;
-  dym::Matrix<float, n, (m <= n ? m : n)> V;
+  dym::Matrix<Real, m, (m <= n ? m : n)> U;
+  dym::Matrix<Real, (m <= n ? m : n), (m <= n ? m : n)> Sig;
+  dym::Matrix<Real, n, (m <= n ? m : n)> V;
 
   qprint("Transpose:");
   qprint(A, A.transpose());

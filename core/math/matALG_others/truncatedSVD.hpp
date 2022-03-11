@@ -1,38 +1,39 @@
-#include <cstdlib>
-#include <iostream>
-#include <iomanip>
+#pragma once
 #include <cmath>
+#include <cstdlib>
 #include <ctime>
+#include <iomanip>
+#include <iostream>
 
+#include "../matALG.hpp"
 namespace truncatedSvd {
 
 using namespace std;
+// using dym::Real Real
 
 int main_m();
-void daxpy(int n, float da, float dx[], int incx, float dy[], int incy);
-float ddot(int n, float dx[], int incx, float dy[], int incy);
-float dnrm2(int n, float x[], int incx);
-void drot(int n, float x[], int incx, float y[], int incy, float c, float s);
-void drotg(float *sa, float *sb, float *c, float *s);
-void dscal(int n, float sa, float x[], int incx);
-int dsvdc(float a[], int lda, int m, int n, float s[], float e[], float u[],
-          int ldu, float v[], int ldv, float work[], int job);
-void dswap(int n, float x[], int incx, float y[], int incy);
+void daxpy(int n, Real da, Real dx[], int incx, Real dy[], int incy);
+Real ddot(int n, Real dx[], int incx, Real dy[], int incy);
+Real dnrm2(int n, Real x[], int incx);
+void drot(int n, Real x[], int incx, Real y[], int incy, Real c, Real s);
+void drotg(Real *sa, Real *sb, Real *c, Real *s);
+void dscal(int n, Real sa, Real x[], int incx);
+int dsvdc(Real a[], int lda, int m, int n, Real s[], Real e[], Real u[],
+          int ldu, Real v[], int ldv, Real work[], int job);
+void dswap(int n, Real x[], int incx, Real y[], int incy);
 int i4_max(int i1, int i2);
 int i4_min(int i1, int i2);
-float r8_abs(float x);
-float r8_max(float x, float y);
-float r8_sign(float x);
-void r8mat_print(int m, int n, float a[], string title);
-void r8mat_print_some(int m, int n, float a[], int ilo, int jlo, int ihi,
+Real r8_abs(Real x);
+Real r8_max(Real x, Real y);
+Real r8_sign(Real x);
+void r8mat_print(int m, int n, Real a[], string title);
+void r8mat_print_some(int m, int n, Real a[], int ilo, int jlo, int ihi,
                       int jhi, string title);
-float *r8mat_transpose_new(int m, int n, float a[]);
-float *r8mat_uniform_01_new(int m, int n, int *seed);
-void svd_truncated_u(int m, int n, float a[], float un[], float sn[],
-                     float v[]);
+Real *r8mat_transpose_new(int m, int n, Real a[]);
+Real *r8mat_uniform_01_new(int m, int n, int *seed);
+void svd_truncated_u(int m, int n, Real a[], Real un[], Real sn[], Real v[]);
 void svd_truncated_u_test(int m, int n);
-void svd_truncated_v(int m, int n, float a[], float u[], float sm[],
-                     float vm[]);
+void svd_truncated_v(int m, int n, Real a[], Real u[], Real sm[], Real vm[]);
 void svd_truncated_v_test(int m, int n);
 void timestamp();
 
@@ -88,7 +89,7 @@ int main_m()
 }
 //****************************************************************************80
 
-void daxpy(int n, float da, float dx[], int incx, float dy[], int incy)
+void daxpy(int n, Real da, Real dx[], int incx, Real dy[], int incy)
 
 //****************************************************************************80
 //
@@ -130,13 +131,13 @@ void daxpy(int n, float da, float dx[], int incx, float dy[], int incy)
 //
 //    Input, int N, the number of elements in DX and DY.
 //
-//    Input, float DA, the multiplier of DX.
+//    Input, Real DA, the multiplier of DX.
 //
-//    Input, float DX[*], the first vector.
+//    Input, Real DX[*], the first vector.
 //
 //    Input, int INCX, the increment between successive entries of DX.
 //
-//    Input/output, float DY[*], the second vector.
+//    Input/output, Real DY[*], the second vector.
 //    On output, DY[*] has been replaced by DY[*] + DA * DX[*].
 //
 //    Input, int INCY, the increment between successive entries of DY.
@@ -199,7 +200,7 @@ void daxpy(int n, float da, float dx[], int incx, float dy[], int incy)
 }
 //****************************************************************************80
 
-float ddot(int n, float dx[], int incx, float dy[], int incy)
+Real ddot(int n, Real dx[], int incx, Real dy[], int incy)
 
 //****************************************************************************80
 //
@@ -241,19 +242,19 @@ float ddot(int n, float dx[], int incx, float dy[], int incy)
 //
 //    Input, int N, the number of entries in the vectors.
 //
-//    Input, float DX[*], the first vector.
+//    Input, Real DX[*], the first vector.
 //
 //    Input, int INCX, the increment between successive entries in DX.
 //
-//    Input, float DY[*], the second vector.
+//    Input, Real DY[*], the second vector.
 //
 //    Input, int INCY, the increment between successive entries in DY.
 //
-//    Output, float DDOT, the sum of the product of the corresponding
+//    Output, Real DDOT, the sum of the product of the corresponding
 //    entries of DX and DY.
 //
 {
-  float dtemp;
+  Real dtemp;
   int i;
   int ix;
   int iy;
@@ -308,7 +309,7 @@ float ddot(int n, float dx[], int incx, float dy[], int incy)
 }
 //****************************************************************************80
 
-float dnrm2(int n, float x[], int incx)
+Real dnrm2(int n, Real x[], int incx)
 
 //****************************************************************************80
 //
@@ -350,19 +351,19 @@ float dnrm2(int n, float x[], int incx)
 //
 //    Input, int N, the number of entries in the vector.
 //
-//    Input, float X[*], the vector whose norm is to be computed.
+//    Input, Real X[*], the vector whose norm is to be computed.
 //
 //    Input, int INCX, the increment between successive entries of X.
 //
-//    Output, float DNRM2, the Euclidean norm of X.
+//    Output, Real DNRM2, the Euclidean norm of X.
 //
 {
-  float absxi;
+  Real absxi;
   int i;
   int ix;
-  float norm;
-  float scale;
-  float ssq;
+  Real norm;
+  Real scale;
+  Real ssq;
 
   if (n < 1 || incx < 1) {
     norm = 0.0;
@@ -393,7 +394,7 @@ float dnrm2(int n, float x[], int incx)
 }
 //****************************************************************************80
 
-void drot(int n, float x[], int incx, float y[], int incy, float c, float s)
+void drot(int n, Real x[], int incx, Real y[], int incy, Real c, Real s)
 
 //****************************************************************************80
 //
@@ -431,22 +432,22 @@ void drot(int n, float x[], int incx, float y[], int incy, float c, float s)
 //
 //    Input, int N, the number of entries in the vectors.
 //
-//    Input/output, float X[*], one of the vectors to be rotated.
+//    Input/output, Real X[*], one of the vectors to be rotated.
 //
 //    Input, int INCX, the increment between successive entries of X.
 //
-//    Input/output, float Y[*], one of the vectors to be rotated.
+//    Input/output, Real Y[*], one of the vectors to be rotated.
 //
 //    Input, int INCY, the increment between successive elements of Y.
 //
-//    Input, float C, S, parameters (presumably the cosine and
+//    Input, Real C, S, parameters (presumably the cosine and
 //    sine of some angle) that define a plane rotation.
 //
 {
   int i;
   int ix;
   int iy;
-  float stemp;
+  Real stemp;
 
   if (n <= 0) {
   } else if (incx == 1 && incy == 1) {
@@ -481,7 +482,7 @@ void drot(int n, float x[], int incx, float y[], int incy, float c, float s)
 }
 //****************************************************************************80
 
-void drotg(float *sa, float *sb, float *c, float *s)
+void drotg(Real *sa, Real *sb, Real *c, Real *s)
 
 //****************************************************************************80
 //
@@ -549,17 +550,17 @@ void drotg(float *sa, float *sb, float *c, float *s)
 //
 //  Parameters:
 //
-//    Input/output, float *SA, *SB,  On input, SA and SB are the values
+//    Input/output, Real *SA, *SB,  On input, SA and SB are the values
 //    A and B.  On output, SA is overwritten with R, and SB is
 //    overwritten with Z.
 //
-//    Output, float *C, *S, the cosine and sine of the Givens rotation.
+//    Output, Real *C, *S, the cosine and sine of the Givens rotation.
 //
 {
-  float r;
-  float roe;
-  float scale;
-  float z;
+  Real r;
+  Real roe;
+  Real scale;
+  Real z;
 
   if (r8_abs(*sb) < r8_abs(*sa)) {
     roe = *sa;
@@ -594,7 +595,7 @@ void drotg(float *sa, float *sb, float *c, float *s)
 }
 //****************************************************************************80
 
-void dscal(int n, float sa, float x[], int incx)
+void dscal(int n, Real sa, Real x[], int incx)
 
 //****************************************************************************80
 //
@@ -632,9 +633,9 @@ void dscal(int n, float sa, float x[], int incx)
 //
 //    Input, int N, the number of entries in the vector.
 //
-//    Input, float SA, the multiplier.
+//    Input, Real SA, the multiplier.
 //
-//    Input/output, float X[*], the vector to be scaled.
+//    Input/output, Real X[*], the vector to be scaled.
 //
 //    Input, int INCX, the increment between successive entries of X.
 //
@@ -675,8 +676,8 @@ void dscal(int n, float sa, float x[], int incx)
 }
 //****************************************************************************80
 
-int dsvdc(float a[], int lda, int m, int n, float s[], float e[], float u[],
-          int ldu, float v[], int ldv, float work[], int job)
+int dsvdc(Real a[], int lda, int m, int n, Real s[], Real e[], Real u[],
+          int ldu, Real v[], int ldv, Real work[], int job)
 
 //****************************************************************************80
 //
@@ -719,7 +720,7 @@ int dsvdc(float a[], int lda, int m, int n, float s[], float e[], float u[],
 //
 //  Parameters:
 //
-//    Input/output, float A[LDA*N].  On input, the M by N matrix whose
+//    Input/output, Real A[LDA*N].  On input, the M by N matrix whose
 //    singular value decomposition is to be computed.  On output, the matrix
 //    has been destroyed.  Depending on the user's requests, the matrix may
 //    contain other useful information.
@@ -731,14 +732,14 @@ int dsvdc(float a[], int lda, int m, int n, float s[], float e[], float u[],
 //
 //    Input, int N, the number of columns of the matrix A.
 //
-//    Output, float S[MM], where MM = min(M+1,N).  The first
+//    Output, Real S[MM], where MM = min(M+1,N).  The first
 //    min(M,N) entries of S contain the singular values of A arranged in
 //    descending order of magnitude.
 //
-//    Output, float E[MM], where MM = min(M+1,N), ordinarily contains zeros.
+//    Output, Real E[MM], where MM = min(M+1,N), ordinarily contains zeros.
 //    However see the discussion of INFO for exceptions.
 //
-//    Output, float U[LDU*K].  If JOBA = 1 then K = M;
+//    Output, Real U[LDU*K].  If JOBA = 1 then K = M;
 //    if 2 <= JOBA, then K = min(M,N).  U contains the M by M matrix of left
 //    singular vectors.  U is not referenced if JOBA = 0.  If M <= N or if JOBA
 //    = 2, then U may be identified with A in the subroutine call.
@@ -746,14 +747,14 @@ int dsvdc(float a[], int lda, int m, int n, float s[], float e[], float u[],
 //    Input, int LDU, the leading dimension of the array U.
 //    LDU must be at least M.
 //
-//    Output, float V[LDV*N], the N by N matrix of right singular vectors.
+//    Output, Real V[LDV*N], the N by N matrix of right singular vectors.
 //    V is not referenced if JOB is 0.  If N <= M, then V may be identified
 //    with A in the subroutine call.
 //
 //    Input, int LDV, the leading dimension of the array V.
 //    LDV must be at least N.
 //
-//    Workspace, float WORK[M].
+//    Workspace, Real WORK[M].
 //
 //    Input, int JOB, controls the computation of the singular
 //    vectors.  It has the decimal expansion AB with the following meaning:
@@ -772,13 +773,13 @@ int dsvdc(float a[], int lda, int m, int n, float s[], float e[], float u[],
 //    its superdiagonal.  Thus the singular values of A and B are the same.
 //
 {
-  float b;
-  float c;
-  float cs;
-  float el;
-  float emm1;
-  float f;
-  float g;
+  Real b;
+  Real c;
+  Real cs;
+  Real el;
+  Real emm1;
+  Real f;
+  Real g;
   int i;
   int info;
   int iter;
@@ -801,18 +802,18 @@ int dsvdc(float a[], int lda, int m, int n, float s[], float e[], float u[],
   int ncu;
   int nrt;
   int nrtp1;
-  float scale;
-  float shift;
-  float sl;
-  float sm;
-  float smm1;
-  float sn;
-  float t;
-  float t1;
-  float test;
+  Real scale;
+  Real shift;
+  Real sl;
+  Real sm;
+  Real smm1;
+  Real sn;
+  Real t;
+  Real t1;
+  Real test;
   bool wantu;
   bool wantv;
-  float ztest;
+  Real ztest;
   //
   //  Determine what is to be computed.
   //
@@ -1244,7 +1245,7 @@ int dsvdc(float a[], int lda, int m, int n, float s[], float e[], float u[],
 }
 //****************************************************************************80
 
-void dswap(int n, float x[], int incx, float y[], int incy)
+void dswap(int n, Real x[], int incx, Real y[], int incy)
 
 //****************************************************************************80
 //
@@ -1282,11 +1283,11 @@ void dswap(int n, float x[], int incx, float y[], int incy)
 //
 //    Input, int N, the number of entries in the vectors.
 //
-//    Input/output, float X[*], one of the vectors to swap.
+//    Input/output, Real X[*], one of the vectors to swap.
 //
 //    Input, int INCX, the increment between successive entries of X.
 //
-//    Input/output, float Y[*], one of the vectors to swap.
+//    Input/output, Real Y[*], one of the vectors to swap.
 //
 //    Input, int INCY, the increment between successive elements of Y.
 //
@@ -1295,7 +1296,7 @@ void dswap(int n, float x[], int incx, float y[], int incy)
   int ix;
   int iy;
   int m;
-  float temp;
+  Real temp;
 
   if (n <= 0) {
   } else if (incx == 1 && incy == 1) {
@@ -1422,7 +1423,7 @@ int i4_min(int i1, int i2)
 }
 //****************************************************************************80
 
-float r8_abs(float x)
+Real r8_abs(Real x)
 
 //****************************************************************************80
 //
@@ -1444,12 +1445,12 @@ float r8_abs(float x)
 //
 //  Parameters:
 //
-//    Input, float X, the quantity whose absolute value is desired.
+//    Input, Real X, the quantity whose absolute value is desired.
 //
-//    Output, float R8_ABS, the absolute value of X.
+//    Output, Real R8_ABS, the absolute value of X.
 //
 {
-  float value;
+  Real value;
 
   if (0.0 <= x) {
     value = x;
@@ -1460,7 +1461,7 @@ float r8_abs(float x)
 }
 //****************************************************************************80
 
-float r8_max(float x, float y)
+Real r8_max(Real x, Real y)
 
 //****************************************************************************80
 //
@@ -1482,12 +1483,12 @@ float r8_max(float x, float y)
 //
 //  Parameters:
 //
-//    Input, float X, Y, the quantities to compare.
+//    Input, Real X, Y, the quantities to compare.
 //
-//    Output, float R8_MAX, the maximum of X and Y.
+//    Output, Real R8_MAX, the maximum of X and Y.
 //
 {
-  float value;
+  Real value;
 
   if (y < x) {
     value = x;
@@ -1498,7 +1499,7 @@ float r8_max(float x, float y)
 }
 //****************************************************************************80
 
-float r8_sign(float x)
+Real r8_sign(Real x)
 
 //****************************************************************************80
 //
@@ -1520,12 +1521,12 @@ float r8_sign(float x)
 //
 //  Parameters:
 //
-//    Input, float X, the number whose sign is desired.
+//    Input, Real X, the number whose sign is desired.
 //
-//    Output, float R8_SIGN, the sign of X.
+//    Output, Real R8_SIGN, the sign of X.
 //
 {
-  float value;
+  Real value;
 
   if (x < 0.0) {
     value = -1.0;
@@ -1536,7 +1537,7 @@ float r8_sign(float x)
 }
 //****************************************************************************80
 
-void r8mat_print(int m, int n, float a[], string title)
+void r8mat_print(int m, int n, Real a[], string title)
 
 //****************************************************************************80
 //
@@ -1569,7 +1570,7 @@ void r8mat_print(int m, int n, float a[], string title)
 //
 //    Input, int N, the number of columns in A.
 //
-//    Input, float A[M*N], the M by N matrix.
+//    Input, Real A[M*N], the M by N matrix.
 //
 //    Input, string TITLE, a title.
 //
@@ -1580,7 +1581,7 @@ void r8mat_print(int m, int n, float a[], string title)
 }
 //****************************************************************************80
 
-void r8mat_print_some(int m, int n, float a[], int ilo, int jlo, int ihi,
+void r8mat_print_some(int m, int n, Real a[], int ilo, int jlo, int ihi,
                       int jhi, string title)
 
 //****************************************************************************80
@@ -1614,7 +1615,7 @@ void r8mat_print_some(int m, int n, float a[], int ilo, int jlo, int ihi,
 //    Input, int N, the number of columns of the matrix.
 //    N must be positive.
 //
-//    Input, float A[M*N], the matrix.
+//    Input, Real A[M*N], the matrix.
 //
 //    Input, int ILO, JLO, IHI, JHI, designate the first row and
 //    column, and the last row and column to be printed.
@@ -1683,7 +1684,7 @@ void r8mat_print_some(int m, int n, float a[], int ilo, int jlo, int ihi,
 }
 //****************************************************************************80
 
-float *r8mat_transpose_new(int m, int n, float a[])
+Real *r8mat_transpose_new(int m, int n, Real a[])
 
 //****************************************************************************80
 //
@@ -1712,16 +1713,16 @@ float *r8mat_transpose_new(int m, int n, float a[])
 //
 //    Input, int M, N, the number of rows and columns of the matrix A.
 //
-//    Input, float A[M*N], the matrix whose transpose is desired.
+//    Input, Real A[M*N], the matrix whose transpose is desired.
 //
-//    Output, float R8MAT_TRANSPOSE_NEW[N*M], the transposed matrix.
+//    Output, Real R8MAT_TRANSPOSE_NEW[N*M], the transposed matrix.
 //
 {
-  float *b;
+  Real *b;
   int i;
   int j;
 
-  b = new float[n * m];
+  b = new Real[n * m];
 
   for (j = 0; j < n; j++) {
     for (i = 0; i < m; i++) {
@@ -1732,7 +1733,7 @@ float *r8mat_transpose_new(int m, int n, float a[])
 }
 //****************************************************************************80
 
-float *r8mat_uniform_01_new(int m, int n, int *seed)
+Real *r8mat_uniform_01_new(int m, int n, int *seed)
 
 //****************************************************************************80
 //
@@ -1792,15 +1793,15 @@ float *r8mat_uniform_01_new(int m, int n, int *seed)
 //    will still be 0, and R8_UNIFORM will be 0.  On output, SEED has
 //    been updated.
 //
-//    Output, float R8MAT_UNIFORM_01_NEW[M*N], a matrix of pseudorandom values.
+//    Output, Real R8MAT_UNIFORM_01_NEW[M*N], a matrix of pseudorandom values.
 //
 {
   int i;
   int j;
   int k;
-  float *r;
+  Real *r;
 
-  r = new float[m * n];
+  r = new Real[m * n];
 
   for (j = 0; j < n; j++) {
     for (i = 0; i < m; i++) {
@@ -1811,7 +1812,7 @@ float *r8mat_uniform_01_new(int m, int n, int *seed)
       if (*seed < 0) {
         *seed = *seed + 2147483647;
       }
-      r[i + j * m] = (float)(*seed) * 4.656612875E-10;
+      r[i + j * m] = (Real)(*seed) * 4.656612875E-10;
     }
   }
 
@@ -1819,7 +1820,7 @@ float *r8mat_uniform_01_new(int m, int n, int *seed)
 }
 //****************************************************************************80
 
-void svd_truncated_u(int m, int n, float a[], float un[], float sn[], float v[])
+void svd_truncated_u(int m, int n, Real a[], Real un[], Real sn[], Real v[])
 
 //****************************************************************************80
 //
@@ -1848,15 +1849,15 @@ void svd_truncated_u(int m, int n, float a[], float un[], float sn[], float v[])
 //
 //    Input, int M, N, the number of rows and columns in the matrix A.
 //
-//    Input, float A[M*N], the matrix whose singular value
+//    Input, Real A[M*N], the matrix whose singular value
 //    decomposition we are investigating.
 //
-//    Output, float UN[M*N], SN[N*N], V[N*N], the factors
+//    Output, Real UN[M*N], SN[N*N], V[N*N], the factors
 //    that form the singular value decomposition of A.
 //
 {
-  float *a_copy;
-  float *e;
+  Real *a_copy;
+  Real *e;
   int i;
   int info;
   int j;
@@ -1864,15 +1865,15 @@ void svd_truncated_u(int m, int n, float a[], float un[], float sn[], float v[])
   int ldu;
   int ldv;
   int job;
-  float *sdiag;
-  float *work;
+  Real *sdiag;
+  Real *work;
   //
   //  The correct size of E and SDIAG is min ( m+1, n).
   //
-  a_copy = new float[m * n];
-  e = new float[m + n];
-  sdiag = new float[m + n];
-  work = new float[m];
+  a_copy = new Real[m * n];
+  e = new Real[m + n];
+  sdiag = new Real[m + n];
+  work = new Real[m];
   //
   //  Compute the eigenvalues and eigenvectors.
   //
@@ -1942,26 +1943,26 @@ void svd_truncated_u_test(int m, int n)
 //    John Burkardt
 //
 {
-  float *a;
-  float *a_save;
-  float err;
+  Real *a;
+  Real *a_save;
+  Real err;
   int i;
   int j;
   int k;
   int seed;
-  float *sn;
-  float *un;
-  float *v;
+  Real *sn;
+  Real *un;
+  Real *v;
 
   cout << "\n";
   cout << "SVD_TRUNCATED_U_TEST\n";
   cout << "  M = " << m << "\n";
   cout << "  N = " << n << "\n";
 
-  a = new float[m * n];
-  un = new float[m * n];
-  sn = new float[n * n];
-  v = new float[n * n];
+  a = new Real[m * n];
+  un = new Real[m * n];
+  sn = new Real[n * n];
+  v = new Real[n * n];
 
   seed = 123456789;
 
@@ -2015,7 +2016,7 @@ void svd_truncated_u_test(int m, int n)
 }
 //****************************************************************************80
 
-void svd_truncated_v(int m, int n, float a[], float u[], float sm[], float vm[])
+void svd_truncated_v(int m, int n, Real a[], Real u[], Real sm[], Real vm[])
 
 //****************************************************************************80
 //
@@ -2044,14 +2045,14 @@ void svd_truncated_v(int m, int n, float a[], float u[], float sm[], float vm[])
 //
 //    Input, int M, N, the number of rows and columns in the matrix A.
 //
-//    Input, float A[M*N], the matrix whose singular value
+//    Input, Real A[M*N], the matrix whose singular value
 //    decomposition we are investigating.
 //
-//    Output, float U[M*M], SM[M*M], VM[M*N], the factors
+//    Output, Real U[M*M], SM[M*M], VM[M*N], the factors
 //    that form the singular value decomposition of A.
 //
 {
-  float *a2;
+  Real *a2;
   int m2;
   int n2;
   //
@@ -2090,26 +2091,26 @@ void svd_truncated_v_test(int m, int n)
 //    John Burkardt
 //
 {
-  float *a;
-  float *a_save;
-  float err;
+  Real *a;
+  Real *a_save;
+  Real err;
   int i;
   int j;
   int k;
   int seed;
-  float *sm;
-  float *u;
-  float *vm;
+  Real *sm;
+  Real *u;
+  Real *vm;
 
   cout << "\n";
   cout << "SVD_TRUNCATED_V_TEST\n";
   cout << "  M = " << m << "\n";
   cout << "  N = " << n << "\n";
 
-  a = new float[m * n];
-  u = new float[m * m];
-  sm = new float[m * m];
-  vm = new float[n * m];
+  a = new Real[m * n];
+  u = new Real[m * m];
+  sm = new Real[m * m];
+  vm = new Real[n * m];
 
   seed = 123456789;
 

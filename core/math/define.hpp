@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-11-03 19:04:10
- * @LastEditTime: 2022-03-09 15:39:38
+ * @LastEditTime: 2022-03-11 16:11:18
  * @LastEditors: DyllanElliia
  * @Description:
  */
@@ -14,13 +14,13 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <numeric>
 #include <sstream>
 #include <thread>
-#include <vector>
-#include <memory>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 #ifdef DYM_USE_OPENMP
 #include <omp.h>
@@ -79,12 +79,9 @@ inline void __DYM_WARNING_CALL(std::string err, const char *file,
 
 #define _DYM_FORCE_INLINE_ inline __attribute__((always_inline))
 
-typedef float Real;
-typedef double hReal;
+typedef double Real;
 typedef int Reali;
-typedef long long hReali;
 typedef unsigned int uReali;
-typedef unsigned long long uhReali;
 
 namespace dym {
 const Real Pi = 3.1415926535897932385;

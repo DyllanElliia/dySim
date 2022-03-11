@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-22 14:21:25
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-01-25 16:05:46
+ * @LastEditTime: 2022-03-10 17:35:38
  * @Description: How to use Tensor.
  */
 
@@ -122,7 +122,7 @@ int main() {
   c = c.cut(dym::gi(1, 0, 1), dym::gi(2, 2, 3));
   qprint(c);
 
-  dym::Tensor<float> mA({{1, 1, 1}, {2, 2, 2}, {3, 3, 3}, {4, 4, 4}}),
+  dym::Tensor<Real> mA({{1, 1, 1}, {2, 2, 2}, {3, 3, 3}, {4, 4, 4}}),
       mB({{1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}});
   qprint(dym::cross(mA, mB));
 
@@ -170,8 +170,8 @@ int main() {
   m5d.for_each_i(
       [&m5d](int &e, dym::Index<int> &i) { qprint(e, dym::pi(i), m5d[i]); });
   qprint("5.3.6. (recommented) n-D tensor.for_each_i(element*, int i)");
-  dym::Tensor<float> loc({{10, 200}, {50, 150}, {100, 50}, {200, 200}});
+  dym::Tensor<Real> loc({{10, 200}, {50, 150}, {100, 50}, {200, 200}});
   loc.show();
-  loc.for_each([&loc](float *e, int i) { qprint(e[0], e[1], i); });
+  loc.for_each([&loc](Real *e, int i) { qprint(e[0], e[1], i); });
   return 0;
 }

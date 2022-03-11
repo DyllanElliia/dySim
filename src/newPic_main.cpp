@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-11-04 20:20:37
- * @LastEditTime: 2022-02-09 16:33:11
+ * @LastEditTime: 2022-03-10 17:35:29
  * @LastEditors: DyllanElliia
  * @Description:
  */
@@ -25,9 +25,9 @@ int main() {
   qprint(dym::pi(pic.shape()), ret);
   auto r = dym::clear(pic_l, dym::Vector<int, 3UL>({0, 150, 150}));
   qprint("fin", r);
-  dym::Tensor<dym::Vector<float, 2>> loc(
-      {dym::Vector<float, 2>({0.1, 0.2}), dym::Vector<float, 2>({0.3, 0.4}),
-       dym::Vector<float, 2>({0.5, 0.6}), dym::Vector<float, 2>({0.7, 0.8})},
+  dym::Tensor<dym::Vector<Real, 2>> loc(
+      {dym::Vector<Real, 2>({0.1, 0.2}), dym::Vector<Real, 2>({0.3, 0.4}),
+       dym::Vector<Real, 2>({0.5, 0.6}), dym::Vector<Real, 2>({0.7, 0.8})},
       true);
   loc.show();
   qprint(dym::pi(loc.shape()), loc[0], loc[1]);

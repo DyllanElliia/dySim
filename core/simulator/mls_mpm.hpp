@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-02-10 15:49:14
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-23 15:06:28
+ * @LastEditTime: 2022-03-11 16:06:49
  * @Description: mls-mpm based simulator.
  */
 #pragma once
@@ -43,7 +43,7 @@ class MLSMPM {
     Matrix3 C, F;
     Real Jp;
     unsigned short material;
-    Particle_o() : v(0), C(0), F(identity3), Jp(1.f), material(0) {}
+    Particle_o() : v(0), C(0), F(identity3), Jp(1), material(0) {}
   };
   std::vector<Particle_o> particles;
 
@@ -62,7 +62,7 @@ class MLSMPM {
           // Liquid
           [](Real &mu, Real &lambda, const Particle_o &p, const Real &hardening,
              const Real &mu_0, const Real &lambda_0, const Real &opt) {
-            auto h = exp(hardening * (1.0f - p.Jp));
+            auto h = exp(hardening * (1.0 - p.Jp));
             mu = opt, lambda = lambda_0 * h;
           },
           // Jelly
@@ -74,7 +74,7 @@ class MLSMPM {
           // Plastic
           [](Real &mu, Real &lambda, const Particle_o &p, const Real &hardening,
              const Real &mu_0, const Real &lambda_0, const Real &opt) {
-            auto h = exp(hardening * (1.0f - p.Jp));
+            auto h = exp(hardening * (1.0 - p.Jp));
             mu = mu_0 * h, lambda = lambda_0 * h;
           }};
 
@@ -129,7 +129,7 @@ class MLSMPM {
   Vector3 globalForce;
   MLSMPM() {
     n_particles = 0, dx = 1 / Real(n_grid), inv_dx = Real(n_grid),
-    bound = n_grid / 16, globalForce = Vector3(0.f);
+    bound = n_grid / 16, globalForce = Vector3(0);
     grid_vm.reShape(dym::gi(n_grid + 1, n_grid + 1, n_grid + 1));
     x.reShape(dym::gi(0));
   }
@@ -138,11 +138,11 @@ class MLSMPM {
     material_l.clear(), particles.clear();
   }
 
-  _DYM_FORCE_INLINE_ u_int addMaterial(
-      const u_short &material_model, const Real &E = 0.1e4f,
-      const Real &nu = 0.2f, const Real &hardening = 10.f,
-      const Real &y_min = 1.f - 2.5e-2f, const Real &y_max = 1.f + 8.5e-3f,
-      const Real &opt = 0.f, const Real &p_rho = 1.f, Real p_vol = -1) {
+  _DYM_FORCE_INLINE_ u_int
+  addMaterial(const u_short &material_model, const Real &E = 0.1e4,
+              const Real &nu = 0.2, const Real &hardening = 10,
+              const Real &y_min = 1 - 2.5e-2, const Real &y_max = 1 + 8.5e-3,
+              const Real &opt = 0, const Real &p_rho = 1, Real p_vol = -1) {
     if (p_vol < 0) p_vol = dym::pow(dx * 0.5, 2);
     material_l.push_back(Material(E, nu, hardening, p_rho, p_vol, y_min, y_max,
                                   opt, material_model));
@@ -150,22 +150,22 @@ class MLSMPM {
   }
 
   _DYM_FORCE_INLINE_ u_int addLiquidMaterial(
-      const Real &mu = 0.f, const Real &E = 0.1e4f, const Real &nu = 0.2f,
-      const Real &hardening = 10.f, const Real &p_rho = 1.f, Real p_vol = -1) {
-    return addMaterial(0, E, nu, hardening, 1.f, 1.f, mu, p_rho, p_vol);
+      const Real &mu = 0, const Real &E = 0.1e4, const Real &nu = 0.2,
+      const Real &hardening = 10, const Real &p_rho = 1, Real p_vol = -1) {
+    return addMaterial(0, E, nu, hardening, 1, 1, mu, p_rho, p_vol);
   }
 
   _DYM_FORCE_INLINE_ u_int addJellyMaterial(
-      const Real &h = 0.3f, const Real &E = 0.1e4f, const Real &nu = 0.2f,
-      const Real &hardening = 10.f, const Real &p_rho = 1.f, Real p_vol = -1) {
-    return addMaterial(1, E, nu, hardening, 1.f, 1.f, h, p_rho, p_vol);
+      const Real &h = 0.3, const Real &E = 0.1e4, const Real &nu = 0.2,
+      const Real &hardening = 10., const Real &p_rho = 1, Real p_vol = -1) {
+    return addMaterial(1, E, nu, hardening, 1, 1, h, p_rho, p_vol);
   }
 
   _DYM_FORCE_INLINE_ u_int addPlasticMaterial(
-      const Real &y_min = 1.f - 2.5e-2f, const Real &y_max = 1.f + 8.5e-3f,
-      const Real &E = 0.1e4f, const Real &nu = 0.2f,
-      const Real &hardening = 10.f, const Real &p_rho = 1.f, Real p_vol = -1) {
-    return addMaterial(2, E, nu, hardening, y_min, y_max, 0.f, p_rho, p_vol);
+      const Real &y_min = 1 - 2.5e-2, const Real &y_max = 1 + 8.5e-3,
+      const Real &E = 0.1e4, const Real &nu = 0.2, const Real &hardening = 10,
+      const Real &p_rho = 1, Real p_vol = -1) {
+    return addMaterial(2, E, nu, hardening, y_min, y_max, 0, p_rho, p_vol);
   }
 
   _DYM_FORCE_INLINE_ auto &getPos() { return x; }
@@ -179,7 +179,7 @@ class MLSMPM {
     particles.insert(particles.end(), par_num, par);
     x.reShape(dym::gi(n_particles + par_num));
     newX.for_each_i([&](Vector3 &pos, int i) {
-      if (pos > 1.f) qprint(i, pos);
+      if (pos > 1) qprint(i, pos);
       x[n_particles + i] = pos;
     });
     n_particles += par_num;
@@ -190,15 +190,14 @@ class MLSMPM {
       const Real &dt = 1e-4,
       std::function<Vector3(const Vector3 &, Vector3)> collision =
           [](const Vector3 &pos, Vector3 vul) { return vul; }) {
-    grid_vm = Vector4(0.f);
+    grid_vm = Vector4(0);
     x.for_each_i([&](Vector3 &px, int pi) {
       auto Xp = px / dx;
-      auto base = (Xp - Vector3(0.5f)).cast<int>();
+      auto base = (Xp - Vector3(0.5)).cast<int>();
       Vector3 fx = Xp - base.cast<Real>();
-      std::array<Vector3, 3> w = {
-          Vector3(0.50f) * dym::sqr(Vector3(1.5f) - fx),
-          Vector3(0.75f) - dym::sqr(fx - Vector3(1.0f)),
-          Vector3(0.50f) * dym::sqr(fx - Vector3(0.5f))};
+      std::array<Vector3, 3> w = {Vector3(0.50) * dym::sqr(Vector3(1.5) - fx),
+                                  Vector3(0.75) - dym::sqr(fx - Vector3(1.0)),
+                                  Vector3(0.50) * dym::sqr(fx - Vector3(0.5))};
       auto &p = particles[pi];
       const auto &mat_data = material_l[p.material];
       const auto &p_vol = mat_data.p_vol, &p_mass = mat_data.p_mass;
@@ -209,7 +208,7 @@ class MLSMPM {
       Real mu, lambda;
       c_mu_la[mat_fun_i](mu, lambda, p, mat_data.hardening, mat_data.mu_0,
                          mat_data.lambda_0, mat_data.opt);
-      Real J = 1.f;
+      Real J = 1;
       auto &y_c_f = yield_criteria[mat_fun_i];
       const auto &y_min = mat_data.y_min, &y_max = mat_data.y_max;
       for (int d = 0; d < dim; ++d) {
@@ -221,7 +220,7 @@ class MLSMPM {
       c_F[mat_fun_i](p.F, U, Sig, V);
       Matrix3 stress =
           2.f * mu * ((p.F - U * V.transpose()) * p.F.transpose()) +
-          identity3 * lambda * J * (J - 1.f);
+          identity3 * lambda * J * (J - 1);
       stress = (-dt * p_vol * 4) * stress * dym::sqr(inv_dx);
       Matrix3 affine = stress + p_mass * p.C;
       for (int i = 0; i < dim; ++i)
@@ -236,10 +235,10 @@ class MLSMPM {
     });
     grid_vm.for_each_i([&](Vector4 &gvm, int i, int j, int k) {
       auto &g_m = gvm[dim];
-      if (g_m > 0.f) {
-        if (!(dym::isnan(gvm) == 0.f)) {
+      if (g_m > 0) {
+        if (!(dym::isnan(gvm) == 0.0)) {
           qprint("isnan:", i, j, k);
-          gvm = Vector3(0.f);
+          gvm = Vector3(0);
         }
         gvm /= g_m;
         // gvm[1] -= dt * 9.8 * 2.f;
@@ -255,33 +254,32 @@ class MLSMPM {
           if ((i < bound || k < bound) ||
               (i > n_grid - bound || j > n_grid - bound || k > n_grid - bound))
             gvm = 0;
-          if (j < bound) gvm[1] = std::max(gvm[1], 0.f);
+          if (j < bound) gvm[1] = dym::max(gvm[1], 0.0);
         }
 
 #define bound_judge(which, index)                            \
-  if (which < bound) gvm[index] = dym::max(gvm[index], 0.f); \
-  if (which > n_grid - bound) gvm[index] = dym::min(gvm[index], 0.f);
+  if (which < bound) gvm[index] = dym::max(gvm[index], 0.0); \
+  if (which > n_grid - bound) gvm[index] = dym::min(gvm[index], 0.0);
 
         if constexpr (BC == BoundConditionOpt::OneStickyOtherSeparate) {
           bound_judge(i, 0);
           // bound_judge(j, 1);
           bound_judge(k, 2);
-          if (j < bound) gvm[1] = dym::max(gvm[1], 0.f);
-          if (j > n_grid - bound) gvm = 0.f;
+          if (j < bound) gvm[1] = dym::max(gvm[1], 0.0);
+          if (j > n_grid - bound) gvm = 0.0;
         }
       }
     });
     x.for_each_i([&](Vector3 &px, int pi) {
       auto Xp = px / dx;
-      auto base = (Xp - Vector3(0.5f)).cast<int>();
+      auto base = (Xp - Vector3(0.5)).cast<int>();
       Vector3 fx = Xp - base.cast<Real>();
-      std::array<Vector3, 3> w = {
-          Vector3(0.50f) * dym::sqr(Vector3(1.5f) - fx),
-          Vector3(0.75f) - dym::sqr(fx - Vector3(1.0f)),
-          Vector3(0.50f) * dym::sqr(fx - Vector3(0.5f))};
+      std::array<Vector3, 3> w = {Vector3(0.50) * dym::sqr(Vector3(1.5) - fx),
+                                  Vector3(0.75) - dym::sqr(fx - Vector3(1.0)),
+                                  Vector3(0.50) * dym::sqr(fx - Vector3(0.5))};
       auto &p = particles[pi];
-      Vector3 new_v(0.f);
-      Matrix3 new_C(0.f);
+      Vector3 new_v(0.0);
+      Matrix3 new_C(0.0);
       auto nc_d = 4 * dym::sqr(inv_dx);
       for (int i = 0; i < dim; ++i)
         for (int j = 0; j < dim; ++j)
@@ -296,17 +294,17 @@ class MLSMPM {
       p.v = new_v, p.C = new_C;
       auto old = px;
       px += dt * p.v;
-      if (!(dym::isnan(px) == 0.f)) {
+      if (!(dym::isnan(px) == 0.0)) {
         // qprint(old);
         px = old;
       }
-      if (!(dym::isnan(p.v) == 0.f)) {
+      if (!(dym::isnan(p.v) == 0.0)) {
         // qprint("-------------v");
         Particle_o par;
         par.material = p.material;
         std::swap(par, p);
       }
-      px = dym::clamp(px, Vector3(1.5f * dx), Vector3(1 - 0.5f * dx));
+      px = dym::clamp(px, Vector3(1.5 * dx), Vector3(1 - 0.5 * dx));
     });
   }
 };

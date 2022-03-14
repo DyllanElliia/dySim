@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-11 14:57:05
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-11 17:47:50
+ * @LastEditTime: 2022-03-14 17:21:44
  * @Description:
  */
 #pragma once
@@ -29,12 +29,15 @@ class Transform3 : public Hittable {
           Point3 tester({i * bmax.x() + (1 - i) * bmin.x(),
                          j * bmax.y() + (1 - j) * bmin.y(),
                          k * bmax.z() + (1 - k) * bmin.z()});
+          // tester = mat * (tester + offset);
           tester = mat * tester;
           minp = min(minp, tester), maxp = max(maxp, tester);
         });
       });
     });
     bbox = aabb(minp + offset, maxp + offset);
+    // bbox = aabb(minp, maxp);
+    qprint(bbox.min(), bbox.max());
   }
 
   virtual bool hit(const Ray& r, Real t_min, Real t_max,
@@ -51,18 +54,16 @@ class Transform3 : public Hittable {
 
 bool Transform3::hit(const Ray& r, Real t_min, Real t_max,
                      HitRecord& rec) const {
-  auto origin = mat_inv * r.origin() - offset;
+  auto origin = mat_inv * (r.origin() - offset);
   auto direction = mat_inv * r.direction();
 
   Ray tf_r(origin, direction, r.time());
 
   if (!ptr->hit(tf_r, t_min, t_max, rec)) return false;
 
-  auto p = mat * rec.p;
+  rec.p = mat * rec.p + offset;
   auto normal = mat * rec.normal;
-
-  rec.p = p + offset;
-  rec.set_face_normal(tf_r, normal);
+  rec.set_face_normal(tf_r, normal.normalize());
 
   return true;
 }

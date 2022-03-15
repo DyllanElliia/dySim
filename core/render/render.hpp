@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 14:31:38
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-11 16:38:39
+ * @LastEditTime: 2022-03-15 16:05:47
  * @Description:
  */
 #pragma once
@@ -15,6 +15,7 @@
 
 // object
 #include "object/box.hpp"
+#include "object/materialObject/constantMedium.hpp"
 #include "object/sphere.hpp"
 #include "object/transform.hpp"
 

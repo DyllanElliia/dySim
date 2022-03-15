@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-11 14:57:05
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-14 17:21:44
+ * @LastEditTime: 2022-03-15 16:32:00
  * @Description:
  */
 #pragma once
@@ -29,15 +29,12 @@ class Transform3 : public Hittable {
           Point3 tester({i * bmax.x() + (1 - i) * bmin.x(),
                          j * bmax.y() + (1 - j) * bmin.y(),
                          k * bmax.z() + (1 - k) * bmin.z()});
-          // tester = mat * (tester + offset);
           tester = mat * tester;
           minp = min(minp, tester), maxp = max(maxp, tester);
         });
       });
     });
     bbox = aabb(minp + offset, maxp + offset);
-    // bbox = aabb(minp, maxp);
-    qprint(bbox.min(), bbox.max());
   }
 
   virtual bool hit(const Ray& r, Real t_min, Real t_max,

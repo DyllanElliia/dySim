@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:34:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-14 17:54:22
+ * @LastEditTime: 2022-03-15 17:33:52
  * @Description:
  */
 #include <dyGraphic.hpp>
@@ -28,6 +28,11 @@ _DYM_FORCE_INLINE_ auto whiteMetalSur() {
 
   return white_surface;
 }
+_DYM_FORCE_INLINE_ auto whiteGalssSur() {
+  auto white_surface = std::make_shared<dym::rt::Dielectric>(1.5);
+
+  return white_surface;
+}
 
 _DYM_FORCE_INLINE_ auto lightEarthSur() {
   auto earth_texture =
@@ -39,13 +44,13 @@ _DYM_FORCE_INLINE_ auto lightEarthSur() {
 
 auto cornell_box() {
   dym::rt::HittableList objects;
-
-  auto red =
-      std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.45, .15, .15}));
+  Real fuzz = 0.2;
+  auto red = std::make_shared<dym::rt::Metal>(
+      dym::rt::ColorRGB({.45, .15, .15}), fuzz);
   auto white =
       std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.73, .73, .73}));
-  auto green =
-      std::make_shared<dym::rt::Metal>(dym::rt::ColorRGB({.15, .45, .15}));
+  auto green = std::make_shared<dym::rt::Metal>(
+      dym::rt::ColorRGB({.15, .45, .15}), fuzz);
   auto light =
       std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB({7, 7, 7}));
 
@@ -57,6 +62,44 @@ auto cornell_box() {
   objects.add(std::make_shared<dym::rt::xz_rect>(0, 1, 0, 1, 1, white));
   objects.add(std::make_shared<dym::rt::xy_rect>(0, 1, 0, 1, 1, white));
 
+  return dym::rt::BvhNode(objects);
+}
+
+auto cornell_box2() {
+  dym::rt::HittableList objects;
+  Real fuzz = 0.2;
+  auto red = std::make_shared<dym::rt::Metal>(
+      dym::rt::ColorRGB({.45, .15, .15}), fuzz);
+  auto white =
+      std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.73, .73, .73}));
+  auto green = std::make_shared<dym::rt::Metal>(
+      dym::rt::ColorRGB({.15, .45, .15}), fuzz);
+  auto light = std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB(20));
+
+  objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 1, green));
+  objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 0, red));
+
+  objects.add(std::make_shared<dym::rt::xz_rect>(0, 1, 0, 1, 0, white));
+
+  objects.add(std::make_shared<dym::rt::xy_rect>(0, 1, 0, 1, 1, white));
+
+  Real begin = 0.35, end = 0.65;
+  objects.add(std::make_shared<dym::rt::xz_rect>(0, end, 0, begin, 1, white));
+  objects.add(std::make_shared<dym::rt::xz_rect>(end, 1, 0, end, 1, white));
+  objects.add(std::make_shared<dym::rt::xz_rect>(begin, 1, end, 1, 1, white));
+  objects.add(std::make_shared<dym::rt::xz_rect>(0, begin, begin, 1, 1, white));
+  objects.add(
+      std::make_shared<dym::rt::xz_rect>(begin, end, begin, end, 1.05, light));
+
+  auto glass = whiteGalssSur();
+
+  objects.add(
+      std::make_shared<dym::rt::Box>(dym::rt::Point3({begin, 0.90, begin}),
+                                     dym::rt::Point3({end, 1.1, end}), glass));
+
+  // objects.add(std::make_shared<dym::rt::ConstantMedium>(
+  //     std::make_shared<dym::rt::Sphere>(dym::rt::Point3(0.5), 2, glass),
+  //     0.001, dym::rt::ColorRGB(1)));
   return dym::rt::BvhNode(objects);
 }
 
@@ -74,38 +117,53 @@ int main(int argc, char const* argv[]) {
   // World
 
   dym::rt::HittableList world;
-  world.add(std::make_shared<dym::rt::BvhNode>(cornell_box()));
+  world.add(std::make_shared<dym::rt::BvhNode>(cornell_box2()));
   // world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.5, 0.5,
   // 0.5}),
   //                                             0.2, earthSur()));
 
   auto boxo = std::make_shared<dym::rt::Box>(
-      dym::rt::Point3(-1), dym::rt::Point3(1), whiteMetalSur());
+      dym::rt::Point3(-1), dym::rt::Point3(1), whiteGalssSur());
 
-  dym::Matrix3 scalem1 = dym::matrix::identity<Real, 4>(0.16);
-  dym::Matrix3 scalem2 = dym::matrix::identity<Real, 4>(0.16);
-  scalem2[1][1] = 0.3;
+  dym::Matrix3 scalem1 = dym::matrix::identity<Real, 4>(0.08);
+  dym::Matrix3 scalem2 = dym::matrix::identity<Real, 4>(0.1);
+  scalem2[1][1] = 0.2;
 
-  dym::Vector3 translate0(0);
-  dym::Vector3 translate1({0.3, 0.16, 0.3});
-  dym::Vector3 translate2({0.7, 0.3, 0.7});
+  dym::Vector3 translate0({0.5, -0.25, 0.5});
+  dym::Vector3 translate1({0.5, 0.55, 0.5});
+  dym::Vector3 translate2({0.5, 0.2, 0.5});
 
   dym::Quaternion rotate0 = dym::getQuaternion<Real>(0, {0, 1, 0});
-  dym::Quaternion rotate1 = dym::getQuaternion<Real>(-dym::Pi / 12, {0, 1, 0});
-  dym::Quaternion rotate2 = dym::getQuaternion<Real>(dym::Pi / 10, {0, 1, 0});
+  dym::Quaternion rotate1 =
+      dym::getQuaternion<Real>(dym::atan(dym::sqrt(2.0)), {1, 0, 1});
+  dym::Quaternion rotate2 = dym::getQuaternion<Real>(dym::Pi / 4, {0, 1, 0});
+
+  // qprint(rotate1, rotate2, dym::atan(dym::sqrt(2.0)), dym::sqrt(2.0));
 
   // qprint(translate1 * scalem1);
 
+  world.add(std::make_shared<dym::rt::Transform3>(
+      std::make_shared<dym::rt::Box>(dym::rt::Point3(-0.3),
+                                     dym::rt::Point3(0.3), whiteSur()),
+      rotate2.to_matrix(), translate0));
+
   // world.add(sphereo);
-  qprint(scalem1 * rotate0.to_matrix(), rotate0.to_matrix() * scalem1);
   world.add(std::make_shared<dym::rt::Transform3>(
       boxo, scalem1 * rotate1.to_matrix(), translate1));
-  world.add(std::make_shared<dym::rt::Transform3>(
-      boxo, scalem2 * rotate2.to_matrix(), translate2));
 
-  // world.add(std::make_shared<dym::rt::Box>(dym::rt::Point3({0.7, 0.0, 0.1}),
-  //                                          dym::rt::Point3({1.0, 0.1, 0.8}),
-  //                                          whiteMetalSur()));
+  world.add(std::make_shared<dym::rt::ConstantMedium>(
+      std::make_shared<dym::rt::Transform3>(boxo, scalem2 * rotate2.to_matrix(),
+                                            translate2),
+      100, dym::rt::ColorRGB({0.2, 0.4, 0.9})));
+  // world.add(std::make_shared<dym::rt::Transform3>(
+  //     boxo, scalem2 * rotate2.to_matrix(), translate2));
+
+  // world.add(std::make_shared<dym::rt::Box>(dym::rt::Point3({0.7, 0.0,
+  // 0.1}),
+  //                                          dym::rt::Point3({1.0, 0.1,
+  //                                          0.8}), whiteMetalSur()));
+
+  auto worlds = dym::rt::BvhNode(world);
 
   // Camera
   dym::rt::Point3 lookfrom({0.5, 0.5, -1.35});
@@ -139,7 +197,7 @@ int main(int argc, char const* argv[]) {
         //   return (1.f - t) * dym::rt::ColorRGB(1.f) +
         //          t * dym::rt::ColorRGB({0.5f, 0.7f, 1.0f});
         // });
-        color += ray_color2(r, world, max_depth);
+        color += ray_color2(r, worlds, max_depth);
       }
       color = color * (1.f / Real(samples_per_pixel));
       color = (color + oldColor) / Real(ccc);

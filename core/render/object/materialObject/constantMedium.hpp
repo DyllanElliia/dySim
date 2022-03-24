@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-15 15:31:02
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-15 16:13:57
+ * @LastEditTime: 2022-03-24 15:15:20
  * @Description:
  */
 
@@ -30,6 +30,9 @@ class ConstantMedium : public Hittable {
   virtual bool bounding_box(aabb& output_box) const override {
     return boundary->bounding_box(output_box);
   }
+
+  virtual Real pdf_value(const Point3& origin, const Vector3& v) const override;
+  virtual Vector3 random(const Point3& origin) const override;
 
  public:
   shared_ptr<Hittable> boundary;
@@ -78,6 +81,13 @@ bool ConstantMedium::hit(const Ray& r, Real t_min, Real t_max,
   rec.mat_ptr = phase_function;
 
   return true;
+}
+
+Real ConstantMedium::pdf_value(const Point3& origin, const Vector3& v) const {
+  return 1;
+}
+Vector3 ConstantMedium::random(const Point3& origin) const {
+  return neg_inv_density * random_in_unit_sphere();
 }
 }  // namespace rt
 }  // namespace dym

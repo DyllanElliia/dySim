@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-07 16:56:57
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-11 14:16:03
+ * @LastEditTime: 2022-03-23 15:29:47
  * @Description:
  */
 #pragma once
@@ -70,6 +70,18 @@ Vector3 random_in_unit_disk() {
     if (p.length_sqr() >= 1) continue;
     return p;
   }
+}
+
+_DYM_FORCE_INLINE_ Vector3 random_cosine_direction() {
+  auto r1 = random_real();
+  auto r2 = random_real();
+  auto z = sqrt(1 - r2);
+
+  auto phi = 2 * pi * r1;
+  auto x = cos(phi) * sqrt(r2);
+  auto y = sin(phi) * sqrt(r2);
+
+  return Vector3({x, y, z});
 }
 }  // namespace rt
 }  // namespace dym

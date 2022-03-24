@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 14:50:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-07 17:00:10
+ * @LastEditTime: 2022-03-23 17:25:47
  * @Description:
  */
 #pragma once
@@ -29,6 +29,7 @@ class Ray {
 };
 
 class Material;
+class pdf;
 struct HitRecord {
   Point3 p;
   Vector3 normal;
@@ -41,6 +42,13 @@ struct HitRecord {
     front_face = vector::dot(r.direction(), outward_normal) < 0;
     normal = front_face ? outward_normal : -outward_normal;
   }
+};
+
+struct ScatterRecord {
+  Ray specular_ray;
+  bool is_specular;
+  ColorRGB attenuation;
+  shared_ptr<pdf> pdf_ptr;
 };
 
 }  // namespace rt

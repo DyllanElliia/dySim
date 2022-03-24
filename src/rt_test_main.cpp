@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:34:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-15 17:33:52
+ * @LastEditTime: 2022-03-24 15:32:55
  * @Description:
  */
 #include <dyGraphic.hpp>
@@ -45,14 +45,14 @@ _DYM_FORCE_INLINE_ auto lightEarthSur() {
 auto cornell_box() {
   dym::rt::HittableList objects;
   Real fuzz = 0.2;
-  auto red = std::make_shared<dym::rt::Metal>(
-      dym::rt::ColorRGB({.45, .15, .15}), fuzz);
+  auto red =
+      std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.65, .05, .05}));
   auto white =
       std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.73, .73, .73}));
-  auto green = std::make_shared<dym::rt::Metal>(
-      dym::rt::ColorRGB({.15, .45, .15}), fuzz);
+  auto green =
+      std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.12, .45, .15}));
   auto light =
-      std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB({7, 7, 7}));
+      std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB({5, 5, 5}));
 
   objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 1, green));
   objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 0, red));
@@ -68,13 +68,13 @@ auto cornell_box() {
 auto cornell_box2() {
   dym::rt::HittableList objects;
   Real fuzz = 0.2;
-  auto red = std::make_shared<dym::rt::Metal>(
-      dym::rt::ColorRGB({.45, .15, .15}), fuzz);
+  auto red =
+      std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.65, .05, .05}));
   auto white =
       std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.73, .73, .73}));
-  auto green = std::make_shared<dym::rt::Metal>(
-      dym::rt::ColorRGB({.15, .45, .15}), fuzz);
-  auto light = std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB(20));
+  auto green =
+      std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.12, .45, .15}));
+  auto light = std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB(15));
 
   objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 1, green));
   objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 0, red));
@@ -89,13 +89,13 @@ auto cornell_box2() {
   objects.add(std::make_shared<dym::rt::xz_rect>(begin, 1, end, 1, 1, white));
   objects.add(std::make_shared<dym::rt::xz_rect>(0, begin, begin, 1, 1, white));
   objects.add(
-      std::make_shared<dym::rt::xz_rect>(begin, end, begin, end, 1.05, light));
+      std::make_shared<dym::rt::xz_rect>(begin, end, begin, end, 0.998, light));
 
-  auto glass = whiteGalssSur();
-
-  objects.add(
-      std::make_shared<dym::rt::Box>(dym::rt::Point3({begin, 0.90, begin}),
-                                     dym::rt::Point3({end, 1.1, end}), glass));
+  // auto glass = whiteGalssSur();
+  // objects.add(
+  //     std::make_shared<dym::rt::Box>(dym::rt::Point3({begin, 0.90, begin}),
+  //                                    dym::rt::Point3({end, 1.1, end}),
+  //                                    glass));
 
   // objects.add(std::make_shared<dym::rt::ConstantMedium>(
   //     std::make_shared<dym::rt::Sphere>(dym::rt::Point3(0.5), 2, glass),
@@ -104,6 +104,9 @@ auto cornell_box2() {
 }
 
 int main(int argc, char const* argv[]) {
+  qprint(dym::rt::random_cosine_direction());
+  qprint(std::exp(800),
+         exp(800) == exp(800) ? "inf is same" : "inf is not same");
   // const auto aspect_ratio = 16.0 / 9.0;
   const auto aspect_ratio = 1.f;
   const int image_width = 600;
@@ -117,6 +120,13 @@ int main(int argc, char const* argv[]) {
   // World
 
   dym::rt::HittableList world;
+  dym::rt::HittableList lights;
+  Real begin = 0.35, end = 0.65;
+  lights.add(std::make_shared<dym::rt::xz_rect>(
+      begin, end, begin, end, 0.998, std::shared_ptr<dym::rt::Material>()));
+  // lights.add(make_shared<dym::rt::Sphere>(
+  //     dym::rt::Point3(0.5), 1, std::shared_ptr<dym::rt::Material>()));
+
   world.add(std::make_shared<dym::rt::BvhNode>(cornell_box2()));
   // world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.5, 0.5,
   // 0.5}),
@@ -151,10 +161,13 @@ int main(int argc, char const* argv[]) {
   world.add(std::make_shared<dym::rt::Transform3>(
       boxo, scalem1 * rotate1.to_matrix(), translate1));
 
+  // lights.add(std::make_shared<dym::rt::Transform3>(
+  //     boxo, scalem1 * rotate1.to_matrix(), translate1));
+
   world.add(std::make_shared<dym::rt::ConstantMedium>(
       std::make_shared<dym::rt::Transform3>(boxo, scalem2 * rotate2.to_matrix(),
                                             translate2),
-      100, dym::rt::ColorRGB({0.2, 0.4, 0.9})));
+      500, dym::rt::ColorRGB({0.2, 0.4, 0.9})));
   // world.add(std::make_shared<dym::rt::Transform3>(
   //     boxo, scalem2 * rotate2.to_matrix(), translate2));
 
@@ -197,11 +210,20 @@ int main(int argc, char const* argv[]) {
         //   return (1.f - t) * dym::rt::ColorRGB(1.f) +
         //          t * dym::rt::ColorRGB({0.5f, 0.7f, 1.0f});
         // });
-        color += ray_color2(r, worlds, max_depth);
+        color += ray_color_pdf(r, worlds,
+                               std::make_shared<dym::rt::HittableList>(lights),
+                               max_depth);
       }
       color = color * (1.f / Real(samples_per_pixel));
       color = (color + oldColor) / Real(ccc);
       color = dym::clamp(dym::sqrt(color) * 255.f, 0.0, 255.99);
+      // if (color[0] != color[0]) color[0] = 0.0;
+      // if (color[1] != color[1]) color[1] = 0.0;
+      // if (color[2] != color[2]) color[2] = 0.0;
+      dym::Loop<int, 3>([&](auto pi) {
+        if (dym::isnan(color[pi])) color[pi] = 0;
+        if (dym::isinf(color[pi])) color[pi] = 255;
+      });
     });
     ccc++;
     time.record();

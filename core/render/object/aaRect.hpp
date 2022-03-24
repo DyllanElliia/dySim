@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-07 16:43:00
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-10 16:41:35
+ * @LastEditTime: 2022-03-23 16:27:11
  * @Description:
  */
 #pragma once
@@ -29,6 +29,9 @@ class xy_rect : public Hittable {
     return true;
   }
 
+  virtual Real pdf_value(const Point3& origin, const Vector3& v) const override;
+  virtual Vector3 random(const Point3& origin) const override;
+
  public:
   shared_ptr<Material> mp;
   Real x0, x1, y0, y1, k;
@@ -52,6 +55,9 @@ class yz_rect : public Hittable {
     return true;
   }
 
+  virtual Real pdf_value(const Point3& origin, const Vector3& v) const override;
+  virtual Vector3 random(const Point3& origin) const override;
+
  public:
   shared_ptr<Material> mp;
   Real y0, y1, z0, z1, k;
@@ -74,6 +80,9 @@ class xz_rect : public Hittable {
     output_box = aabb(Point3({x0, k - 1e-4f, z0}), Point3({x1, k + 1e-4f, z1}));
     return true;
   }
+
+  virtual Real pdf_value(const Point3& origin, const Vector3& v) const override;
+  virtual Vector3 random(const Point3& origin) const override;
 
  public:
   shared_ptr<Material> mp;
@@ -126,6 +135,51 @@ bool yz_rect::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
   rec.mat_ptr = mp;
   rec.p = r.at(t);
   return true;
+}
+
+Real xy_rect::pdf_value(const Point3& origin, const Vector3& v) const {
+  HitRecord rec;
+  if (!this->hit(Ray(origin, v), 0.001, infinity, rec)) return 0;
+
+  auto area = (x1 - x0) * (y1 - y0);
+  auto distance_squared = rec.t * rec.t * v.length_sqr();
+  auto cosine = fabs(v.dot(rec.normal) / v.length());
+
+  return distance_squared / (cosine * area);
+}
+Vector3 xy_rect::random(const Point3& origin) const {
+  auto random_point = Point3({random_real(x0, x1), random_real(y0, y1), k});
+  return random_point - origin;
+}
+
+Real xz_rect::pdf_value(const Point3& origin, const Vector3& v) const {
+  HitRecord rec;
+  if (!this->hit(Ray(origin, v), 0.001, infinity, rec)) return 0;
+
+  auto area = (x1 - x0) * (z1 - z0);
+  auto distance_squared = rec.t * rec.t * v.length_sqr();
+  auto cosine = fabs(v.dot(rec.normal) / v.length());
+
+  return distance_squared / (cosine * area);
+}
+Vector3 xz_rect::random(const Point3& origin) const {
+  auto random_point = Point3({random_real(x0, x1), k, random_real(z0, z1)});
+  return random_point - origin;
+}
+
+Real yz_rect::pdf_value(const Point3& origin, const Vector3& v) const {
+  HitRecord rec;
+  if (!this->hit(Ray(origin, v), 0.001, infinity, rec)) return 0;
+
+  auto area = (z1 - z0) * (y1 - y0);
+  auto distance_squared = rec.t * rec.t * v.length_sqr();
+  auto cosine = fabs(v.dot(rec.normal) / v.length());
+
+  return distance_squared / (cosine * area);
+}
+Vector3 yz_rect::random(const Point3& origin) const {
+  auto random_point = Point3({k, random_real(y0, y1), random_real(z0, z1)});
+  return random_point - origin;
 }
 }  // namespace rt
 }  // namespace dym

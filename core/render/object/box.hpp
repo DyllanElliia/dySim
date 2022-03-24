@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-07 17:08:29
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-11 16:32:44
+ * @LastEditTime: 2022-03-24 14:45:03
  * @Description:
  */
 #pragma once
@@ -22,6 +22,9 @@ class Box : public Hittable {
     output_box = aabb(box_min, box_max);
     return true;
   }
+
+  // virtual Real pdf_value(const Point3& origin, const Vector3& v) const
+  // override; virtual Vector3 random(const Point3& origin) const override;
 
  public:
   Point3 box_min;
@@ -50,5 +53,6 @@ Box::Box(const Point3& p0, const Point3& p1, shared_ptr<Material> ptr) {
 bool Box::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
   return sides.hit(r, t_min, t_max, rec);
 }
+
 }  // namespace rt
 }  // namespace dym

@@ -2,12 +2,13 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 14:58:59
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-04 15:58:22
+ * @LastEditTime: 2022-03-23 17:29:06
  * @Description:
  */
 #pragma once
-#include "ray.hpp"
 #include "BVH/aabb.hpp"
+// #include "pdf/pdf.hpp"
+#include "ray.hpp"
 #include "texture/solidColor.hpp"
 
 namespace dym {
@@ -17,15 +18,58 @@ class Hittable {
   virtual bool hit(const Ray& r, Real t_min, Real t_max,
                    HitRecord& rec) const = 0;
   virtual bool bounding_box(aabb& output_box) const = 0;
+
+  virtual Real pdf_value(const Point3& o, const Vector3& v) const {
+    return 0.0;
+  }
+  virtual Vector3 random(const Vector3& o) const { return Vector3({1, 0, 0}); }
 };
 
 class Material {
  public:
   virtual bool scatter(const Ray& r_in, const HitRecord& rec,
-                       ColorRGB& attenuation, Ray& scattered) const = 0;
-  virtual ColorRGB emitted(Real u, Real v, const Point3& p) const {
+                       ScatterRecord& srec) const {
+    return false;
+  }
+
+  virtual Real scattering_pdf(const Ray& r_in, const HitRecord& rec,
+                              const Ray& scattered) const {
+    return 1;
+  }
+  virtual ColorRGB emitted(const Ray& r_in, const HitRecord& rec, Real u,
+                           Real v, const Point3& p) const {
     return ColorRGB(0.f);
   }
+};
+
+class onb {
+ public:
+  onb() {}
+
+  _DYM_FORCE_INLINE_ Vector3 operator[](const int& i) const { return axis[i]; }
+
+  _DYM_FORCE_INLINE_ Vector3 u() const { return axis[0]; }
+  _DYM_FORCE_INLINE_ Vector3 v() const { return axis[1]; }
+  _DYM_FORCE_INLINE_ Vector3 w() const { return axis[2]; }
+
+  _DYM_FORCE_INLINE_ Vector3 local(const Real& a, const Real& b,
+                                   const Real& c) const {
+    return a * u() + b * v() + c * w();
+  }
+
+  _DYM_FORCE_INLINE_ Vector3 local(const Vector3& a) const {
+    return a.x() * u() + a.y() * v() + a.z() * w();
+  }
+
+  _DYM_FORCE_INLINE_ void build_from_w(const Vector3& n) {
+    axis[2] = n.normalize();
+    Vector3 a = (fabs(w().x()) > 0.9) ? Vector3({0, 1, 0}) : Vector3({1, 0, 0});
+    axis[1] = (w().cross(a)).normalize();
+    axis[0] = w().cross(v());
+  }
+
+ public:
+  Vector3 axis[3];
 };
 }  // namespace rt
 }  // namespace dym

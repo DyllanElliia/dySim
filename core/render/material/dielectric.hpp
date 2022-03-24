@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-03 15:56:56
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-09 17:05:39
+ * @LastEditTime: 2022-03-23 16:58:17
  * @Description:
  */
 #pragma once
@@ -31,9 +31,34 @@ class Dielectric : public Material {
       : ir(index_of_refraction), albedo(tex) {}
 
   virtual bool scatter(const Ray& r_in, const HitRecord& rec,
-                       ColorRGB& attenuation, Ray& scattered) const override {
-    attenuation = albedo->value(rec.u, rec.v, rec.p);
-    Real refraction_ratio = rec.front_face ? (1.f / ir) : ir;
+                       ScatterRecord& srec) const override {
+    // attenuation = albedo->value(rec.u, rec.v, rec.p);
+    // Real refraction_ratio = rec.front_face ? (1.f / ir) : ir;
+
+    // Vector3 unit_direction = r_in.direction().normalize();
+    // Real cos_theta = fmin(dym::vector::dot(-unit_direction,
+    // rec.normal), 1.f); Real sin_theta = dym::sqrt(1.0 - cos_theta *
+    // cos_theta);
+
+    // bool cannot_refract = refraction_ratio * sin_theta > 1.f;
+    // Vector3 direction;
+
+    // if (cannot_refract ||
+    //     reflectance(cos_theta, refraction_ratio) > random_real())
+    //   direction = unit_direction.reflect(rec.normal);
+    // else
+    //   direction = refract(unit_direction, rec.normal, refraction_ratio);
+
+    // scattered = Ray(rec.p, direction);
+
+    // pdf = 1;
+
+    // return true;
+
+    srec.is_specular = true;
+    srec.pdf_ptr = nullptr;
+    srec.attenuation = albedo->value(rec.u, rec.v, rec.p);
+    Real refraction_ratio = rec.front_face ? (1.0 / ir) : ir;
 
     Vector3 unit_direction = r_in.direction().normalize();
     Real cos_theta = fmin(dym::vector::dot(-unit_direction, rec.normal), 1.f);
@@ -48,8 +73,7 @@ class Dielectric : public Material {
     else
       direction = refract(unit_direction, rec.normal, refraction_ratio);
 
-    scattered = Ray(rec.p, direction);
-
+    srec.specular_ray = Ray(rec.p, direction, r_in.time());
     return true;
   }
 

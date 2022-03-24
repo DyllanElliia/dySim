@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-04 13:50:22
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-07 15:07:41
+ * @LastEditTime: 2022-03-23 17:24:43
  * @Description:
  */
 /*
@@ -12,9 +12,9 @@
  * @LastEditTime: 2022-03-04 13:14:56
  * @Description:
  */
-#include <dyRender.hpp>
-#include <dyPicture.hpp>
 #include <dyGraphic.hpp>
+#include <dyPicture.hpp>
+#include <dyRender.hpp>
 
 dym::rt::BvhNode random_scene() {
   dym::rt::HittableList world;
@@ -112,7 +112,13 @@ int main(int argc, char const* argv[]) {
         auto u = (j + dym::rt::random_real()) / (image_width - 1);
         auto v = (i + dym::rt::random_real()) / (image_height - 1);
         dym::rt::Ray r = cam.get_ray(u, v);
-        color += ray_color(r, world, max_depth);
+        color += ray_color_pdf(
+            r, world, nullptr, max_depth, [](const dym::rt::Ray& r) {
+              dym::Vector3 unit_direction = r.direction().normalize();
+              Real t = 0.5f * (unit_direction.y() + 1.f);
+              return (1.f - t) * dym::rt::ColorRGB(1.f) +
+                     t * dym::rt::ColorRGB({0.5f, 0.7f, 1.0f});
+            });
       }
       // qprint("here", color, color_p.cast<Real>());
       // color /= Real(samples_per_pixel);

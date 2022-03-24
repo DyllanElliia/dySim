@@ -15,10 +15,11 @@ class DiffuseLight : public Material {
   DiffuseLight(const ColorRGB& c) : emit(make_shared<SolidColor>(c)) {}
 
   virtual bool scatter(const Ray& r_in, const HitRecord& rec,
-                       ColorRGB& attenuation, Ray& scattered) const override {
+                       ScatterRecord& srec) const override {
     return false;
   }
-  virtual ColorRGB emitted(Real u, Real v, const Point3& p) const override {
+  virtual ColorRGB emitted(const Ray& r_in, const HitRecord& rec, Real u,
+                           Real v, const Point3& p) const override {
     return emit->value(u, v, p);
   }
 

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:07:40
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-04 14:59:17
+ * @LastEditTime: 2022-03-23 17:16:26
  * @Description:
  */
 #pragma once
@@ -20,6 +20,9 @@ class HittableList : public Hittable {
   virtual bool hit(const Ray& r, Real t_min, Real t_max,
                    HitRecord& rec) const override;
   virtual bool bounding_box(aabb& output_box) const override;
+
+  virtual Real pdf_value(const Point3& origin, const Vector3& v) const override;
+  virtual Vector3 random(const Point3& origin) const override;
 
  public:
   std::vector<shared_ptr<Hittable>> objects;
@@ -54,6 +57,20 @@ bool HittableList::bounding_box(aabb& output_box) const {
   }
 
   return true;
+}
+
+Real HittableList::pdf_value(const Point3& o, const Vector3& v) const {
+  auto weight = 1.0 / objects.size();
+  auto sum = 0.0;
+
+  for (const auto& object : objects) sum += weight * object->pdf_value(o, v);
+
+  return sum;
+}
+
+Vector3 HittableList::random(const Vector3& o) const {
+  auto int_size = static_cast<int>(objects.size());
+  return objects[static_cast<int>(random_real(0, int_size - 1))]->random(o);
 }
 }  // namespace rt
 }  // namespace dym

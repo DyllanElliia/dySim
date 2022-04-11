@@ -2,12 +2,13 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 15:30:45
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-09 15:18:03
+ * @LastEditTime: 2022-03-29 16:51:49
  * @Description:
  */
-#include "../core/math/matALG.hpp"
 #include <dyMath.hpp>
 #include <random>
+
+#include "../core/math/matALG.hpp"
 
 int main(int argc, char** argv) {
   dym::Vector<Real, 3> a(1);
@@ -81,7 +82,7 @@ int main(int argc, char** argv) {
   dym::TimeLog t;
 
   // long long times = 9223372036854775807;
-  long long times = 1e2;
+  long long times = 1e3;
   double scale = 1;
   std::default_random_engine re;
   std::uniform_real_distribution<Real> u(0.f, 1.f);
@@ -120,6 +121,45 @@ int main(int argc, char** argv) {
     auto CD = dym::matrix::mul_fast(mulC, mulD);
   }
   t.record(scale);
+
+  times = 1e6;
+  qprint_nlb("times =", times);
+  qprint();
+  count = 0;
+  t.reStart();
+  for (long long i = 0; i < times; ++i) {
+    dym::Matrix<Real, 3, 3> mulC([&](Real& e) { e = u(re); });
+    dym::Matrix<Real, 3, 3> mulD([&](Real& e) { e = u(re); });
+  }
+  t.record(scale);
+  t.reStart();
+  for (long long i = 0; i < times; ++i) {
+    dym::Matrix<Real, 3, 3> mulC([&](Real& e) { e = u(re); });
+    dym::Matrix<Real, 3, 3> mulD([&](Real& e) { e = u(re); });
+
+    auto CD = dym::matrix::mul_std(mulC, mulD);
+  }
+  t.record(scale);
+  // qprint(t.getRecord() - 1.2);
+  // std::cout << o << std::endl;
+  qprint();
+  t.reStart();
+  for (long long i = 0; i < times; ++i) {
+    dym::Matrix<Real, 3, 3> mulC([&](Real& e) { e = u(re); });
+    dym::Matrix<Real, 3, 3> mulD([&](Real& e) { e = u(re); });
+    auto CD = dym::matrix::mul_swap(mulC, mulD);
+  }
+  t.record(scale);
+  // qprint(t.getRecord() - 1.2);
+  // std::cout << o << std::endl;
+  t.reStart();
+  for (long long i = 0; i < times; ++i) {
+    dym::Matrix<Real, 3, 3> mulC([&](Real& e) { e = u(re); });
+    dym::Matrix<Real, 3, 3> mulD([&](Real& e) { e = u(re); });
+    auto CD = dym::matrix::mul_fast(mulC, mulD);
+  }
+  t.record(scale);
+  // qprint(t.getRecord() - 1.2);
   // std::cout << o << std::endl;
   qprint(a, b);
   a += b;

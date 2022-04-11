@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-04 13:50:22
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-23 17:24:43
+ * @LastEditTime: 2022-03-29 14:57:13
  * @Description:
  */
 /*
@@ -91,7 +91,7 @@ int main(int argc, char const* argv[]) {
   dym::rt::Point3 lookfrom({13, 2, 3});
   dym::rt::Point3 lookat({0, 0, 0});
   dym::Vector3 vup({0, 1, 0});
-  auto aperture = 2.f;
+  auto aperture = 0.5f;
   auto dist_to_focus = 10.f;
 
   dym::rt::Camera<true> cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture,

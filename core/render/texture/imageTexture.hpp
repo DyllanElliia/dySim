@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-07 15:09:39
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-11 14:25:03
+ * @LastEditTime: 2022-03-29 14:32:48
  * @Description:
  */
 #pragma once
@@ -62,7 +62,8 @@ class ImageTexture : public Texture {
 
     auto pixel = data + j * bytes_per_scanline + i * bytes_per_pixel;
     if (j < 0 || j >= height || i < 0 || i >= width)
-      qprint("it4", ou, ov, u, v, i, j);
+      // qprint("it4", ou, ov, u, v, i, j);
+      return ColorRGB(0.f);
 
     return ColorRGB({Real(pixel[0]), Real(pixel[1]), Real(pixel[2])}) *
            lightIntensity;
@@ -74,7 +75,7 @@ class ImageTexture : public Texture {
   int bytes_per_scanline;
   Real lightIntensity;
 
-;
+  ;
 };
 }  // namespace rt
 }  // namespace dym

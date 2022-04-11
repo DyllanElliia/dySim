@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:34:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-24 15:32:55
+ * @LastEditTime: 2022-04-11 17:17:08
  * @Description:
  */
 #include <dyGraphic.hpp>
@@ -22,9 +22,9 @@ _DYM_FORCE_INLINE_ auto whiteSur() {
 
   return white_surface;
 }
-_DYM_FORCE_INLINE_ auto whiteMetalSur() {
+_DYM_FORCE_INLINE_ auto whiteMetalSur(Real fuzz = 0) {
   auto white_surface =
-      std::make_shared<dym::rt::Metal>(dym::rt::ColorRGB(0.8f));
+      std::make_shared<dym::rt::Metal>(dym::rt::ColorRGB(0.8f), fuzz);
 
   return white_surface;
 }
@@ -32,6 +32,12 @@ _DYM_FORCE_INLINE_ auto whiteGalssSur() {
   auto white_surface = std::make_shared<dym::rt::Dielectric>(1.5);
 
   return white_surface;
+}
+
+_DYM_FORCE_INLINE_ auto blueConSur() {
+  auto blue_surface = std::make_shared<dym::rt::Dielectric>(1.5);
+
+  return blue_surface;
 }
 
 _DYM_FORCE_INLINE_ auto lightEarthSur() {
@@ -161,13 +167,13 @@ int main(int argc, char const* argv[]) {
   world.add(std::make_shared<dym::rt::Transform3>(
       boxo, scalem1 * rotate1.to_matrix(), translate1));
 
-  // lights.add(std::make_shared<dym::rt::Transform3>(
-  //     boxo, scalem1 * rotate1.to_matrix(), translate1));
+  lights.add(std::make_shared<dym::rt::Transform3>(
+      boxo, scalem1 * rotate1.to_matrix(), translate1));
 
   world.add(std::make_shared<dym::rt::ConstantMedium>(
       std::make_shared<dym::rt::Transform3>(boxo, scalem2 * rotate2.to_matrix(),
                                             translate2),
-      500, dym::rt::ColorRGB({0.2, 0.4, 0.9})));
+      200, dym::rt::ColorRGB({0.2, 0.4, 0.9})));
   // world.add(std::make_shared<dym::rt::Transform3>(
   //     boxo, scalem2 * rotate2.to_matrix(), translate2));
 
@@ -175,6 +181,34 @@ int main(int argc, char const* argv[]) {
   // 0.1}),
   //                                          dym::rt::Point3({1.0, 0.1,
   //                                          0.8}), whiteMetalSur()));
+
+  world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.8, 0.2, 0.8}),
+                                              0.1, earthSur()));
+
+  world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.2, 0.2, 0.2}),
+                                              0.1, whiteMetalSur(0.8)));
+  world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.8, 0.2, 0.2}),
+                                              0.1, whiteGalssSur()));
+
+  world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.2, 0.2, 0.8}),
+                                              0.1, whiteMetalSur()));
+
+  // lights.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.2, 0.2,
+  // 0.8}),
+  //                                              0.1, whiteGalssSur()));
+  auto mat = earthSur();
+  auto mat2 = whiteMetalSur(0.8);
+  dym::Vector3 tnormal({0, 0, -1});
+  dym::rt::Vertex v0(dym::rt::Point3({0, 0, 0.999}), tnormal, 0, 0),
+      v1(dym::rt::Point3({0, 1, 0.999}), tnormal, 0, 1),
+      v2(dym::rt::Point3({1, 1, 0.999}), tnormal, 1, 1);
+  dym::rt::Vertex v3(dym::rt::Point3({0, 0, 0.999}), tnormal, 0, 0),
+      v4(dym::rt::Point3({1, 0, 0.999}), tnormal, 1, 0),
+      v5(dym::rt::Point3({1, 1, 0.999}), tnormal, 1, 1);
+  world.add(std::make_shared<dym::rt::Triangle>(v0, v1, v2, mat));
+  world.add(std::make_shared<dym::rt::Triangle>(v3, v4, v5, mat2));
+
+  // world.add(std::make_shared<dym::rt::xy_rect>(0, 1, 0, 1, 1, mat));
 
   auto worlds = dym::rt::BvhNode(world);
 
@@ -195,13 +229,16 @@ int main(int argc, char const* argv[]) {
   dym::TimeLog time;
   int ccc = 1;
 
+  time.reStart();
   gui.update([&]() {
     image.for_each_i([&](dym::Vector<Real, dym::PIC_RGB>& color, int i, int j) {
       auto oldColor = dym::sqr(color / 255.f) * Real(ccc - 1);
       color = 0.f;
       for (int samples = 0; samples < samples_per_pixel; samples++) {
-        auto u = (j + dym::rt::random_real()) / (image_width - 1);
-        auto v = (i + dym::rt::random_real()) / (image_height - 1);
+        auto u = (Real)j / (image_width - 1);
+        auto v = (Real)i / (image_height - 1);
+        // auto u = (j + dym::rt::random_real()) / (image_width - 1);
+        // auto v = (i + dym::rt::random_real()) / (image_height - 1);
         dym::rt::Ray r = cam.get_ray(u, v);
         // color += ray_color2(r, world, max_depth, [](const dym::rt::Ray& r)
         // {
@@ -210,6 +247,7 @@ int main(int argc, char const* argv[]) {
         //   return (1.f - t) * dym::rt::ColorRGB(1.f) +
         //          t * dym::rt::ColorRGB({0.5f, 0.7f, 1.0f});
         // });
+        // color += ray_color_pdf(r, worlds, nullptr, max_depth);
         color += ray_color_pdf(r, worlds,
                                std::make_shared<dym::rt::HittableList>(lights),
                                max_depth);
@@ -222,12 +260,12 @@ int main(int argc, char const* argv[]) {
       // if (color[2] != color[2]) color[2] = 0.0;
       dym::Loop<int, 3>([&](auto pi) {
         if (dym::isnan(color[pi])) color[pi] = 0;
-        if (dym::isinf(color[pi])) color[pi] = 255;
+        // if (dym::isinf(color[pi])) color[pi] = 255;
       });
     });
     ccc++;
-    time.record();
-    time.reStart();
+    // time.record();
+    // time.reStart();
 
     // image = dym::filter2D(image, dym::Matrix3(1.f / 9.f));
     imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB>& e, int i) {
@@ -235,8 +273,10 @@ int main(int argc, char const* argv[]) {
     });
 
     gui.imshow(imageP);
-
-    dym::imwrite(image, "./rt_out/rt_test.jpg");
+    if (ccc == 2 || ccc == 6 || ccc == 21 || ccc == 41) {
+      qprint(ccc, time.getRecord());
+      dym::imwrite(image, "./rt_out/rt_test" + std::to_string(ccc) + ".jpg");
+    }
   });
   return 0;
 }

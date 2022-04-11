@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-14 15:53:11
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-11 16:28:56
+ * @LastEditTime: 2022-03-29 16:06:11
  * @Description:
  */
 #pragma once
@@ -46,17 +46,20 @@ inline void truncatedSvd(Matrix<Type, m, n>& A,
                          Matrix<Type, m, (m <= n ? m : n)>& U,
                          Matrix<Type, (m <= n ? m : n), (m <= n ? m : n)>& Sig,
                          Matrix<Type, n, (m <= n ? m : n)>& V) {
-  // if constexpr (std::is_same<Type, Real>::value) {
-  if constexpr (m <= n)
-    truncatedSvd_v(A, U, Sig, V);
-  else
-    truncatedSvd_u(A, U, Sig, V);
-  // }
+  if constexpr (std::is_same<Type, Real>::value) {
+    if constexpr (m <= n)
+      truncatedSvd_v(A, U, Sig, V);
+    else
+      truncatedSvd_u(A, U, Sig, V);
+  } else {
+    DYM_ERROR("Matrix SVD error: truncatedSvd only support Matrix<Real,m,n>!");
+    exit(EXIT_FAILURE);
+  }
 }
 
 template <typename Type>
-inline void fast3x3Svd(Matrix<Type, 3, 3>& A, Matrix<Type, 3, 3>& U,
-                       Matrix<Type, 3, 3>& Sig, Matrix<Type, 3, 3>& V) {
+inline void fast3x3Svd(const Matrix<Type, 3, 3>& A, Matrix<float, 3, 3>& U,
+                       Matrix<float, 3, 3>& Sig, Matrix<float, 3, 3>& V) {
   if constexpr (std::is_same<Type, float>::value) {
     fast3x3SVD::svd(
         A[0][0], A[0][1], A[0][2], A[1][0], A[1][1], A[1][2], A[2][0], A[2][1],
@@ -73,8 +76,14 @@ inline void fast3x3Svd(Matrix<Type, 3, 3>& A, Matrix<Type, 3, 3>& U,
 template <typename Type>
 inline void traditionalSvd(Matrix<Type, 3, 3>& A, Matrix<Type, 3, 3>& U,
                            Matrix<Type, 3, 3>& Sig, Matrix<Type, 3, 3>& V) {
-  // if constexpr (std::is_same<Type, Real>::value)
-  traditionalSVD ::svd(A, U, Sig, V);
+  if constexpr (std::is_same<Type, Real>::value)
+    traditionalSVD ::svd(A, U, Sig, V);
+
+  else {
+    DYM_ERROR(
+        "Matrix SVD error: traditionalSvd only support Matrix<Real,3,3>!");
+    exit(EXIT_FAILURE);
+  }
 }
 
 template <typename Type, std::size_t m, std::size_t n>
@@ -82,9 +91,11 @@ inline void svd(Matrix<Type, m, n>& A, Matrix<Type, m, n>& U,
                 Matrix<Type, m, n>& Sig, Matrix<Type, m, n>& V,
                 bool use_fast3x3Svd = false) {
   if constexpr (m == 3 && n == 3) {
-    if (use_fast3x3Svd)
-      fast3x3Svd(A, U, Sig, V);
-    else
+    if (use_fast3x3Svd) {
+      Matrix<float, 3, 3> U_, Sig_, V_;
+      fast3x3Svd(A, U_, Sig_, V_);
+      U = U_.cast<Type>(), Sig = Sig_.cast<Type>(), V = V_.cast<Type>();
+    } else
       traditionalSvd(A, U, Sig, V);
   } else
     truncatedSvd(A, U, Sig, V);

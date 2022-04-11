@@ -2,12 +2,13 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-19 15:52:08
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-10 17:35:32
+ * @LastEditTime: 2022-03-29 16:10:52
  * @Description:
  */
 
-#include "../core/math/matALG.hpp"
 #include <random>
+
+#include "../core/math/matALG.hpp"
 #include "../core/tools/sugar.hpp"
 
 int main(int argc, char** argv) {
@@ -30,7 +31,7 @@ int main(int argc, char** argv) {
   qprint(U, Sig, V);
 
   qprint("fast3x3Svd:");
-  dym::matrix::fast3x3Svd(A, U, Sig, V);
+  // dym::matrix::fast3x3Svd(A, U, Sig, V);
   qprint(A, "U x SIg x V'=", U * Sig * V.transpose());
   qprint(U, Sig, V);
 

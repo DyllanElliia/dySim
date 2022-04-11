@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:00:10
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-23 17:07:58
+ * @LastEditTime: 2022-03-29 14:29:52
  * @Description:
  */
 #pragma once
@@ -26,7 +26,7 @@ class Sphere : public Hittable {
 
     u = phi / (2 * pi);
     v = theta / pi;
-    if (isnan(u)) qprint(p);
+    if (isnan(u)) u = 0;
     if (isnan(v)) v = p.y() > 1.f ? 1 : 0;
   }
 
@@ -79,7 +79,8 @@ bool Sphere::bounding_box(aabb& output_box) const {
 }
 
 namespace {
-_DYM_FORCE_INLINE_ Vector3 random_to_sphere(const Real &radius,const Real &distance_squared) {
+_DYM_FORCE_INLINE_ Vector3 random_to_sphere(const Real& radius,
+                                            const Real& distance_squared) {
   auto r1 = random_real();
   auto r2 = random_real();
   auto z = 1 + r2 * (sqrt(1 - radius * radius / distance_squared) - 1);

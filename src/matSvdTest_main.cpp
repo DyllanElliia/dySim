@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-20 17:57:52
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-10 17:35:26
+ * @LastEditTime: 2022-03-29 16:30:44
  * @Description:
  */
 
@@ -11,10 +11,18 @@
 #include "../core/math/matALG.hpp"
 #include "../core/tools/sugar.hpp"
 
-Real errorCmp(dym::Matrix<Real, 3, 3>& a, dym::Matrix<Real, 3, 3>& b) {
+template <std::size_t m, std::size_t n>
+Real errorCmp(dym::Matrix<Real, m, n>& a, dym::Matrix<Real, m, n>& b) {
   Real ans = 0.f;
   a.for_each([&](Real& e, int i, int j) { ans = std::abs(a[i][j] - b[i][j]); });
-  return ans / 9;
+  return ans / (m * n);
+}
+template <std::size_t m, std::size_t n>
+Real errorCmp(dym::Matrix<float, m, n>& a, dym::Matrix<float, m, n>& b) {
+  Real ans = 0.f;
+  a.for_each(
+      [&](float& e, int i, int j) { ans = std::abs(a[i][j] - b[i][j]); });
+  return ans / (m * n);
 }
 
 int main(int argc, char const* argv[]) {
@@ -23,6 +31,16 @@ int main(int argc, char const* argv[]) {
 
   int times = 100000;
   dym::TimeLog t;
+
+  qprint("random");
+  t.reStart();
+  for (int i = 0; i < times; ++i) {
+    dym::Matrix<Real, 3, 3> A([&](Real&e) { e = u(re); }), U, Sig, V;
+    // dym::matrix::truncatedSvd(A, U, Sig, V);
+    auto usv = U * Sig * V.transpose();
+  }
+  t.record();
+
   qprint("truncated Svd");
   t.reStart();
   for (int i = 0; i < times; ++i) {
@@ -35,7 +53,7 @@ int main(int argc, char const* argv[]) {
   qprint("\nfast 3x3 Svd");
   t.reStart();
   for (int i = 0; i < times; ++i) {
-    dym::Matrix<Real, 3, 3> A([&](Real&e) { e = u(re); }), U, Sig, V;
+    dym::Matrix<float, 3, 3> A([&](float&e) { e = u(re); }), U, Sig, V;
     dym::matrix::fast3x3Svd(A, U, Sig, V);
     auto usv = U * Sig * V.transpose();
   }
@@ -63,7 +81,7 @@ int main(int argc, char const* argv[]) {
   ans = 0.f;
   qprint("fast 3x3 Svd");
   for (int i = 0; i < times; ++i) {
-    dym::Matrix<Real, 3, 3> A([&](Real&e) { e = u(re); }), U, Sig, V;
+    dym::Matrix<float, 3, 3> A([&](float&e) { e = u(re); }), U, Sig, V;
     dym::matrix::fast3x3Svd(A, U, Sig, V);
     auto usv = U * Sig * V.transpose();
     ans += errorCmp(A, usv);

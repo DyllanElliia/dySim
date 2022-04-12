@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 14:31:38
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-11 15:39:25
+ * @LastEditTime: 2022-04-12 17:18:11
  * @Description:
  */
 #pragma once
@@ -19,6 +19,7 @@
 #include "object/sphere.hpp"
 #include "object/transform.hpp"
 #include "object/triangle.hpp"
+#include "object/mesh.hpp"
 
 // material
 #include "material/dielectric.hpp"

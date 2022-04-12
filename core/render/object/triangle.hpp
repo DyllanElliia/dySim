@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-11 14:30:56
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-11 16:50:20
+ * @LastEditTime: 2022-04-12 14:54:54
  * @Description:
  */
 /*
@@ -33,6 +33,10 @@ struct Vertex {
     u = in_u, v = in_v;
   }
 };
+
+namespace {
+Vertex emptyVer;
+}
 
 class Triangle : public Hittable {
  private:
@@ -73,16 +77,20 @@ class Triangle : public Hittable {
   }
 
  public:
-  Triangle() {}
+  Triangle() : v0(emptyVer), v1(emptyVer), v2(emptyVer) {
+    DYM_ERROR(
+        "DYM::RT::TRIANGLE ERROR: v0, v1, v2 are Reference Variables!\nPlease "
+        "check the constructor's input!");
+  }
   Triangle(const Vertex& v0i, const Vertex& v1i, const Vertex& v2i,
            shared_ptr<Material> m)
       : v0(v0i),
         v1(v1i),
         v2(v2i),
         normal((v1i.point - v0i.point).cross(v2i.point - v0i.point)),
-        mat_ptr(m) {
-    qprint("normal", normal);
-  };
+        mat_ptr(m){
+            // qprint("normal", normal);
+        };
 
   virtual bool hit(const Ray& r, Real t_min, Real t_max,
                    HitRecord& rec) const override;
@@ -92,7 +100,7 @@ class Triangle : public Hittable {
   virtual Vector3 random(const Point3& origin) const override;
 
  public:
-  Vertex v0, v1, v2;
+  const Vertex &v0, &v1, &v2;
   Vector3 normal;
   shared_ptr<Material> mat_ptr;
 };
@@ -101,8 +109,6 @@ bool Triangle::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
   Real intersect_t = 0;
   if (!intersects(r.origin(), r.direction(), intersect_t)) return false;
   if (intersect_t < t_min || t_max < intersect_t) return false;
-  // if (random_real() < 0.000001) qprint(r.origin(), r.direction(),
-  // intersect_t);
   rec.t = intersect_t;
   rec.p = r.at(rec.t);
   rec.set_face_normal(r, normal.normalize());
@@ -114,13 +120,13 @@ bool Triangle::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
 bool Triangle::bounding_box(aabb& output_box) const {
   auto mi = dym::min(dym::min(v0.point, v1.point), v2.point);
   auto ma = dym::max(dym::max(v0.point, v1.point), v2.point);
-  const Real epsilon = 0.0001;
+  const auto epsilon = (ma - mi) / 10.0;
   output_box = aabb(mi - epsilon, ma + epsilon);
   return true;
 }
 
 Real Triangle::pdf_value(const Point3& origin, const Vector3& v) const {
-  qprint("here maybe");
+  // qprint("here maybe");
   HitRecord rec;
   if (!this->hit(Ray(origin, v), 0.001, infinity, rec)) return 0;
 

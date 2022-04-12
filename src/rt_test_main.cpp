@@ -167,8 +167,8 @@ int main(int argc, char const* argv[]) {
   world.add(std::make_shared<dym::rt::Transform3>(
       boxo, scalem1 * rotate1.to_matrix(), translate1));
 
-  lights.add(std::make_shared<dym::rt::Transform3>(
-      boxo, scalem1 * rotate1.to_matrix(), translate1));
+  // lights.add(std::make_shared<dym::rt::Transform3>(
+  //     boxo, scalem1 * rotate1.to_matrix(), translate1));
 
   world.add(std::make_shared<dym::rt::ConstantMedium>(
       std::make_shared<dym::rt::Transform3>(boxo, scalem2 * rotate2.to_matrix(),

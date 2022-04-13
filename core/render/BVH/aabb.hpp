@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-04 14:37:17
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-04 14:58:48
+ * @LastEditTime: 2022-04-13 17:40:58
  * @Description:
  */
 #pragma once
@@ -31,7 +31,19 @@ class aabb {
     //   if (t_max <= t_min) return false;
     // }
     // return true;
-    Loop<int, 3>([&](auto a) {
+    // Loop<int, 3>([&](auto a) {
+    //   auto invD = 1.0f / r.direction()[a];
+    //   auto t0 = (min()[a] - r.origin()[a]) * invD;
+    //   auto t1 = (max()[a] - r.origin()[a]) * invD;
+    //   if (invD < 0.0f) std::swap(t0, t1);
+    //   t_min = t0 > t_min ? t0 : t_min;
+    //   t_max = t1 < t_max ? t1 : t_max;
+    //   if (t_max <= t_min) {
+    //     // qprint("find -inf");
+    //     return false;
+    //   }
+    // });
+    for (int a = 0; a < 3; ++a) {
       auto invD = 1.0f / r.direction()[a];
       auto t0 = (min()[a] - r.origin()[a]) * invD;
       auto t1 = (max()[a] - r.origin()[a]) * invD;
@@ -39,7 +51,7 @@ class aabb {
       t_min = t0 > t_min ? t0 : t_min;
       t_max = t1 < t_max ? t1 : t_max;
       if (t_max <= t_min) return false;
-    });
+    }
     return true;
   }
 

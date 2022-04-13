@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-11 14:30:56
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-12 14:54:54
+ * @LastEditTime: 2022-04-13 17:46:43
  * @Description:
  */
 /*
@@ -62,8 +62,8 @@ class Triangle : public Hittable {
     return true;
   }
 
-  _DYM_FORCE_INLINE_ void get_triangle_uv(const Point3& p, Real& u,
-                                          Real& v) const {
+  _DYM_FORCE_INLINE_ void get_triangle_uv(const Point3& p, Real& u, Real& v,
+                                          Vector3& out_normal) const {
     auto f1 = v0.point - p;
     auto f2 = v1.point - p;
     auto f3 = v2.point - p;
@@ -74,6 +74,7 @@ class Triangle : public Hittable {
     auto a3 = dym::vector::cross(f1, f2).length() / a;
     u = v0.u * a1 + v1.u * a2 + v2.u * a3,
     v = v0.v * a1 + v1.v * a2 + v2.v * a3;
+    out_normal = v0.normal * a1 + v1.normal * a2 + v2.normal * a3;
   }
 
  public:
@@ -87,7 +88,7 @@ class Triangle : public Hittable {
       : v0(v0i),
         v1(v1i),
         v2(v2i),
-        normal((v1i.point - v0i.point).cross(v2i.point - v0i.point)),
+        area_(((v1i.point - v0i.point).cross(v2i.point - v0i.point)).length()),
         mat_ptr(m){
             // qprint("normal", normal);
         };
@@ -101,7 +102,7 @@ class Triangle : public Hittable {
 
  public:
   const Vertex &v0, &v1, &v2;
-  Vector3 normal;
+  Real area_;
   shared_ptr<Material> mat_ptr;
 };
 
@@ -111,8 +112,9 @@ bool Triangle::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
   if (intersect_t < t_min || t_max < intersect_t) return false;
   rec.t = intersect_t;
   rec.p = r.at(rec.t);
-  rec.set_face_normal(r, normal.normalize());
-  get_triangle_uv(rec.p, rec.u, rec.v);
+  Vector3 outward_normal;
+  get_triangle_uv(rec.p, rec.u, rec.v, outward_normal);
+  rec.set_face_normal(r, outward_normal);
   rec.mat_ptr = mat_ptr;
   return true;
 }
@@ -120,8 +122,10 @@ bool Triangle::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
 bool Triangle::bounding_box(aabb& output_box) const {
   auto mi = dym::min(dym::min(v0.point, v1.point), v2.point);
   auto ma = dym::max(dym::max(v0.point, v1.point), v2.point);
-  const auto epsilon = (ma - mi) / 10.0;
+  // const auto epsilon = (ma - mi) / 10.0;
+  const auto epsilon = 0.001;
   output_box = aabb(mi - epsilon, ma + epsilon);
+  // output_box = aabb(mi, ma);
   return true;
 }
 
@@ -130,7 +134,7 @@ Real Triangle::pdf_value(const Point3& origin, const Vector3& v) const {
   HitRecord rec;
   if (!this->hit(Ray(origin, v), 0.001, infinity, rec)) return 0;
 
-  auto area = normal.length() / 2;
+  auto area = area_ / 2;
   auto distance_squared = rec.t * rec.t * v.length_sqr();
   auto cosine = fabs(v.dot(rec.normal) / v.length());
 

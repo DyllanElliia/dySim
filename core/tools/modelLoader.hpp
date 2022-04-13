@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-12 15:49:45
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-12 17:38:28
+ * @LastEditTime: 2022-04-13 16:12:28
  * @Description:
  */
 
@@ -234,12 +234,13 @@ class Model {
  private:
   // loads a model with supported ASSIMP extensions from file and stores the
   // resulting meshes in the meshes vector.
-  void loadModel(std::string const &path) {
+  void loadModel(std::string const &path, unsigned short assimpLoadArg = 0) {
     // read file via ASSIMP
     Assimp::Importer importer;
     const aiScene *scene = importer.ReadFile(
         path, aiProcess_Triangulate | aiProcess_GenSmoothNormals |
-                  aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+                  aiProcess_FlipUVs | aiProcess_CalcTangentSpace |
+                  assimpLoadArg);
     // check for errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
         !scene->mRootNode)  // if is Not Zero

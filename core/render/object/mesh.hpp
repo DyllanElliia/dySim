@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-11 14:22:27
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-12 17:43:17
+ * @LastEditTime: 2022-04-13 16:00:44
  * @Description:
  */
 #pragma once
@@ -16,11 +16,9 @@
 namespace dym {
 namespace rt {
 
-namespace model {}
-
 class Mesh : public Hittable {
  private:
-  int createMesh(std::vector<Vector3i>& faces, shared_ptr<Material>& m) {
+  int createMesh(std::vector<Vector3ui>& faces, shared_ptr<Material>& m) {
     HittableList world;
     for (auto& face : faces)
       world.add(std::make_shared<Triangle>(vertices[face[0]], vertices[face[1]],
@@ -32,12 +30,12 @@ class Mesh : public Hittable {
  public:
   Mesh() {}
   Mesh(std::vector<Point3>& positions, std::vector<Vector3>& normals,
-       std::vector<Vector3i>& faces, shared_ptr<Material>& m);
-  Mesh(std::vector<Point3>& positions, std::vector<Vector3i>& faces,
-       shared_ptr<Material>& m);
-  Mesh(std::vector<Vertex>& vertices_, std::vector<Vector3i>& faces,
-       shared_ptr<Material>& m);
-  Mesh(dym::Mesh& mesh_, shared_ptr<Material>& default_mat);
+       std::vector<Vector3ui>& faces, shared_ptr<Material> m);
+  Mesh(std::vector<Point3>& positions, std::vector<Vector3ui>& faces,
+       shared_ptr<Material> m);
+  Mesh(std::vector<Vertex>& vertices_, std::vector<Vector3ui>& faces,
+       shared_ptr<Material> m);
+  Mesh(dym::Mesh& mesh_, shared_ptr<Material> default_mat);
 
   virtual bool hit(const Ray& r, Real t_min, Real t_max,
                    HitRecord& rec) const override;
@@ -52,7 +50,7 @@ class Mesh : public Hittable {
 };
 
 Mesh::Mesh(std::vector<Point3>& positions, std::vector<Vector3>& normals,
-           std::vector<Vector3i>& faces, shared_ptr<Material>& m) {
+           std::vector<Vector3ui>& faces, shared_ptr<Material> m) {
   if (positions.size() != normals.size())
     DYM_ERROR(
         "DYM::RT::MESH ERROR: Positions's size must be equal to Normals's "
@@ -62,8 +60,8 @@ Mesh::Mesh(std::vector<Point3>& positions, std::vector<Vector3>& normals,
   createMesh(faces, m);
 }
 
-Mesh::Mesh(std::vector<Point3>& positions, std::vector<Vector3i>& faces,
-           shared_ptr<Material>& m) {
+Mesh::Mesh(std::vector<Point3>& positions, std::vector<Vector3ui>& faces,
+           shared_ptr<Material> m) {
   std::vector<Vector3> normals(positions.size());
   std::vector<unsigned short> normals_n(positions.size(), 0);
   for (int i = 0; i < faces.size(); ++i) {
@@ -84,13 +82,18 @@ Mesh::Mesh(std::vector<Point3>& positions, std::vector<Vector3i>& faces,
   createMesh(faces, m);
 }
 
-Mesh::Mesh(std::vector<Vertex>& vertices_, std::vector<Vector3i>& faces,
-           shared_ptr<Material>& m) {
+Mesh::Mesh(std::vector<Vertex>& vertices_, std::vector<Vector3ui>& faces,
+           shared_ptr<Material> m) {
   vertices = vertices_;
   createMesh(faces, m);
 }
 
-Mesh::Mesh(dym::Mesh& mesh_, shared_ptr<Material>& default_mat) {}
+Mesh::Mesh(dym::Mesh& mesh_, shared_ptr<Material> default_mat) {
+  for (auto& vertex : mesh_.vertices)
+    vertices.push_back(Vertex(vertex.Position, vertex.Normal,
+                              vertex.TexCoords[0], vertex.TexCoords[1]));
+  createMesh(mesh_.faces, default_mat);
+}
 
 bool Mesh::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
   return worlds->hit(r, t_min, t_max, rec);

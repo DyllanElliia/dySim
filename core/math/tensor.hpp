@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2022-03-01 16:54:49
+ * @LastEditTime: 2022-04-14 16:04:20
  * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */
@@ -306,6 +306,25 @@ class Tensor {
               "shape!\033[0m";
       ull indexR = 0;
       int max_ = index_.size() - 1;
+      for (int i = 0; i < max_; ++i) {
+        indexR += (index_[i]) % tsShape[i] * tsShapeSuffix[i + 1];
+      }
+      indexR += index_[max_] % tsShape[max_];
+      return a[indexR];
+    } catch (const char *str) {
+      std::cerr << str << '\n';
+      return a[0];
+    }
+  }
+
+  template <std::size_t size>
+  ValueType &operator[](const Vector<shapeType, size> &index_) {
+    try {
+      if (size != tsShape.size())
+        throw "\033[1;31mTensor error: (Index)Index is not equal to Tensor "
+              "shape!\033[0m";
+      ull indexR = 0;
+      constexpr int max_ = size - 1;
       for (int i = 0; i < max_; ++i) {
         indexR += (index_[i]) % tsShape[i] * tsShapeSuffix[i + 1];
       }

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-12 15:49:45
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-13 16:12:28
+ * @LastEditTime: 2022-04-14 16:44:27
  * @Description:
  */
 
@@ -59,6 +59,7 @@ class Mesh {
   unsigned int VAO;
 
   // constructor
+  Mesh() {}
   Mesh(std::vector<Vertex> vertices, std::vector<Vector3ui> faces,
        std::vector<Texture> textures) {
     qprint("here?");
@@ -337,7 +338,6 @@ class Model {
         vertex.TexCoords = Vector2({0.0f, 0.0f});
 
       if (i == 35946) qprint("end");
-
       vertices.push_back(vertex);
     }
     qprint("next", mesh->mNumFaces);

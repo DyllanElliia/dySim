@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-11 14:57:05
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-13 17:40:27
+ * @LastEditTime: 2022-04-14 14:41:38
  * @Description:
  */
 #pragma once
@@ -60,7 +60,7 @@ bool Transform3::hit(const Ray& r, Real t_min, Real t_max,
 
   rec.p = mat * rec.p + offset;
   auto normal = mat * rec.normal;
-  rec.set_face_normal(tf_r, normal.normalize());
+  rec.set_face_normal(r, normal.normalize());
 
   return true;
 }

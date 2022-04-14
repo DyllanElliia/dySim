@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-12 16:21:12
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-13 17:51:36
+ * @LastEditTime: 2022-04-14 14:55:36
  * @Description:
  */
 
@@ -58,16 +58,18 @@ auto cornell_box() {
       std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.73, .73, .73}));
   auto green =
       std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.12, .45, .15}));
-  auto light =
-      std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB({5, 5, 5}));
+  auto light = std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB(15));
 
   objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 1, green));
   objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 0, red));
-  objects.add(
-      std::make_shared<dym::rt::xz_rect>(0.2, 0.8, 0.2, 0.8, 0.99, light));
+
   objects.add(std::make_shared<dym::rt::xz_rect>(0, 1, 0, 1, 0, white));
   objects.add(std::make_shared<dym::rt::xz_rect>(0, 1, 0, 1, 1, white));
   objects.add(std::make_shared<dym::rt::xy_rect>(0, 1, 0, 1, 1, white));
+
+  Real begin = 0.35, end = 0.65;
+  objects.add(
+      std::make_shared<dym::rt::xz_rect>(begin, end, begin, end, 0.998, light));
 
   return dym::rt::BvhNode(objects);
 }
@@ -131,7 +133,7 @@ int main(int argc, char const* argv[]) {
 
   Real begin = 0.35, end = 0.65;
 
-  world.add(std::make_shared<dym::rt::BvhNode>(cornell_box2()));
+  world.add(std::make_shared<dym::rt::BvhNode>(cornell_box()));
   lights.add(std::make_shared<dym::rt::xz_rect>(
       begin, end, begin, end, 0.998, std::shared_ptr<dym::rt::Material>()));
 
@@ -237,7 +239,7 @@ int main(int argc, char const* argv[]) {
       // if (color[2] != color[2]) color[2] = 0.0;
       dym::Loop<int, 3>([&](auto pi) {
         if (dym::isnan(color[pi])) color[pi] = 0;
-        // if (dym::isinf(color[pi])) color[pi] = 255;
+        if (dym::isinf(color[pi])) color[pi] = oldColor[pi];
       });
     });
     ccc++;

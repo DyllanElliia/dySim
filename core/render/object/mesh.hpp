@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-11 14:22:27
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-13 16:00:44
+ * @LastEditTime: 2022-04-14 15:33:32
  * @Description:
  */
 #pragma once
@@ -64,17 +64,20 @@ Mesh::Mesh(std::vector<Point3>& positions, std::vector<Vector3ui>& faces,
            shared_ptr<Material> m) {
   std::vector<Vector3> normals(positions.size());
   std::vector<unsigned short> normals_n(positions.size(), 0);
+#pragma omp parallel for
   for (int i = 0; i < faces.size(); ++i) {
     auto& index = faces[i];
     Point3 &v0 = positions[index[0]], &v1 = positions[index[1]],
            &v2 = positions[index[2]];
     //  TODO: compute normal
     auto normal = (v1 - v0).cross(v2 - v0);
+#pragma omp critical
     Loop<int, 3>([&](auto j) {
       auto& indexj = index[j];
       normals[indexj] += normal, normals_n[indexj]++;
     });
   }
+#pragma omp parallel for
   for (int i = 0; i < normals.size(); ++i)
     normals[i] = (normals[i] / Real(normals_n[i])).normalize();
   for (int i = 0; i < positions.size(); ++i)

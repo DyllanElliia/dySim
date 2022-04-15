@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:19:52
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-02-24 16:46:00
+ * @LastEditTime: 2022-04-15 15:28:37
  * @Description:
  */
 #pragma once
@@ -11,7 +11,7 @@
 #include <algorithm>
 
 #ifndef DYM_DEFAULT_THREAD
-#define DYM_DEFAULT_THREAD 0
+#define DYM_DEFAULT_THREAD 1
 #endif
 
 #define _DYM_THREAD_CPU_DEFAULT_ 0

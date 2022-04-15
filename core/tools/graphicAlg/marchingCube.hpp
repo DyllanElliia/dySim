@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-14 14:49:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-14 17:15:52
+ * @LastEditTime: 2022-04-15 18:04:47
  * @Description:
  */
 
@@ -461,26 +461,39 @@ void calculateNormals(Mesh& mesh) {
 }  // namespace
 
 Mesh marchingCubes(Tensor<Real>& volume, Real isoLevel) {
-  auto vshape = volume.getShape();
+  auto vshape = volume.shape();
   std::size_t xDim = vshape[0], yDim = vshape[1], zDim = vshape[2];
   --xDim, --yDim, --zDim;
 
   PointIdMapping vertexMapping;
   std::vector<Vector3ui> triangles;
+  bool v[8];
 
   for (std::size_t z = 0; z < zDim; z++)
     for (std::size_t y = 0; y < yDim; y++)
       for (std::size_t x = 0; x < xDim; x++) {
         std::size_t tableIndex = 0;
 
-        if (volume[gi(x, y, z)] < isoLevel) tableIndex |= 1;
-        if (volume[gi(x, y + 1, z)] < isoLevel) tableIndex |= 2;
-        if (volume[gi(x + 1, y + 1, z)] < isoLevel) tableIndex |= 4;
-        if (volume[gi(x + 1, y, z)] < isoLevel) tableIndex |= 8;
-        if (volume[gi(x, y, z + 1)] < isoLevel) tableIndex |= 16;
-        if (volume[gi(x, y + 1, z + 1)] < isoLevel) tableIndex |= 32;
-        if (volume[gi(x + 1, y + 1, z + 1)] < isoLevel) tableIndex |= 64;
-        if (volume[gi(x + 1, y, z + 1)] < isoLevel) tableIndex |= 128;
+        // if (volume[gi(x, y, z)] < isoLevel) tableIndex |= 1;
+        // if (volume[gi(x, y + 1, z)] < isoLevel) tableIndex |= 2;
+        // if (volume[gi(x + 1, y + 1, z)] < isoLevel) tableIndex |= 4;
+        // if (volume[gi(x + 1, y, z)] < isoLevel) tableIndex |= 8;
+        // if (volume[gi(x, y, z + 1)] < isoLevel) tableIndex |= 16;
+        // if (volume[gi(x, y + 1, z + 1)] < isoLevel) tableIndex |= 32;
+        // if (volume[gi(x + 1, y + 1, z + 1)] < isoLevel) tableIndex |= 64;
+        // if (volume[gi(x + 1, y, z + 1)] < isoLevel) tableIndex |= 128;
+
+        v[0] = volume[gi(x, y, z)] < isoLevel;
+        v[1] = volume[gi(x, y + 1, z)] < isoLevel;
+        v[2] = volume[gi(x + 1, y + 1, z)] < isoLevel;
+        v[3] = volume[gi(x + 1, y, z)] < isoLevel;
+        v[4] = volume[gi(x, y, z + 1)] < isoLevel;
+        v[5] = volume[gi(x, y + 1, z + 1)] < isoLevel;
+        v[6] = volume[gi(x + 1, y + 1, z + 1)] < isoLevel;
+        v[7] = volume[gi(x + 1, y, z + 1)] < isoLevel;
+
+        tableIndex = v[0] | v[1] << 1 | v[2] << 2 | v[3] << 3 | v[4] << 4 |
+                     v[5] << 5 | v[6] << 6 | v[7] << 7;
 
         const auto& edgeTableIndex = EDGE_TABLE[tableIndex];
 

@@ -12,6 +12,6 @@
 #include "simulator/mls_mpm.hpp"
 #endif
 
-#ifdef dym_use_marchingCubes
+#ifdef DYM_USE_MARCHING_CUBES
 #include "tools/graphicAlg/marchingCube.hpp"
 #endif

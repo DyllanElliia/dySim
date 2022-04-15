@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:17:32
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-07 15:17:01
+ * @LastEditTime: 2022-04-15 17:32:39
  * @Description:
  */
 #pragma once
@@ -51,7 +51,7 @@ class Camera {
       return Ray(origin + offset, lower_left_corner + s * horizontal +
                                       (1 - t) * vertical - origin - offset);
     } else
-      return Ray(origin, lower_left_corner + s * horizontal +
+      return Ray(origin, lower_left_corner + (1 - s) * horizontal +
                              (1 - t) * vertical - origin);
   }
 

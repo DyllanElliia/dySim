@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-15 15:31:02
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-24 15:15:20
+ * @LastEditTime: 2022-04-18 18:16:52
  * @Description:
  */
 
@@ -79,6 +79,7 @@ bool ConstantMedium::hit(const Ray& r, Real t_min, Real t_max,
   rec.normal = Vector3({1, 0, 0});  // arbitrary
   rec.front_face = true;            // also arbitrary
   rec.mat_ptr = phase_function;
+  rec.obj_id = (int)this;
 
   return true;
 }

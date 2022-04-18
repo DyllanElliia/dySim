@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 14:31:38
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-12 17:18:11
+ * @LastEditTime: 2022-04-18 18:22:33
  * @Description:
  */
 #pragma once
@@ -36,57 +36,25 @@
 
 namespace dym {
 namespace rt {
-// ColorRGB ray_color(const Ray& r, const Hittable& world, int depth) {
-//   HitRecord rec;
-//   // If we've exceeded the ray bounce limit, no more light is gathered.
-//   if (depth <= 0) return ColorRGB(0.f);
+struct GBuffer {
+  Vector3 normal;
+  Vector3 positionn;
+  Vector3 albedo;
+  int obj_id;
+  GBuffer(int asdf = 0) {}
+};
 
-//   if (world.hit(r, 0.001, infinity, rec)) {
-//     Ray scattered;
-//     ColorRGB attenuation;
+namespace {
+GBuffer globalGBuffer;  // only for template, don't use it!
+}
 
-//     Real asdf;
-//     if (rec.mat_ptr->scatter(r, rec, attenuation, scattered, asdf))
-//       return attenuation * ray_color(scattered, world, depth - 1);
-//     return ColorRGB({0, 0, 0});
-//   }
-//   Vector3 unit_direction = r.direction().normalize();
-//   Real t = 0.5f * (unit_direction.y() + 1.f);
-//   // qprint(t, (1.f - t) * ColorRGB(1.f) + t * ColorRGB({0.5f, 0.7f, 1.0f}));
-//   return (1.f - t) * ColorRGB(1.f) + t * ColorRGB({0.5f, 0.7f, 1.0f});
-// }
-
-// ColorRGB ray_color2(
-//     const Ray& r, const Hittable& world, int depth,
-//     const std::function<ColorRGB(const Ray& r)>& background = [](const Ray&
-//     r) {
-//       return ColorRGB(0.f);
-//     }) {
-//   HitRecord rec;
-//   // If we've exceeded the ray bounce limit, no more light is gathered.
-//   if (depth <= 0) return ColorRGB(0.f);
-
-//   // If the ray hits nothing, return the background color.
-//   if (!world.hit(r, 0.001, infinity, rec)) return background(r);
-
-//   Ray scattered;
-//   ColorRGB attenuation;
-//   ColorRGB emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
-
-//   Real asdf;
-//   if (!rec.mat_ptr->scatter(r, rec, attenuation, scattered, asdf))
-//     return emitted;
-
-//   return emitted +
-//          attenuation * ray_color2(scattered, world, depth - 1, background);
-// }
-
+template <bool recordHitRecord = false>
 ColorRGB ray_color_pdf(
     const Ray& r, const Hittable& world, shared_ptr<HittableList> lights,
     int depth,
-    const std::function<ColorRGB(const Ray& r)>& background = [](const Ray& r) {
-      return ColorRGB(0.f);
-    }) {
+    const std::function<ColorRGB(const Ray& r)>& background =
+        [](const Ray& r) { return ColorRGB(0.f); },
+    GBuffer& out_gbuffer = globalGBuffer) {
   HitRecord rec;
   // If we've exceeded the ray bounce limit, no more light is gathered.
   if (depth <= 0) return ColorRGB(0.f);
@@ -96,11 +64,22 @@ ColorRGB ray_color_pdf(
 
   ScatterRecord srec;
   ColorRGB emitted = rec.mat_ptr->emitted(r, rec, rec.u, rec.v, rec.p);
+
+  if constexpr (recordHitRecord) {
+    out_gbuffer.normal = rec.normal;
+    out_gbuffer.position = rec.position;
+    out_gbuffer.albedo = emitted;
+    out_gbuffer.obj_id = rec.obj_id;
+  }
+
   if (!rec.mat_ptr->scatter(r, rec, srec)) return emitted;
+
+  if constexpr (recordHitRecord) out_gbuffer.albedo += srec.attenuation;
 
   if (srec.is_specular) {
     return srec.attenuation * ray_color_pdf(srec.specular_ray, world, lights,
-                                            depth - 1, background);
+                                            depth - 1, background,
+                                            globalGBuffer);
   }
 
   shared_ptr<pdf> p;
@@ -118,5 +97,55 @@ ColorRGB ray_color_pdf(
              ray_color_pdf(scattered, world, lights, depth - 1, background) /
              pdf_val;
 }
+
+template <bool cameraUseFocus = false>
+class RtRender {
+ public:
+  RtRender(const int& image_width, const int& image_height)
+      : image_width(image_width),
+        image_height(image_height),
+        aspect_ratio(image_width / Real(image_height)),
+        image(Tensor<dym::Vector<Real, dym::PIC_RGB>>(
+            0, dym::gi(image_height, image_width))),
+        image_GBuffer(
+            Tensor<GBuffer, false>(0, dym::gi(image_height, image_width))) {}
+  void render(
+      int samples_per_pixel, int max_depth,
+      const std::function<ColorRGB(const Ray& r)>& background =
+          [](const Ray& r) { return ColorRGB(0.f); }) {
+    image.for_each_i([&](dym::Vector<Real, dym::PIC_RGB>& color, int i, int j) {
+      auto color_pre = color;
+      GBuffer gbuffer;
+      color = 0.f;
+      auto u = (Real)j / (image_width - 1);
+      auto v = (Real)i / (image_height - 1);
+      dym::rt::Ray r = cam.get_ray(u, v);
+      for (int samples = 0; samples < samples_per_pixel; samples++) {
+        color += ray_color_pdf<true>(r, *worlds, lights, max_depth, background,
+                                     gbuffer);
+      }
+      image_GBuffer[image.getIndexInt(gi(i, j))] = gbuffer;
+      color = color * (1.f / Real(samples_per_pixel));
+      color = dym::clamp(dym::sqrt(color) * 255.f, 0.0, 255.99);
+      dym::Loop<int, 3>([&](auto pi) {
+        if (dym::isnan(color[pi])) color[pi] = 0;
+        if (dym::isinf(color[pi])) color[pi] = color_pre[pi];
+      });
+    });
+  }
+
+ private:
+  const Real aspect_ratio;
+  const int image_width;
+  const int image_height;
+  Tensor<dym::Vector<Real, dym::PIC_RGB>> image;
+  Tensor<GBuffer, false> image_GBuffer;
+
+ public:
+  shared_ptr<HittableList> worlds;
+  shared_ptr<HittableList> lights;
+  Camera<false> cam;
+};
+
 }  // namespace rt
 }  // namespace dym

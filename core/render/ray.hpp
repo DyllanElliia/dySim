@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 14:50:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-23 17:25:47
+ * @LastEditTime: 2022-04-18 18:10:34
  * @Description:
  */
 #pragma once
@@ -37,6 +37,7 @@ struct HitRecord {
   Real u, v;
   bool front_face;
   shared_ptr<Material> mat_ptr;
+  int obj_id;
 
   inline void set_face_normal(const Ray& r, const Vector3& outward_normal) {
     front_face = vector::dot(r.direction(), outward_normal) < 0;

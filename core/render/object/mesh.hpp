@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-11 14:22:27
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-14 15:33:32
+ * @LastEditTime: 2022-04-18 18:13:20
  * @Description:
  */
 #pragma once
@@ -20,9 +20,13 @@ class Mesh : public Hittable {
  private:
   int createMesh(std::vector<Vector3ui>& faces, shared_ptr<Material>& m) {
     HittableList world;
-    for (auto& face : faces)
-      world.add(std::make_shared<Triangle>(vertices[face[0]], vertices[face[1]],
-                                           vertices[face[2]], m));
+    world.objects.resize(faces.size());
+#pragma omp parallel for
+    for (int i = 0; i < faces.size(); ++i)
+      world.objects[i] = std::make_shared<Triangle>(vertices[faces[i][0]],
+                                                    vertices[faces[i][1]],
+                                                    vertices[faces[i][2]], m);
+
     worlds = make_shared<BvhNode>(world);
     return faces.size();
   }
@@ -92,14 +96,23 @@ Mesh::Mesh(std::vector<Vertex>& vertices_, std::vector<Vector3ui>& faces,
 }
 
 Mesh::Mesh(dym::Mesh& mesh_, shared_ptr<Material> default_mat) {
-  for (auto& vertex : mesh_.vertices)
-    vertices.push_back(Vertex(vertex.Position, vertex.Normal,
-                              vertex.TexCoords[0], vertex.TexCoords[1]));
+  vertices.resize(mesh_.vertices.size());
+  auto& mesh_vertices = mesh_.vertices;
+#pragma omp parallel for
+  for (int i = 0; i < vertices.size(); ++i) {
+    vertices[i] =
+        Vertex(mesh_vertices[i].Position, mesh_vertices[i].Normal,
+               mesh_vertices[i].TexCoords[0], mesh_vertices[i].TexCoords[1]);
+  }
   createMesh(mesh_.faces, default_mat);
 }
 
 bool Mesh::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
-  return worlds->hit(r, t_min, t_max, rec);
+  if (worlds->hit(r, t_min, t_max, rec)) {
+    rec.obj_id = (int)this;
+    return true;
+  } else
+    return false;
 }
 
 bool Mesh::bounding_box(aabb& output_box) const {

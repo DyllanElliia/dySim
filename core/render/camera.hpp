@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:17:32
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-15 17:32:39
+ * @LastEditTime: 2022-04-18 17:54:29
  * @Description:
  */
 #pragma once
@@ -13,6 +13,7 @@ namespace rt {
 template <bool useFocus = true>
 class Camera {
  public:
+  Camera() {}
   Camera(const Point3& lookfrom, const Point3& lookat, const Vector3& vup,
          const Real& vfov,  // vertical field-of-view in degrees
          const Real& aspect_ratio, const Real& aperture = 2.f,
@@ -48,11 +49,15 @@ class Camera {
     if constexpr (useFocus) {
       Vector3 rd = lens_radius * random_in_unit_disk();
       Vector3 offset = u * rd.x() + v * rd.y();
-      return Ray(origin + offset, lower_left_corner + s * horizontal +
+      return Ray(origin + offset, lower_left_corner + (1 - s) * horizontal +
                                       (1 - t) * vertical - origin - offset);
     } else
       return Ray(origin, lower_left_corner + (1 - s) * horizontal +
                              (1 - t) * vertical - origin);
+  }
+  _DYM_FORCE_INLINE_ Matrix3 GetViewMatrix4() {
+    return Matrix4({Vector4(v, 1.0), Vector4(u, 1.0), Vector4(w, 1.0),
+                    Vector4(origin, 1.0)});
   }
 
  private:

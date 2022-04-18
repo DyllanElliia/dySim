@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-15 15:13:05
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-15 17:26:31
+ * @LastEditTime: 2022-04-18 15:23:36
  * @Description:
  */
 #define DYM_USE_MARCHING_CUBES
@@ -80,11 +80,11 @@ int main(int argc, char const *argv[]) {
   sim.globalForce = dym::Vector3({0.f, -9.8 * 2.f, 0.f});
   std::default_random_engine re;
   std::uniform_real_distribution<Real> u(-1.f, 1.f);
-  u_int n3 = 5000;
+  u_int n3 = 15000;
   dym::Tensor<dym::Vector3> newX(0, dym::gi(n3));
 
   newX.for_each_i([&](dym::Vector3 &pos) {
-    pos = dym::Vector3({u(re), u(re), u(re)}) * 0.15f;
+    pos = dym::Vector3({u(re), u(re), u(re)}) * 0.18f;
   });
 
   sim.addParticle(newX + dym::Vector3(0.5), sim.addLiquidMaterial());
@@ -98,12 +98,12 @@ int main(int argc, char const *argv[]) {
     x.for_each_i([&](dym::Vector3 &pos, int i) {
       auto pos_off = pos * volume_n;
       auto pos_i = pos_off.cast<int>();
-      volume[pos_i] = 1;
+      volume[pos_i] = 0.5;
       dym::Loop<int, 2>([&](auto ii) {
         dym::Loop<int, 2>([&](auto jj) {
           dym::Loop<int, 2>([&](auto kk) {
             auto pos_ijk = pos_i + dym::Vector3i({ii, jj, kk});
-            if (pos_ijk >= 0; pos_ijk < volume_n) volume[pos_ijk] = 1;
+            if (pos_ijk >= 0; pos_ijk < volume_n) volume[pos_ijk] += 0.5;
           });
         });
       });
@@ -114,7 +114,7 @@ int main(int argc, char const *argv[]) {
   const auto aspect_ratio = 1.f;
   const int image_width = 600;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
-  const int samples_per_pixel = 3;
+  const int samples_per_pixel = 1;
   const int max_depth = 20;
   dym::Tensor<dym::Vector<Real, dym::PIC_RGB>> image(
       0, dym::gi(image_height, image_width));
@@ -152,14 +152,20 @@ int main(int argc, char const *argv[]) {
 
   time.reStart();
   gui.update([&]() {
+    dym::TimeLog partTime;
     Tp(sim.getPos());
     for (int i = 0; i < steps; ++i) sim.advance(dt);
+    qprint("fin sim part time:", partTime.getRecord());
+    partTime.reStart();
     auto mesh = dym::marchingCubes(volume, 0.5);
+    qprint("fin mc part time:", partTime.getRecord());
+    partTime.reStart();
     dym::rt::HittableList worlds;
     worlds.add(std::make_shared<dym::rt::BvhNode>(world));
     worlds.add(std::make_shared<dym::rt::Transform3>(
-        std::make_shared<dym::rt::Mesh>(mesh, whiteMetalSur()), scalem));
-
+        std::make_shared<dym::rt::Mesh>(mesh, whiteGalssSur()), scalem));
+    qprint("fin build worlds part time:", partTime.getRecord());
+    partTime.reStart();
     image.for_each_i([&](dym::Vector<Real, dym::PIC_RGB> &color, int i, int j) {
       auto color_pre = color;
       color = 0.f;
@@ -179,6 +185,8 @@ int main(int argc, char const *argv[]) {
         if (dym::isinf(color[pi])) color[pi] = color_pre[pi];
       });
     });
+    qprint("fin render part time:", partTime.getRecord());
+    partTime.reStart();
     t = 0.4;
     t_inv = 1 - t;
     ccc++;

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-11 14:30:56
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-13 17:46:43
+ * @LastEditTime: 2022-04-18 18:12:33
  * @Description:
  */
 /*
@@ -116,6 +116,7 @@ bool Triangle::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
   get_triangle_uv(rec.p, rec.u, rec.v, outward_normal);
   rec.set_face_normal(r, outward_normal);
   rec.mat_ptr = mat_ptr;
+  rec.obj_id = (int)this;
   return true;
 }
 

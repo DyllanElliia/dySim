@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2022-04-14 16:04:20
+ * @LastEditTime: 2022-04-18 16:13:30
  * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */
@@ -27,7 +27,7 @@ constexpr _DYM_FORCE_INLINE_ bool is_calculated() {
          std::is_same_v<T, short> || std::is_same_v<T, long long>;
 }
 
-template <class T>
+template <class T, bool useMathOp = true>
 class Tensor {
  protected:
   using ValueType = T;
@@ -671,13 +671,33 @@ class Tensor {
     return true;
   }
 
+  virtual int getIndexInt(const Index<shapeType> &index_) const {
+    try {
+      if (index_.size() != tsShape.size())
+        throw "\033[1;31mTensor error: (Index)Index is not equal to Tensor "
+              "shape!\033[0m";
+      ull indexR = 0;
+      int max_ = index_.size() - 1;
+      for (int i = 0; i < max_; ++i) {
+        indexR += (index_[i]) % tsShape[i] * tsShapeSuffix[i + 1];
+      }
+      indexR += index_[max_] % tsShape[max_];
+      return indexR;
+    } catch (const char *str) {
+      std::cerr << str << '\n';
+      return 0;
+    }
+  }
+
 #define _dym_tensor_operator_binary_(op)                                    \
   friend Tensor operator op(const ValueType &first, const Tensor &second) { \
+    if constexpr (!useMathOp) return *this;                                 \
     Tensor result(second);                                                  \
     result.for_each_i([&first](ValueType &e) { e = first op e; });          \
     return result;                                                          \
   }                                                                         \
   friend Tensor operator op(const Tensor &first, const ValueType &second) { \
+    if constexpr (!useMathOp) return *this;                                 \
     Tensor result(first);                                                   \
     result.for_each_i([&second](ValueType &e) { e = e op second; });        \
     return result;                                                          \
@@ -685,6 +705,7 @@ class Tensor {
 
 #define _dym_tentensor_operator_binary_(op)                                 \
   virtual Tensor operator op(const Tensor &ts) {                            \
+    if constexpr (!useMathOp) return *this;                                 \
     return computer(*this, ts, [](const ValueType &a, const ValueType &b) { \
       return a op b;                                                        \
     });                                                                     \
@@ -692,6 +713,7 @@ class Tensor {
 
 #define _dym_tensor_operator_unary_(op)                             \
   friend void operator op(Tensor &first, const ValueType &second) { \
+    if constexpr (!useMathOp) return;                               \
     first.for_each_i([&second](ValueType &e) { e op second; });     \
   }
 

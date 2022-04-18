@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-14 14:49:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-15 18:04:47
+ * @LastEditTime: 2022-04-18 14:38:35
  * @Description:
  */
 
@@ -469,7 +469,10 @@ Mesh marchingCubes(Tensor<Real>& volume, Real isoLevel) {
   std::vector<Vector3ui> triangles;
   bool v[8];
 
-  for (std::size_t z = 0; z < zDim; z++)
+  // #pragma omp parallel for
+  for (std::size_t z = 0; z < zDim; z++) {
+    PointIdMapping vertexMapping_branch;
+    std::vector<Vector3ui> triangles_branch;
     for (std::size_t y = 0; y < yDim; y++)
       for (std::size_t x = 0; x < xDim; x++) {
         std::size_t tableIndex = 0;
@@ -583,6 +586,17 @@ Mesh marchingCubes(Tensor<Real>& volume, Real isoLevel) {
           }
         }
       }
+    // #pragma omp critical
+    //     {
+    //       for (auto& triangle : triangles_branch)
+    //       triangles.push_back(triangle);
+    //     }
+    // #pragma omp critical
+    //     {
+    //       for (auto& vertexm : vertexMapping_branch)
+    //       vertexMapping.insert(vertexm);
+    //     }
+  }
   Mesh mesh = reindex(vertexMapping, triangles);
 
   calculateNormals(mesh);

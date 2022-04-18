@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-10-06 17:00:50
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-09 15:16:43
+ * @LastEditTime: 2022-04-18 17:46:51
  * @Description:
  */
 
@@ -22,10 +22,12 @@ typedef Matrix<Real, 3, 3> Matrix3;
 typedef Matrix<Real, 4, 4> Matrix4;
 typedef Matrix<Reali, 3, 3> Matrix3i;
 typedef Matrix<Reali, 4, 4> Matrix4i;
+typedef Vector<Real, 2> Vector2;
 typedef Vector<Real, 3> Vector3;
 typedef Vector<Real, 4> Vector4;
-typedef Vector<Reali, 4> Vector4i;
+typedef Vector<Reali, 2> Vector2i;
 typedef Vector<Reali, 3> Vector3i;
+typedef Vector<Reali, 4> Vector4i;
 template <class InputType>
 Tensor<InputType> abs(Tensor<InputType> in) {
   in.for_each_i([](InputType &e) { e = dym::max(e, (InputType)0); });

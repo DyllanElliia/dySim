@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:00:10
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-29 14:29:52
+ * @LastEditTime: 2022-04-18 18:12:21
  * @Description:
  */
 #pragma once
@@ -71,6 +71,7 @@ bool Sphere::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
   rec.set_face_normal(r, outward_normal);
   get_sphere_uv(outward_normal, rec.u, rec.v);
   rec.mat_ptr = mat_ptr;
+  rec.obj_id = (int)this;
   return true;
 }
 bool Sphere::bounding_box(aabb& output_box) const {

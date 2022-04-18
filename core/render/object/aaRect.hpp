@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-07 16:43:00
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-23 16:27:11
+ * @LastEditTime: 2022-04-18 18:15:43
  * @Description:
  */
 #pragma once
@@ -102,6 +102,7 @@ bool xy_rect::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
   rec.set_face_normal(r, outward_normal);
   rec.mat_ptr = mp;
   rec.p = r.at(t);
+  rec.obj_id = (int)this;
   return true;
 }
 
@@ -118,6 +119,7 @@ bool xz_rect::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
   rec.set_face_normal(r, outward_normal);
   rec.mat_ptr = mp;
   rec.p = r.at(t);
+  rec.obj_id = (int)this;
   return true;
 }
 
@@ -134,6 +136,7 @@ bool yz_rect::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
   rec.set_face_normal(r, outward_normal);
   rec.mat_ptr = mp;
   rec.p = r.at(t);
+  rec.obj_id = (int)this;
   return true;
 }
 

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-04 14:59:47
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-09 16:44:58
+ * @LastEditTime: 2022-04-18 15:17:15
  * @Description:
  */
 #pragma once
@@ -18,7 +18,7 @@ class BvhNode : public Hittable {
   BvhNode(HittableList& list) : BvhNode(list.objects, 0, list.objects.size()) {}
 
   BvhNode(std::vector<shared_ptr<Hittable>>& src_objects, size_t start,
-          size_t end);
+          size_t end, const Real& isrlevel = 1);
 
   virtual bool hit(const Ray& r, Real t_min, Real t_max,
                    HitRecord& rec) const override;
@@ -70,10 +70,11 @@ _DYM_FORCE_INLINE_ bool box_z_compare(const shared_ptr<Hittable>& a,
                                       const shared_ptr<Hittable>& b) {
   return box_compare(a, b, 2);
 }
+
 }  // namespace
 
 BvhNode::BvhNode(std::vector<shared_ptr<Hittable>>& src_objects, size_t start,
-                 size_t end) {
+                 size_t end, const Real& isrlevel) {
   auto objects =
       src_objects;  // Create a modifiable array of the source scene objects
 
@@ -96,12 +97,14 @@ BvhNode::BvhNode(std::vector<shared_ptr<Hittable>>& src_objects, size_t start,
     }
   } else {
     // qprint("use BVH");
-    std::sort(std::execution::par, objects.begin() + start,
-              objects.begin() + end, comparator);
+    if (random_real() < isrlevel)
+      std::sort(std::execution::par, objects.begin() + start,
+                objects.begin() + end, comparator);
 
     auto mid = start + object_span / 2;
-    left = make_shared<BvhNode>(objects, start, mid);
-    right = make_shared<BvhNode>(objects, mid, end);
+    const Real nIsRLevel = 0.5;
+    left = make_shared<BvhNode>(objects, start, mid, nIsRLevel);
+    right = make_shared<BvhNode>(objects, mid, end, nIsRLevel);
   }
 
   aabb box_left, box_right;

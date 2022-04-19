@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 14:31:38
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-18 18:22:33
+ * @LastEditTime: 2022-04-19 16:31:52
  * @Description:
  */
 #pragma once
@@ -38,10 +38,17 @@ namespace dym {
 namespace rt {
 struct GBuffer {
   Vector3 normal;
-  Vector3 positionn;
+  Vector3 position;
   Vector3 albedo;
   int obj_id;
-  GBuffer(int asdf = 0) {}
+  GBuffer(int asdf = 0) : obj_id(-1) {}
+  friend std::ostream& operator<<(std::ostream& output, GBuffer& gbuffer) {
+    output << "normal: " << gbuffer.normal << std::endl;
+    output << "position: " << gbuffer.position << std::endl;
+    output << "albedo: " << gbuffer.albedo << std::endl;
+    output << "obj_id: " << gbuffer.obj_id << std::endl;
+    return output;
+  }
 };
 
 namespace {
@@ -67,7 +74,7 @@ ColorRGB ray_color_pdf(
 
   if constexpr (recordHitRecord) {
     out_gbuffer.normal = rec.normal;
-    out_gbuffer.position = rec.position;
+    out_gbuffer.position = rec.p;
     out_gbuffer.albedo = emitted;
     out_gbuffer.obj_id = rec.obj_id;
   }
@@ -107,12 +114,15 @@ class RtRender {
         aspect_ratio(image_width / Real(image_height)),
         image(Tensor<dym::Vector<Real, dym::PIC_RGB>>(
             0, dym::gi(image_height, image_width))),
+        imageP(Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>>(
+            0, dym::gi(image_height, image_width))),
         image_GBuffer(
             Tensor<GBuffer, false>(0, dym::gi(image_height, image_width))) {}
   void render(
       int samples_per_pixel, int max_depth,
       const std::function<ColorRGB(const Ray& r)>& background =
           [](const Ray& r) { return ColorRGB(0.f); }) {
+    auto viewMatrix = cam.getViewMatrix4();
     image.for_each_i([&](dym::Vector<Real, dym::PIC_RGB>& color, int i, int j) {
       auto color_pre = color;
       GBuffer gbuffer;
@@ -121,9 +131,12 @@ class RtRender {
       auto v = (Real)i / (image_height - 1);
       dym::rt::Ray r = cam.get_ray(u, v);
       for (int samples = 0; samples < samples_per_pixel; samples++) {
-        color += ray_color_pdf<true>(r, *worlds, lights, max_depth, background,
-                                     gbuffer);
+        color += ray_color_pdf<true>(
+            r, worlds, std::make_shared<dym::rt::HittableList>(lights),
+            max_depth, background, gbuffer);
       }
+      gbuffer.position = viewMatrix * Vector4(gbuffer.position, 1);
+      gbuffer.normal = viewMatrix * Vector4(gbuffer.normal, 1);
       image_GBuffer[image.getIndexInt(gi(i, j))] = gbuffer;
       color = color * (1.f / Real(samples_per_pixel));
       color = dym::clamp(dym::sqrt(color) * 255.f, 0.0, 255.99);
@@ -134,17 +147,73 @@ class RtRender {
     });
   }
 
+  Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>>& getFrame() {
+    imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB>& e, int i) {
+      e = image[i].cast<dym::Pixel>();
+    });
+    return imageP;
+  }
+
+  Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>>& getFrameGBuffer(
+      std::string GBuffer_type, Real posScale = 255) {
+    switch (hash_(GBuffer_type.c_str())) {
+      case hash_compile_time("normal"):
+        imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB>& e, int i) {
+          auto pix = image_GBuffer[i].normal;
+          pix = dym::clamp(pix * 255, 0.0, 255.99);
+          e = pix.cast<dym::Pixel>();
+          e[2] = 255;
+        });
+        break;
+      case hash_compile_time("position"):
+        imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB>& e, int i) {
+          auto pix = image_GBuffer[i].position;
+          pix = dym::clamp(dym::abs(pix) * posScale, 0.0, 255.99);
+          e = pix.cast<dym::Pixel>();
+          e[2] = 255;
+        });
+        break;
+      case hash_compile_time("depth"):
+        imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB>& e, int i) {
+          e = (dym::Pixel)dym::clamp(
+              dym::abs(image_GBuffer[i].position[2]) * posScale, 0.0, 255.99);
+        });
+        break;
+      case hash_compile_time("albedo"):
+        imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB>& e, int i) {
+          auto pix = image_GBuffer[i].albedo;
+          pix = dym::clamp(pix * 255, 0.0, 255.99);
+          e = pix.cast<dym::Pixel>();
+        });
+        break;
+      case hash_compile_time("objId"):
+        imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB>& e, int i) {
+          e = (dym::Pixel)image_GBuffer[i].obj_id;
+        });
+        break;
+      default:
+        DYM_ERROR(
+            (std::string(
+                 "DYM::RT::RtRender.getFrameGbuffer ERROR: failed to find "
+                 "GBuffer_type(\"") +
+             GBuffer_type + "\")")
+                .c_str());
+    }
+    return imageP;
+  }
+
  private:
   const Real aspect_ratio;
   const int image_width;
   const int image_height;
   Tensor<dym::Vector<Real, dym::PIC_RGB>> image;
+  Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> imageP;
   Tensor<GBuffer, false> image_GBuffer;
 
  public:
-  shared_ptr<HittableList> worlds;
-  shared_ptr<HittableList> lights;
-  Camera<false> cam;
+  HittableList worlds;
+  HittableList lights;
+  Camera<cameraUseFocus> cam;
 };
 
 }  // namespace rt

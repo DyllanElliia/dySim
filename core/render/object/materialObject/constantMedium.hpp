@@ -79,7 +79,7 @@ bool ConstantMedium::hit(const Ray& r, Real t_min, Real t_max,
   rec.normal = Vector3({1, 0, 0});  // arbitrary
   rec.front_face = true;            // also arbitrary
   rec.mat_ptr = phase_function;
-  rec.obj_id = (int)this;
+  rec.obj_id = (int)(std::size_t)this;
 
   return true;
 }

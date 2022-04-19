@@ -41,6 +41,8 @@ class Mesh : public Hittable {
        shared_ptr<Material> m);
   Mesh(dym::Mesh& mesh_, shared_ptr<Material> default_mat);
 
+  void reBuild(dym::Mesh& mesh_, shared_ptr<Material> default_mat);
+
   virtual bool hit(const Ray& r, Real t_min, Real t_max,
                    HitRecord& rec) const override;
   virtual bool bounding_box(aabb& output_box) const override;
@@ -107,9 +109,21 @@ Mesh::Mesh(dym::Mesh& mesh_, shared_ptr<Material> default_mat) {
   createMesh(mesh_.faces, default_mat);
 }
 
+void Mesh::reBuild(dym::Mesh& mesh_, shared_ptr<Material> default_mat) {
+  vertices.resize(mesh_.vertices.size());
+  auto& mesh_vertices = mesh_.vertices;
+#pragma omp parallel for
+  for (int i = 0; i < vertices.size(); ++i) {
+    vertices[i] =
+        Vertex(mesh_vertices[i].Position, mesh_vertices[i].Normal,
+               mesh_vertices[i].TexCoords[0], mesh_vertices[i].TexCoords[1]);
+  }
+  createMesh(mesh_.faces, default_mat);
+}
+
 bool Mesh::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
   if (worlds->hit(r, t_min, t_max, rec)) {
-    rec.obj_id = (int)this;
+    rec.obj_id = (int)(std::size_t)this;
     return true;
   } else
     return false;

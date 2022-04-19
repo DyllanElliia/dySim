@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:34:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-13 17:48:27
+ * @LastEditTime: 2022-04-19 13:50:24
  * @Description:
  */
 #include <dyGraphic.hpp>
@@ -117,7 +117,7 @@ int main(int argc, char const* argv[]) {
   const auto aspect_ratio = 1.f;
   const int image_width = 600;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
-  const int samples_per_pixel = 5;
+  const int samples_per_pixel = 1;
   const int max_depth = 20;
   dym::Tensor<dym::Vector<Real, dym::PIC_RGB>> image(
       0, dym::gi(image_height, image_width));

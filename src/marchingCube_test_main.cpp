@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-15 15:13:05
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-18 15:23:36
+ * @LastEditTime: 2022-04-19 15:58:32
  * @Description:
  */
 #define DYM_USE_MARCHING_CUBES
@@ -116,10 +116,7 @@ int main(int argc, char const *argv[]) {
   const int image_height = static_cast<int>(image_width / aspect_ratio);
   const int samples_per_pixel = 1;
   const int max_depth = 20;
-  dym::Tensor<dym::Vector<Real, dym::PIC_RGB>> image(
-      0, dym::gi(image_height, image_width));
-  dym::Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> imageP(
-      0, dym::gi(image_height, image_width));
+  dym::rt::RtRender render(image_width, image_height);
 
   // static world
   dym::rt::HittableList world;
@@ -138,8 +135,13 @@ int main(int argc, char const *argv[]) {
   auto dist_to_focus = (lookfrom - lookat).length();
   auto aperture = 2.0;
 
-  dym::rt::Camera<false> cam(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
-                             dist_to_focus);
+  // dym::rt::Camera<false> cam(lookfrom, lookat, vup, 40, aspect_ratio,
+  // aperture,
+  //                            dist_to_focus);
+  render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
+                       dist_to_focus);
+
+  qprint(render.cam.getViewMatrix4());
 
   // GUI
   dym::GUI gui("rt");
@@ -149,6 +151,9 @@ int main(int argc, char const *argv[]) {
   int ccc = 1;
   const int steps = 25;
   dym::Matrix3 scalem = dym::matrix::identity<Real, 3>(1 / Real(volume_n - 1));
+
+  // model
+  auto wmesh = std::make_shared<dym::rt::Mesh>();
 
   time.reStart();
   gui.update([&]() {
@@ -160,47 +165,33 @@ int main(int argc, char const *argv[]) {
     auto mesh = dym::marchingCubes(volume, 0.5);
     qprint("fin mc part time:", partTime.getRecord());
     partTime.reStart();
+
+    wmesh->reBuild(mesh, whiteGalssSur());
+
     dym::rt::HittableList worlds;
     worlds.add(std::make_shared<dym::rt::BvhNode>(world));
-    worlds.add(std::make_shared<dym::rt::Transform3>(
-        std::make_shared<dym::rt::Mesh>(mesh, whiteGalssSur()), scalem));
+    worlds.add(std::make_shared<dym::rt::Transform3>(wmesh, scalem));
     qprint("fin build worlds part time:", partTime.getRecord());
     partTime.reStart();
-    image.for_each_i([&](dym::Vector<Real, dym::PIC_RGB> &color, int i, int j) {
-      auto color_pre = color;
-      color = 0.f;
-      for (int samples = 0; samples < samples_per_pixel; samples++) {
-        auto u = (Real)j / (image_width - 1);
-        auto v = (Real)i / (image_height - 1);
-        dym::rt::Ray r = cam.get_ray(u, v);
-        color += ray_color_pdf(r, worlds,
-                               std::make_shared<dym::rt::HittableList>(lights),
-                               max_depth);
-      }
-      color = color * (1.f / Real(samples_per_pixel));
-      color = dym::clamp(dym::sqrt(color) * 255.f, 0.0, 255.99);
-      color = t * color + t_inv * color_pre;
-      dym::Loop<int, 3>([&](auto pi) {
-        if (dym::isnan(color[pi])) color[pi] = 0;
-        if (dym::isinf(color[pi])) color[pi] = color_pre[pi];
-      });
-    });
+
+    render.worlds = worlds;
+    render.lights = lights;
+
+    render.render(samples_per_pixel, max_depth);
+
     qprint("fin render part time:", partTime.getRecord());
     partTime.reStart();
-    t = 0.4;
-    t_inv = 1 - t;
+
     ccc++;
     time.record();
     time.reStart();
+    auto image = render.getFrameGBuffer("normal", 100);
     dym::imwrite(image,
                  "./rt_out/mctest/frame_" + std::to_string(ccc - 1) + ".png");
 
     // image = dym::filter2D(image, dym::Matrix3(1.f / 9.f));
-    imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB> &e, int i) {
-      e = image[i].cast<dym::Pixel>();
-    });
 
-    gui.imshow(imageP);
+    gui.imshow(image);
   });
 
   return 0;

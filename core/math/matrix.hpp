@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-07 12:19:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-18 17:44:55
+ * @LastEditTime: 2022-04-19 14:00:44
  * @Description:
  */
 #pragma once
@@ -26,9 +26,9 @@ struct Matrix {
     //   for (int j = 0; j < n; ++j) a[i][j] = v[i][j];
   }
   Matrix(const std::vector<Vector<Type, m>> &v) {
-    // Loop<int, m>([&](auto i) { a[i] = v[i]; });
-    Loop<int, m>(
-        [&](auto i) { Loop<int, n>([&](auto j) { a[i][j] = v[j][i]; }) });
+    Loop<int, m>([&](auto i) { a[i] = v[i]; });
+    // Loop<int, m>(
+    //     [&](auto i) { Loop<int, n>([&](auto j) { a[i][j] = v[j][i]; }); });
 
     // for (int i = 0; i < m; ++i) a[i] = v[i];
   }

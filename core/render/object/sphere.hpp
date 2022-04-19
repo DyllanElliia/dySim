@@ -71,7 +71,7 @@ bool Sphere::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
   rec.set_face_normal(r, outward_normal);
   get_sphere_uv(outward_normal, rec.u, rec.v);
   rec.mat_ptr = mat_ptr;
-  rec.obj_id = (int)this;
+  rec.obj_id = (int)(std::size_t)this;
   return true;
 }
 bool Sphere::bounding_box(aabb& output_box) const {

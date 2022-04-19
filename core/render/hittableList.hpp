@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:07:40
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-23 17:16:26
+ * @LastEditTime: 2022-04-19 14:17:27
  * @Description:
  */
 #pragma once
@@ -13,9 +13,15 @@ class HittableList : public Hittable {
  public:
   HittableList() {}
   HittableList(shared_ptr<Hittable> object) { add(object); }
+  HittableList(const HittableList& object) { objects = object.objects; }
 
   void clear() { objects.clear(); }
   void add(shared_ptr<Hittable> object) { objects.push_back(object); }
+
+  template <class objType, typename... Args>
+  void addObject(Args... args) {
+    add(std::make_shared<objType>(args...));
+  }
 
   virtual bool hit(const Ray& r, Real t_min, Real t_max,
                    HitRecord& rec) const override;

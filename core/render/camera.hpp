@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:17:32
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-18 17:54:29
+ * @LastEditTime: 2022-04-19 16:01:10
  * @Description:
  */
 #pragma once
@@ -55,9 +55,10 @@ class Camera {
       return Ray(origin, lower_left_corner + (1 - s) * horizontal +
                              (1 - t) * vertical - origin);
   }
-  _DYM_FORCE_INLINE_ Matrix3 GetViewMatrix4() {
-    return Matrix4({Vector4(v, 1.0), Vector4(u, 1.0), Vector4(w, 1.0),
-                    Vector4(origin, 1.0)});
+  _DYM_FORCE_INLINE_ Matrix4 getViewMatrix4() {
+    return Matrix4({Vector4(u, 0.0), Vector4(v, 0.0), Vector4(w, 0.0),
+                    Vector4(origin, 1.0)})
+        .transpose();
   }
 
  private:

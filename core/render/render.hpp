@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 14:31:38
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-19 16:31:52
+ * @LastEditTime: 2022-04-20 18:28:30
  * @Description:
  */
 #pragma once
@@ -34,22 +34,11 @@
 // pdf
 #include "pdf/pdf.hpp"
 
+// denoise
+#include "denoise/svgf.hpp"
+
 namespace dym {
 namespace rt {
-struct GBuffer {
-  Vector3 normal;
-  Vector3 position;
-  Vector3 albedo;
-  int obj_id;
-  GBuffer(int asdf = 0) : obj_id(-1) {}
-  friend std::ostream& operator<<(std::ostream& output, GBuffer& gbuffer) {
-    output << "normal: " << gbuffer.normal << std::endl;
-    output << "position: " << gbuffer.position << std::endl;
-    output << "albedo: " << gbuffer.albedo << std::endl;
-    output << "obj_id: " << gbuffer.obj_id << std::endl;
-    return output;
-  }
-};
 
 namespace {
 GBuffer globalGBuffer;  // only for template, don't use it!
@@ -117,12 +106,15 @@ class RtRender {
         imageP(Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>>(
             0, dym::gi(image_height, image_width))),
         image_GBuffer(
-            Tensor<GBuffer, false>(0, dym::gi(image_height, image_width))) {}
+            Tensor<GBuffer, false>(0, dym::gi(image_height, image_width))) {
+    init_svgf(image.shape());
+  }
   void render(
       int samples_per_pixel, int max_depth,
       const std::function<ColorRGB(const Ray& r)>& background =
           [](const Ray& r) { return ColorRGB(0.f); }) {
-    auto viewMatrix = cam.getViewMatrix4();
+    auto viewMatrix = cam.getViewMatrix4_transform();
+    Matrix3 viewMatrix3 = viewMatrix;
     image.for_each_i([&](dym::Vector<Real, dym::PIC_RGB>& color, int i, int j) {
       auto color_pre = color;
       GBuffer gbuffer;
@@ -136,7 +128,7 @@ class RtRender {
             max_depth, background, gbuffer);
       }
       gbuffer.position = viewMatrix * Vector4(gbuffer.position, 1);
-      gbuffer.normal = viewMatrix * Vector4(gbuffer.normal, 1);
+      gbuffer.normal = viewMatrix3 * gbuffer.normal;
       image_GBuffer[image.getIndexInt(gi(i, j))] = gbuffer;
       color = color * (1.f / Real(samples_per_pixel));
       color = dym::clamp(dym::sqrt(color) * 255.f, 0.0, 255.99);
@@ -159,7 +151,7 @@ class RtRender {
     switch (hash_(GBuffer_type.c_str())) {
       case hash_compile_time("normal"):
         imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB>& e, int i) {
-          auto pix = image_GBuffer[i].normal;
+          auto pix = (image_GBuffer[i].normal + 1) / 2.0;
           pix = dym::clamp(pix * 255, 0.0, 255.99);
           e = pix.cast<dym::Pixel>();
           e[2] = 255;
@@ -201,6 +193,8 @@ class RtRender {
     }
     return imageP;
   }
+
+  void denoise() { denoise_svgf(image, image_GBuffer); }
 
  private:
   const Real aspect_ratio;

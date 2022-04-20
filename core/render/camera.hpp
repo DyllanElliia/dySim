@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:17:32
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-19 16:01:10
+ * @LastEditTime: 2022-04-20 18:28:22
  * @Description:
  */
 #pragma once
@@ -17,7 +17,7 @@ class Camera {
   Camera(const Point3& lookfrom, const Point3& lookat, const Vector3& vup,
          const Real& vfov,  // vertical field-of-view in degrees
          const Real& aspect_ratio, const Real& aperture = 2.f,
-         Real focus_dist = 1.f) {
+         Real focus_dist = 1.f, Real f = -1;) {
     setCamera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, focus_dist);
   }
 
@@ -43,6 +43,21 @@ class Camera {
         origin - horizontal * 0.5f - vertical * 0.5f - w * focus_dist;
 
     lens_radius = aperture / 2;
+
+    view = (lookat - lookfrom).normalize();
+    up = vup.normalize();
+    right = view.cross(up).normalize();
+
+    // Mpersp
+    Real n =
+        (lower_left_corner - origin + 0.5 * (horizontal + vertical)).length();
+    if (f < n) f = 10 * n;
+    M_persp = Matrix4({
+        {1 / (h * aspect_ratio), 0, 0, 0},
+        {0, 1 / h, 0, 0},
+        {0, 0, 2 * (n + f) / (f - n), -2 * n * f / (f - n)},
+        {0, 0, 1, 0},
+    });
   }
 
   _DYM_FORCE_INLINE_ Ray get_ray(const Real& s, const Real& t) const {
@@ -55,11 +70,13 @@ class Camera {
       return Ray(origin, lower_left_corner + (1 - s) * horizontal +
                              (1 - t) * vertical - origin);
   }
-  _DYM_FORCE_INLINE_ Matrix4 getViewMatrix4() {
-    return Matrix4({Vector4(u, 0.0), Vector4(v, 0.0), Vector4(w, 0.0),
-                    Vector4(origin, 1.0)})
-        .transpose();
+  _DYM_FORCE_INLINE_ Matrix4 getViewMatrix4_transform() {
+    return (Matrix4({Vector4(right, 0.0), Vector4(up, 0.0), Vector4(view, 0.0),
+                     Vector4(origin, 1.0)})
+                .transpose())
+        .inverse();
   }
+  _DYM_FORCE_INLINE_ Matrix4 getViewMatrix4_Perspective() { return M_persp; }
 
  private:
   Point3 origin;
@@ -68,6 +85,9 @@ class Camera {
   Vector3 vertical;
   Vector3 u, v, w;
   Real lens_radius;
+
+  Vector3 view, up, right;
+  Matrix4 M_persp;
 };
 }  // namespace rt
 }  // namespace dym

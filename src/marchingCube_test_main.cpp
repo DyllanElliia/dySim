@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-15 15:13:05
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-19 15:58:32
+ * @LastEditTime: 2022-04-20 17:24:20
  * @Description:
  */
 #define DYM_USE_MARCHING_CUBES
@@ -76,7 +76,7 @@ auto cornell_box() {
 }
 
 int main(int argc, char const *argv[]) {
-  dym::MLSMPM<dym::MidGrid, dym::OneStickyOtherSeparate> sim;
+  dym::MLSMPM<dym::MidGrid, dym::OneSeparateOtherSticky> sim;
   sim.globalForce = dym::Vector3({0.f, -9.8 * 2.f, 0.f});
   std::default_random_engine re;
   std::uniform_real_distribution<Real> u(-1.f, 1.f);
@@ -114,7 +114,7 @@ int main(int argc, char const *argv[]) {
   const auto aspect_ratio = 1.f;
   const int image_width = 600;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
-  const int samples_per_pixel = 1;
+  const int samples_per_pixel = 2;
   const int max_depth = 20;
   dym::rt::RtRender render(image_width, image_height);
 
@@ -182,10 +182,16 @@ int main(int argc, char const *argv[]) {
     qprint("fin render part time:", partTime.getRecord());
     partTime.reStart();
 
+    render.denoise();
+
+    qprint("fin denoise part time:", partTime.getRecord());
+    partTime.reStart();
+
     ccc++;
     time.record();
     time.reStart();
-    auto image = render.getFrameGBuffer("normal", 100);
+    // auto image = render.getFrameGBuffer("depth", 100);
+    auto image = render.getFrame();
     dym::imwrite(image,
                  "./rt_out/mctest/frame_" + std::to_string(ccc - 1) + ".png");
 

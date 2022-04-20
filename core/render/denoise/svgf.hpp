@@ -2,12 +2,12 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-14 17:35:20
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-19 17:14:04
+ * @LastEditTime: 2022-04-20 17:11:02
  * @Description:
  */
 
 #pragma once
-#include "../render.hpp"
+#include "../baseClass.hpp"
 
 namespace dym {
 namespace rt {
@@ -15,10 +15,10 @@ namespace {
 std::vector<dym::Vector<Real, dym::PIC_RGB>> output;
 
 // svgf data
-std::vector<Vecor2> moment_history;
-std::vector<Vecor3> color_history;
-std::vector<Vecor2> moment_acc;
-std::vector<Vecor3> color_acc;
+std::vector<Vector2> moment_history;
+std::vector<Vector3> color_history;
+std::vector<Vector2> moment_acc;
+std::vector<Vector3> color_acc;
 
 std::vector<int> history_length;
 std::vector<int> history_length_update;
@@ -30,12 +30,12 @@ std::vector<Real> variance;
 std::array<std::vector<Vector3>, 2> temp;
 
 // A-Trous Filter
-void ATrousFilter(Tensor<dym::Vector<Real, dym::PIC_RGB>>& colorin,
-                  std::vector<dym::Vector<Real, dym::PIC_RGB>>& colorout,
-                  std::vector<Real>& variance, Tensor<GBuffer>& gBuffer,
+void ATrousFilter(Tensor<dym::Vector<Real, dym::PIC_RGB>>& image_onlyForForeach,
+                  std::vector<Vector3>& colorin, std::vector<Vector3>& colorout,
+                  std::vector<Real>& variance, Tensor<GBuffer, false>& gBuffer,
                   int level, bool is_last, Real sigma_c, Real sigma_n,
                   Real sigma_x, bool blur_variance, bool addcolor) {
-  auto& res = colorin.shape();
+  auto res = image_onlyForForeach.shape();
   // 5x5 A-Trous kernel
   const Real h[25] = {
       1.0 / 256.0, 1.0 / 64.0, 3.0 / 128.0, 1.0 / 64.0, 1.0 / 256.0,
@@ -54,132 +54,146 @@ void ATrousFilter(Tensor<dym::Vector<Real, dym::PIC_RGB>>& colorin,
       Vector2i({-1, 0}),  Vector2i({0, 0}),  Vector2i({1, 0}),
       Vector2i({-1, 1}),  Vector2i({0, 1}),  Vector2i({1, 1})};
 
-  colorin.for_each_i([&](dym::Vector<Real, dym::PIC_RGB>& color, int x, int y) {
-    int p = image.getIndexInt(gi(x, y));
-    int step = 1 << level;
+  image_onlyForForeach.for_each_i(
+      [&](dym::Vector<Real, dym::PIC_RGB>& color_no_use, int x, int y) {
+        int p = image_onlyForForeach.getIndexInt(gi(x, y));
+        int step = 1 << level;
 
-    Real var;
-    // perform 3x3 gaussian blur on variance
-    if (blur_variance) {
-      Real sum = 0.0;
-      Real sumw = 0.0;
-      for (int sampleIdx = 0; sampleIdx < 9; sampleIdx++) {
-        Vector2i loc = Vector2i({x, y}) + g[sampleIdx];
-        if (loc.x >= 0 && loc.y >= 0 && loc.x < res[0] && loc.y < res[1]) {
-          sum += gaussian[sampleIdx] * variance[colorin.getIndex(loc)];
-          sumw += gaussian[sampleIdx];
+        Real var;
+        // perform 3x3 gaussian blur on variance
+        if (blur_variance) {
+          Real sum = 0.0;
+          Real sumw = 0.0;
+          for (int sampleIdx = 0; sampleIdx < 9; sampleIdx++) {
+            Vector2i loc = Vector2i({x, y}) + g[sampleIdx];
+            if (loc[0] >= 0 && loc[1] >= 0 && loc[0] < res[0] &&
+                loc[1] < res[1]) {
+              sum += gaussian[sampleIdx] *
+                     variance[image_onlyForForeach.getIndexInt(loc)];
+              sumw += gaussian[sampleIdx];
+            }
+          }
+          var = dym::max(sum / sumw, 0.0);
+        } else {
+          var = dym::max(variance[p], 0.0);
         }
-      }
-      var = dym::max(sum / sumw, 0.0);
-    } else {
-      var = dym::max(variance[p], 0.0);
-    }
 
-    // Load pixel p data
-    Real lp =
-        0.2126 * colorin[p].x + 0.7152 * colorin[p].y + 0.0722 * colorin[p].z;
-    Vector3 pp = gBuffer[p].position;
-    Vector3 np = gBuffer[p].normal;
+        // Load pixel p data
+        Real lp = 0.2126 * colorin[p][0] + 0.7152 * colorin[p][1] +
+                  0.0722 * colorin[p][2];
+        Vector3 pp = gBuffer[p].position;
+        Vector3 np = gBuffer[p].normal;
 
-    Vector3 color_sum = Vector3(0.0);
-    Real variance_sum = 0.0;
-    Real weights_sum = 0;
-    Real weights_squared_sum = 0;
+        Vector3 color_sum = Vector3(0.0);
+        Real variance_sum = 0.0;
+        Real weights_sum = 0;
+        Real weights_squared_sum = 0;
 
-    for (int i = -2; i <= 2; i++) {
-      for (int j = -2; j <= 2; j++) {
-        int xq = x + step * i;
-        int yq = y + step * j;
-        if (xq >= 0 && xq < res[0] && yq >= 0 && yq < res[1]) {
-          int q = colorin.getIndexInt(gi(xq, yq));
+        for (int i = -2; i <= 2; i++) {
+          for (int j = -2; j <= 2; j++) {
+            int xq = x + step * i;
+            int yq = y + step * j;
+            if (xq >= 0 && xq < res[0] && yq >= 0 && yq < res[1]) {
+              int q = image_onlyForForeach.getIndexInt(gi(xq, yq));
 
-          // Load pixel q data
-          Real lq = 0.2126 * colorin[q][0] + 0.7152 * colorin[q][1] +
-                    0.0722 * colorin[q].[2];
-          Vector3& pq = gBuffer[q].position;
-          Vector3& nq = gBuffer[q].normal;
+              // Load pixel q data
+              Real lq = 0.2126 * colorin[q][0] + 0.7152 * colorin[q][1] +
+                        0.0722 * colorin[q][2];
+              Vector3& pq = gBuffer[q].position;
+              Vector3& nq = gBuffer[q].normal;
 
-          // Edge-stopping weights
-          Real wl =
-              dym::exp(-(lp - lq).length() / (dym::sqrt(var) * sigma_c + 1e-6));
-          Real wn = dym::min(1.0, exp(-(np - nq).length() / (sigma_n + 1e-6)));
-          Real wx = dym::min(1.0, exp(-(pp - pq).length() / (sigma_x + 1e-6)));
+              // Edge-stopping weights
+              Real wl = dym::exp(-(Vector3(lp) - Vector3(lq)).length() /
+                                 (dym::sqrt(var) * sigma_c + 1e-6));
+              Real wn =
+                  dym::min(1.0, exp(-(np - nq).length() / (sigma_n + 1e-6)));
+              Real wx =
+                  dym::min(1.0, exp(-(pp - pq).length() / (sigma_x + 1e-6)));
 
-          // filter weights
-          int k = (2 + i) + (2 + j) * 5;
-          Real weight = h[k] * wl * wn * wx;
-          weights_sum += weight;
-          weights_squared_sum += weight * weight;
-          color_sum += (colorin[q] * weight);
-          variance_sum += (variance[q] * weight * weight);
+              // filter weights
+              int k = (2 + i) + (2 + j) * 5;
+              Real weight = h[k] * wl * wn * wx;
+              weights_sum += weight;
+              weights_squared_sum += weight * weight;
+              color_sum += (colorin[q] * weight);
+              variance_sum += (variance[q] * weight * weight);
+            }
+          }
         }
-      }
-    }
 
-    // update color and variance
-    if (weights_sum > 10e-6) {
-      colorout[p] = color_sum / weights_sum;
-      variance[p] = variance_sum / weights_squared_sum;
-    } else {
-      colorout[p] = colorin[p];
-    }
+        // update color and variance
+        if (weights_sum > 10e-6) {
+          colorout[p] = color_sum / weights_sum;
+          variance[p] = variance_sum / weights_squared_sum;
+        } else {
+          colorout[p] = colorin[p];
+        }
 
-    if (is_last && addcolor) {
-      // colorout[p] *= gBuffer[p].albedo * gBuffer[p].ialbedo;
-      colorout[p] *= gBuffer[p].albedo;
-    }
-  });
+        if (is_last && addcolor) {
+          // colorout[p] *= gBuffer[p].albedo * gBuffer[p].ialbedo;
+          colorout[p] *= gBuffer[p].albedo;
+        }
+      });
+  qprint("at", colorin[10000], colorout[10000], variance[10000]);
 }
 
-_DYM_FORCE_INLINE_ bool isReprjValid(Index<int>& res, Vector2i& curr_coord,
-                                     Vector2i& prev_coord,
-                                     Tensor<GBuffer>& curr_gbuffer,
+int cntIs = 0;
+_DYM_FORCE_INLINE_ bool isReprjValid(const Index<int>& res,
+                                     const Vector2i& curr_coord,
+                                     const Vector2i& prev_coord,
+                                     Tensor<GBuffer, false>& curr_gbuffer,
                                      std::vector<GBuffer>& prev_gbuffer) {
   int p = curr_gbuffer.getIndexInt(curr_coord);
   int q = curr_gbuffer.getIndexInt(prev_coord);
   // reject if the pixel is outside the screen
-  if (prev_coord.x() < 0 || prev_coord.x() >= res[0] || prev_coord.y() < 0 ||
-      prev_coord.y() >= res[1])
+  if (prev_coord[0] < 0 || prev_coord[0] >= res[0] || prev_coord[1] < 0 ||
+      prev_coord[1] >= res[1])
     return false;
   // reject if the pixel is a different geometry
   if (prev_gbuffer[q].obj_id == -1 ||
       prev_gbuffer[q].obj_id != curr_gbuffer[p].obj_id)
     return false;
   // reject if the normal deviation is not acceptable
-  if ((prev_gbuffer[q].normal - curr_gbuffer[p].normal).length_sqr() > 1e-2f)
+  if ((prev_gbuffer[q].normal - curr_gbuffer[p].normal).length_sqr() > 1e-1f)
     return false;
+  cntIs++;
   return true;
 }
 
 // TODO: back projection
 void BackProjection(
-    std::vector<Real>& variacne_out, std::vector<int>& history_length,
+    std::vector<Real>& variance_out, std::vector<int>& history_length,
     std::vector<int>& history_length_update,
     std::vector<Vector2>& moment_history, std::vector<Vector3>& color_history,
     std::vector<Vector2>& moment_acc, std::vector<Vector3>& color_acc,
     Tensor<dym::Vector<Real, dym::PIC_RGB>>& current_color,
-    Tensor<GBuffer>& current_gbuffer, std::vector<GBuffer>& prev_gbuffer,
+    Tensor<GBuffer, false>& current_gbuffer, std::vector<GBuffer>& prev_gbuffer,
     Real color_alpha_min, Real moment_alpha_min) {
   const auto& res = current_color.shape();
+
+  int cnt1 = 0, cnt2 = 0;
+
   current_color.for_each_i([&](dym::Vector<Real, dym::PIC_RGB>& color, int x,
                                int y) {
-    int p = image.getIndexInt(gi(x, y));
+    int p = current_color.getIndexInt(gi(x, y));
     int N = history_length[p];
     Vector3 sample = current_color[p];
     Real luminance =
-        0.2126 * sample.x() + 0.7152 * sample.y() + 0.0722 * sample.z();
+        0.2126 * sample[0] + 0.7152 * sample[1] + 0.0722 * sample[2];
 
     if (N > 0 && current_gbuffer[p].obj_id != -1) {
+      // qprint("in?real?");
       // Calculate NDC coordinates in previous frame (TODO: check correctness)
       auto& viewspace_position = current_gbuffer[p].position;
       Real clipx =
-          viewspace_position.x() / viewspace_position.z() /** tanf(PI / 4)*/;
+          viewspace_position[0] / viewspace_position[2] /** tanf(PI / 4)*/;
       Real clipy =
-          viewspace_position.y() / viewspace_position.z() /** tanf(PI / 4)*/;
+          viewspace_position[1] / viewspace_position[2] /** tanf(PI / 4)*/;
       Real ndcx = -clipx * 0.5 + 0.5;
       Real ndcy = -clipy * 0.5 + 0.5;
       Real prevx = ndcx * res[0] - 0.5;
       Real prevy = ndcy * res[1] - 0.5;
+      prevx = x, prevy = y;
       /////////////
 
       bool v[4];
@@ -190,6 +204,17 @@ void BackProjection(
 
       bool valid =
           (floorx >= 0 && floory >= 0 && floorx < res[0] && floory < res[1]);
+      bool showit = false;
+      // if (random_real() < 0.00001)
+      //   qprint(viewspace_position, "->", Vector2({prevx, prevy}), valid),
+      //       showit = true;
+      if (x == 100 && y == 100)
+        qprint(x, y, viewspace_position, Vector2({prevx, prevy}));
+
+      if (x == 100 && y == 150)
+        qprint(x, y, viewspace_position, Vector2({prevx, prevy}));
+      if (x == 150 && y == 100)
+        qprint(x, y, viewspace_position, Vector2({prevx, prevy}));
 
       // 2x2 tap bilinear filter
       Vector2i offset[4] = {Vector2i({0, 0}), Vector2i({1, 0}),
@@ -203,6 +228,7 @@ void BackProjection(
           v[sampleIdx] = isReprjValid(res, Vector2i({x, y}), loc,
                                       current_gbuffer, prev_gbuffer);
           valid = valid && v[sampleIdx];
+          if (showit) qprint(sampleIdx, v[sampleIdx]);
         }
       }
 
@@ -245,9 +271,9 @@ void BackProjection(
           for (int xx = -radius; xx <= radius; xx++) {
             Vector2 loc =
                 Vector2({floorx, floory}) + Vector2({(Real)xx, (Real)yy});
-            int q = current_color.getIndexInt(loc);
-            if (isReprjValid(res, Vector2i({x, y}), loc, current_gbuffer,
-                             prev_gbuffer)) {
+            int q = current_color.getIndexInt(loc.cast<int>());
+            if (isReprjValid(res, Vector2i({x, y}), loc.cast<int>(),
+                             current_gbuffer, prev_gbuffer)) {
               prevColor += color_history[q];
               prevMoments += moment_history[q];
               prevHistoryLength += history_length[q];
@@ -264,8 +290,9 @@ void BackProjection(
           valid = true;
         }
       }
-
       if (valid) {
+        cnt1++;
+
         // calculate alpha values that controls fade
         Real color_alpha = dym::max(1.0 / (Real)(N + 1), color_alpha_min);
         Real moment_alpha = dym::max(1.0 / (Real)(N + 1), moment_alpha_min);
@@ -279,30 +306,34 @@ void BackProjection(
 
         // moment accumulation
         Real first_moment =
-            moment_alpha * prevMoments.x() + (1.0 - moment_alpha) * luminance;
-        Real second_moment = moment_alpha * prevMoments.y() +
+            moment_alpha * prevMoments[0] + (1.0 - moment_alpha) * luminance;
+        Real second_moment = moment_alpha * prevMoments[1] +
                              (1.0 - moment_alpha) * luminance * luminance;
         moment_acc[p] = Vector2({first_moment, second_moment});
 
         // calculate variance from moments
         Real variance = second_moment - first_moment * first_moment;
-        variacne_out[p] = variance > 0.0 ? variance : 0.0;
+        variance_out[p] = variance > 0.0 ? variance : 0.0;
         return;
       }
+    } else {
+      // If there's no history
+      history_length_update[p] = 1;
+      color_acc[p] = current_color[p];
+      moment_acc[p] = Vector2({luminance, luminance * luminance});
+      variance_out[p] = 200.0;
+      cnt2++;
     }
-
-    // If there's no history
-    history_length_update[p] = 1;
-    color_acc[p] = current_color[p];
-    moment_acc[p] = Vector2({luminance, luminance * luminance});
-    variacne_out[p] = 100.0;
   });
+  qprint("cnt:", cnt1, cnt2);
+  qprint("isSucc:", cntIs);
+  cntIs = 0;
 }
 
 // Estimate variance spatially
-__global__ void EstimateVariance(
-    Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>>& image,
-    std::vector<Real>& variacne, std::vector<Vector3>& color) {
+void EstimateVariance(Tensor<dym::Vector<Real, dym::PIC_RGB>>& image,
+                      std::vector<Real>& variacne,
+                      std::vector<Vector3>& color) {
   image.for_each_i([&](dym::Vector<Real, dym::PIC_RGB>& color, int x, int y) {
     int p = image.getIndexInt(gi(x, y));
     // TODO
@@ -331,7 +362,73 @@ void init_svgf(Index<int> shape) {
   temp[1].resize(pixelcount);
 }
 
+// Denoise
+bool ui_temporal_enable = true;
+bool ui_spatial_enable = true;
+Real ui_color_alpha = 0.2;
+Real ui_moment_alpha = 0.2;
+bool ui_blurvariance = true;
+Real ui_sigmal = 0.45f;
+Real ui_sigmax = 0.35f;
+Real ui_sigman = 0.2f;
+int ui_atrous_nlevel =
+    5;  // How man levels of A-trous filter used in denoising?
+int ui_history_level =
+    1;  // Which level of A-trous output is sent to history buffer?
+bool ui_sepcolor = true;
+bool ui_addcolor = true;
+
 void denoise_svgf(Tensor<dym::Vector<Real, dym::PIC_RGB>>& input,
-                  Tensor<GBuffer>& gbuffer) {}
+                  Tensor<GBuffer, false>& gbuffer) {
+  Real color_alpha = ui_temporal_enable ? ui_color_alpha : 1.0;
+  Real moment_alpha = ui_temporal_enable ? ui_moment_alpha : 1.0;
+  qprint("in denoise", history_length[10000]);
+  if (ui_temporal_enable) {
+    BackProjection(variance, history_length, history_length_update,
+                   moment_history, color_history, moment_acc, color_acc, input,
+                   gbuffer, gbuffer_prev, color_alpha, moment_alpha);
+#pragma omp parallel for
+    for (int i = 0; i < color_history.size(); ++i) {
+      color_history[i] = color_acc[i];
+    }
+  } else {
+    EstimateVariance(input, variance, color_acc);
+#pragma omp parallel for
+    for (int i = 0; i < color_history.size(); ++i) {
+      color_history[i] = input[i];
+    }
+  }
+  qprint("111", input[10000], output[10000], gbuffer[10000], moment_acc[10000],
+         variance[10000], history_length[10000], color_acc[10000]);
+  if (ui_atrous_nlevel != 0 && ui_atrous_nlevel) {
+    for (int level = 1; level <= ui_atrous_nlevel; level++) {
+      auto& src = (level == 1) ? color_history : temp[level % 2];
+      auto& dst = (level == ui_atrous_nlevel) ? output : temp[(level + 1) % 2];
+      ATrousFilter(input, src, dst, variance, gbuffer, level,
+                   (level == ui_atrous_nlevel), ui_sigmal, ui_sigman, ui_sigmax,
+                   ui_blurvariance, (ui_sepcolor && ui_addcolor));
+      if (level == ui_history_level) {
+#pragma omp parallel for
+        for (int i = 0; i < color_history.size(); ++i) {
+          color_history[i] = dst[i];
+        }
+      }
+    }
+  }
+
+  qprint("222", input[10000], output[10000], gbuffer[10000], moment_acc[10000],
+         variance[10000], history_length[10000], color_acc[10000],
+         temp[0][10000], temp[1][10000]);
+  qprint("(100,100)", gbuffer[gi(100, 100)].position);
+
+#pragma omp parallel for
+  for (auto i = 0; i < moment_history.size(); ++i) {
+    gbuffer_prev[i] = gbuffer[i];
+    moment_history[i] = moment_acc[i];
+    history_length[i] = history_length_update[i];
+    input[i] = output[i];
+  }
+}
+
 }  // namespace rt
 }  // namespace dym

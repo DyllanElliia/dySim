@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 14:58:59
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-23 17:29:06
+ * @LastEditTime: 2022-04-20 14:20:46
  * @Description:
  */
 #pragma once
@@ -70,6 +70,22 @@ class onb {
 
  public:
   Vector3 axis[3];
+};
+
+class GBuffer {
+ public:
+  Vector3 normal;
+  Vector3 position;
+  Vector3 albedo;
+  int obj_id;
+  GBuffer(int asdf = 0) : obj_id(-1) {}
+  friend std::ostream& operator<<(std::ostream& output, GBuffer& gbuffer) {
+    output << "normal: " << gbuffer.normal << std::endl;
+    output << "position: " << gbuffer.position << std::endl;
+    output << "albedo: " << gbuffer.albedo << std::endl;
+    output << "obj_id: " << gbuffer.obj_id << std::endl;
+    return output;
+  }
 };
 }  // namespace rt
 }  // namespace dym

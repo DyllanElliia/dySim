@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2022-04-19 16:40:09
+ * @LastEditTime: 2022-04-20 14:15:32
  * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */
@@ -692,11 +692,11 @@ class Tensor {
   template <std::size_t size>
   int getIndexInt(const Vector<shapeType, size> &index_) const {
     try {
-      if (index_.size() != tsShape.size())
+      if (size != tsShape.size())
         throw "\033[1;31mTensor error: (Index)Index is not equal to Tensor "
               "shape!\033[0m";
       ull indexR = 0;
-      int max_ = index_.size() - 1;
+      int max_ = size - 1;
       for (int i = 0; i < max_; ++i) {
         indexR += (index_[i]) % tsShape[i] * tsShapeSuffix[i + 1];
       }

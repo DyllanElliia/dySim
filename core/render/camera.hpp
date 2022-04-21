@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:17:32
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-20 18:28:22
+ * @LastEditTime: 2022-04-21 17:19:04
  * @Description:
  */
 #pragma once
@@ -17,15 +17,16 @@ class Camera {
   Camera(const Point3& lookfrom, const Point3& lookat, const Vector3& vup,
          const Real& vfov,  // vertical field-of-view in degrees
          const Real& aspect_ratio, const Real& aperture = 2.f,
-         Real focus_dist = 1.f, Real f = -1;) {
-    setCamera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, focus_dist);
+         Real focus_dist = 1.f, Real f = -1) {
+    setCamera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, focus_dist,
+              f);
   }
 
   _DYM_FORCE_INLINE_ void setCamera(
       const Point3& lookfrom, const Point3& lookat, const Vector3& vup,
       const Real& vfov,  // vertical field-of-view in degrees
       const Real& aspect_ratio, const Real& aperture = 2.f,
-      Real focus_dist = 1.f) {
+      Real focus_dist = 1.f, Real f = -1) {
     auto theta = degrees_to_radians(vfov);
     auto h = tan(theta / 2);
     auto viewport_height = 2.f * h;
@@ -44,18 +45,16 @@ class Camera {
 
     lens_radius = aperture / 2;
 
-    view = (lookat - lookfrom).normalize();
-    up = vup.normalize();
-    right = view.cross(up).normalize();
+    Real n =
+        -(getViewMatrix4_transform() *
+          Vector4((lower_left_corner + 0.5 * (horizontal + vertical)), 1))[2];
+    if (f < n) f = 2 * n;
 
     // Mpersp
-    Real n =
-        (lower_left_corner - origin + 0.5 * (horizontal + vertical)).length();
-    if (f < n) f = 10 * n;
     M_persp = Matrix4({
         {1 / (h * aspect_ratio), 0, 0, 0},
         {0, 1 / h, 0, 0},
-        {0, 0, 2 * (n + f) / (f - n), -2 * n * f / (f - n)},
+        {0, 0, f / (f - n), -n * f / (f - n)},
         {0, 0, 1, 0},
     });
   }
@@ -71,10 +70,9 @@ class Camera {
                              (1 - t) * vertical - origin);
   }
   _DYM_FORCE_INLINE_ Matrix4 getViewMatrix4_transform() {
-    return (Matrix4({Vector4(right, 0.0), Vector4(up, 0.0), Vector4(view, 0.0),
-                     Vector4(origin, 1.0)})
-                .transpose())
-        .inverse();
+    Vector3& P = origin;
+    return Matrix4({Vector4(u, -P.dot(u)), Vector4(v, -P.dot(v)),
+                    Vector4(w, -P.dot(w)), Vector4({0, 0, 0, 1})});
   }
   _DYM_FORCE_INLINE_ Matrix4 getViewMatrix4_Perspective() { return M_persp; }
 
@@ -86,7 +84,6 @@ class Camera {
   Vector3 u, v, w;
   Real lens_radius;
 
-  Vector3 view, up, right;
   Matrix4 M_persp;
 };
 }  // namespace rt

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-14 17:35:20
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-20 17:11:02
+ * @LastEditTime: 2022-04-21 17:29:39
  * @Description:
  */
 
@@ -134,10 +134,8 @@ void ATrousFilter(Tensor<dym::Vector<Real, dym::PIC_RGB>>& image_onlyForForeach,
           colorout[p] *= gBuffer[p].albedo;
         }
       });
-  qprint("at", colorin[10000], colorout[10000], variance[10000]);
 }
 
-int cntIs = 0;
 _DYM_FORCE_INLINE_ bool isReprjValid(const Index<int>& res,
                                      const Vector2i& curr_coord,
                                      const Vector2i& prev_coord,
@@ -156,7 +154,6 @@ _DYM_FORCE_INLINE_ bool isReprjValid(const Index<int>& res,
   // reject if the normal deviation is not acceptable
   if ((prev_gbuffer[q].normal - curr_gbuffer[p].normal).length_sqr() > 1e-1f)
     return false;
-  cntIs++;
   return true;
 }
 
@@ -171,8 +168,6 @@ void BackProjection(
     Real color_alpha_min, Real moment_alpha_min) {
   const auto& res = current_color.shape();
 
-  int cnt1 = 0, cnt2 = 0;
-
   current_color.for_each_i([&](dym::Vector<Real, dym::PIC_RGB>& color, int x,
                                int y) {
     int p = current_color.getIndexInt(gi(x, y));
@@ -184,16 +179,38 @@ void BackProjection(
     if (N > 0 && current_gbuffer[p].obj_id != -1) {
       // qprint("in?real?");
       // Calculate NDC coordinates in previous frame (TODO: check correctness)
+      // v1
+      // auto& viewspace_position = current_gbuffer[p].position;
+      // Real clipx =
+      //     viewspace_position[0] / viewspace_position[2] /** tanf(PI / 4)*/;
+      // Real clipy =
+      //     viewspace_position[1] / viewspace_position[2] /** tanf(PI / 4)*/;
+      // Real ndcx = -clipx * 0.5 + 0.5;
+      // Real ndcy = -clipy * 0.5 + 0.5;
+      // Real prevx = ndcx * res[0] - 0.5;
+      // Real prevy = ndcy * res[1] - 0.5;
+      // v2
       auto& viewspace_position = current_gbuffer[p].position;
-      Real clipx =
-          viewspace_position[0] / viewspace_position[2] /** tanf(PI / 4)*/;
-      Real clipy =
-          viewspace_position[1] / viewspace_position[2] /** tanf(PI / 4)*/;
-      Real ndcx = -clipx * 0.5 + 0.5;
-      Real ndcy = -clipy * 0.5 + 0.5;
+      Real clipx = viewspace_position[1] /** tanf(PI / 4)*/;
+      Real clipy = viewspace_position[0] /** tanf(PI / 4)*/;
+      Real ndcx = clipx * 0.5 + 0.5;
+      Real ndcy = clipy * 0.5 + 0.5;
       Real prevx = ndcx * res[0] - 0.5;
       Real prevy = ndcy * res[1] - 0.5;
-      prevx = x, prevy = y;
+      // TODO: debug the viewspace_position
+      // if (x == 0 && y == 0)
+      //   qprint(x, y, viewspace_position, Vector2({clipx, clipy}),
+      //          Vector2({ndcx, ndcy}), Vector2({prevx, prevy}));
+      // if (x == 150 && y == 450)
+      //   qprint(x, y, viewspace_position, Vector2({clipx, clipy}),
+      //          Vector2({ndcx, ndcy}), Vector2({prevx, prevy}));
+      // if (x == 299 && y == 299)
+      //   qprint(x, y, viewspace_position, Vector2({clipx, clipy}),
+      //          Vector2({ndcx, ndcy}), Vector2({prevx, prevy}));
+      // if (x == 599 && y == 599)
+      //   qprint(x, y, viewspace_position, Vector2({clipx, clipy}),
+      //          Vector2({ndcx, ndcy}), Vector2({prevx, prevy}));
+      // prevx = x, prevy = y;
       /////////////
 
       bool v[4];
@@ -204,17 +221,6 @@ void BackProjection(
 
       bool valid =
           (floorx >= 0 && floory >= 0 && floorx < res[0] && floory < res[1]);
-      bool showit = false;
-      // if (random_real() < 0.00001)
-      //   qprint(viewspace_position, "->", Vector2({prevx, prevy}), valid),
-      //       showit = true;
-      if (x == 100 && y == 100)
-        qprint(x, y, viewspace_position, Vector2({prevx, prevy}));
-
-      if (x == 100 && y == 150)
-        qprint(x, y, viewspace_position, Vector2({prevx, prevy}));
-      if (x == 150 && y == 100)
-        qprint(x, y, viewspace_position, Vector2({prevx, prevy}));
 
       // 2x2 tap bilinear filter
       Vector2i offset[4] = {Vector2i({0, 0}), Vector2i({1, 0}),
@@ -228,7 +234,6 @@ void BackProjection(
           v[sampleIdx] = isReprjValid(res, Vector2i({x, y}), loc,
                                       current_gbuffer, prev_gbuffer);
           valid = valid && v[sampleIdx];
-          if (showit) qprint(sampleIdx, v[sampleIdx]);
         }
       }
 
@@ -291,8 +296,6 @@ void BackProjection(
         }
       }
       if (valid) {
-        cnt1++;
-
         // calculate alpha values that controls fade
         Real color_alpha = dym::max(1.0 / (Real)(N + 1), color_alpha_min);
         Real moment_alpha = dym::max(1.0 / (Real)(N + 1), moment_alpha_min);
@@ -322,12 +325,8 @@ void BackProjection(
       color_acc[p] = current_color[p];
       moment_acc[p] = Vector2({luminance, luminance * luminance});
       variance_out[p] = 200.0;
-      cnt2++;
     }
   });
-  qprint("cnt:", cnt1, cnt2);
-  qprint("isSucc:", cntIs);
-  cntIs = 0;
 }
 
 // Estimate variance spatially
@@ -375,14 +374,13 @@ int ui_atrous_nlevel =
     5;  // How man levels of A-trous filter used in denoising?
 int ui_history_level =
     1;  // Which level of A-trous output is sent to history buffer?
-bool ui_sepcolor = true;
-bool ui_addcolor = true;
+bool ui_sepcolor = false;
+bool ui_addcolor = false;
 
 void denoise_svgf(Tensor<dym::Vector<Real, dym::PIC_RGB>>& input,
                   Tensor<GBuffer, false>& gbuffer) {
   Real color_alpha = ui_temporal_enable ? ui_color_alpha : 1.0;
   Real moment_alpha = ui_temporal_enable ? ui_moment_alpha : 1.0;
-  qprint("in denoise", history_length[10000]);
   if (ui_temporal_enable) {
     BackProjection(variance, history_length, history_length_update,
                    moment_history, color_history, moment_acc, color_acc, input,
@@ -398,8 +396,6 @@ void denoise_svgf(Tensor<dym::Vector<Real, dym::PIC_RGB>>& input,
       color_history[i] = input[i];
     }
   }
-  qprint("111", input[10000], output[10000], gbuffer[10000], moment_acc[10000],
-         variance[10000], history_length[10000], color_acc[10000]);
   if (ui_atrous_nlevel != 0 && ui_atrous_nlevel) {
     for (int level = 1; level <= ui_atrous_nlevel; level++) {
       auto& src = (level == 1) ? color_history : temp[level % 2];
@@ -415,11 +411,6 @@ void denoise_svgf(Tensor<dym::Vector<Real, dym::PIC_RGB>>& input,
       }
     }
   }
-
-  qprint("222", input[10000], output[10000], gbuffer[10000], moment_acc[10000],
-         variance[10000], history_length[10000], color_acc[10000],
-         temp[0][10000], temp[1][10000]);
-  qprint("(100,100)", gbuffer[gi(100, 100)].position);
 
 #pragma omp parallel for
   for (auto i = 0; i < moment_history.size(); ++i) {

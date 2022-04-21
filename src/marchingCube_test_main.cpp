@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-15 15:13:05
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-20 17:24:20
+ * @LastEditTime: 2022-04-21 17:26:51
  * @Description:
  */
 #define DYM_USE_MARCHING_CUBES
@@ -141,7 +141,7 @@ int main(int argc, char const *argv[]) {
   render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
                        dist_to_focus);
 
-  qprint(render.cam.getViewMatrix4());
+  qprint(render.cam.getViewMatrix4_transform());
 
   // GUI
   dym::GUI gui("rt");
@@ -157,6 +157,10 @@ int main(int argc, char const *argv[]) {
 
   time.reStart();
   gui.update([&]() {
+    lookfrom[0] = 0.5 + dym::sin((Real)ccc / 10.0) * 0.2;
+    qprint(lookfrom);
+    render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
+                         dist_to_focus);
     dym::TimeLog partTime;
     Tp(sim.getPos());
     for (int i = 0; i < steps; ++i) sim.advance(dt);

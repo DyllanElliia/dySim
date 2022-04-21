@@ -2,15 +2,18 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-04 14:59:47
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-18 15:17:15
+ * @LastEditTime: 2022-04-21 17:26:05
  * @Description:
  */
 #pragma once
 #include "../hittableList.hpp"
 #include <algorithm>
-#include <execution>
+// #include <execution>
 namespace dym {
 namespace rt {
+namespace {
+bool useParallel = true;
+}
 class BvhNode : public Hittable {
  public:
   BvhNode() {}
@@ -98,13 +101,47 @@ BvhNode::BvhNode(std::vector<shared_ptr<Hittable>>& src_objects, size_t start,
   } else {
     // qprint("use BVH");
     if (random_real() < isrlevel)
-      std::sort(std::execution::par, objects.begin() + start,
-                objects.begin() + end, comparator);
+      std::sort(objects.begin() + start, objects.begin() + end, comparator);
+    // std::sort(std::execution::par, objects.begin() + start,
+    //           objects.begin() + end, comparator);
 
     auto mid = start + object_span / 2;
     const Real nIsRLevel = 0.5;
-    left = make_shared<BvhNode>(objects, start, mid, nIsRLevel);
-    right = make_shared<BvhNode>(objects, mid, end, nIsRLevel);
+    if (useParallel && object_span > 48) {
+      useParallel = false;
+      std::vector<std::shared_ptr<BvhNode>> bvhNode_subList(32);
+      const int delStep = object_span / 32;
+#pragma omp parallel for
+      for (int ii = 0; ii < 32; ++ii) {
+        int bi = start + ii * delStep, ei = start + (ii + 1) * delStep;
+        if (ei > end) ei = end;
+        bvhNode_subList[ii] = make_shared<BvhNode>(objects, bi, ei, 0.8);
+      }
+      for (int ii = 16; ii > 0; ii /= 2) {
+        for (int jj = 0; jj < ii; ++jj) {
+          std::shared_ptr<BvhNode> it = make_shared<BvhNode>();
+          int firstOne = jj << 1, secondOnde = (jj << 1) + 1;
+          // qprint("(", firstOne, ",", secondOnde, ")->", jj);
+          it->left = bvhNode_subList[firstOne],
+          it->right = bvhNode_subList[secondOnde];
+          aabb box_left, box_right;
+          if (!(it->left)->bounding_box(box_left) ||
+              !(it->right)->bounding_box(box_right))
+            std::cerr << "No bounding box in BvhNode constructor.\n";
+
+          it->box = surrounding_box(box_left, box_right);
+          bvhNode_subList[jj] = it;
+        }
+      }
+      auto& copyNode = bvhNode_subList[0];
+      left = copyNode->left;
+      right = copyNode->right;
+      box = copyNode->box;
+      useParallel = true;
+    } else {
+      left = make_shared<BvhNode>(objects, start, mid, nIsRLevel);
+      right = make_shared<BvhNode>(objects, mid, end, nIsRLevel);
+    }
   }
 
   aabb box_left, box_right;

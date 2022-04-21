@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 14:31:38
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-20 18:28:30
+ * @LastEditTime: 2022-04-21 17:24:33
  * @Description:
  */
 #pragma once
@@ -115,6 +115,8 @@ class RtRender {
           [](const Ray& r) { return ColorRGB(0.f); }) {
     auto viewMatrix = cam.getViewMatrix4_transform();
     Matrix3 viewMatrix3 = viewMatrix;
+    viewMatrix = cam.getViewMatrix4_Perspective() * viewMatrix;
+
     image.for_each_i([&](dym::Vector<Real, dym::PIC_RGB>& color, int i, int j) {
       auto color_pre = color;
       GBuffer gbuffer;
@@ -127,7 +129,8 @@ class RtRender {
             r, worlds, std::make_shared<dym::rt::HittableList>(lights),
             max_depth, background, gbuffer);
       }
-      gbuffer.position = viewMatrix * Vector4(gbuffer.position, 1);
+      auto pos4 = viewMatrix * Vector4(gbuffer.position, 1);
+      gbuffer.position = pos4 / pos4[3];
       gbuffer.normal = viewMatrix3 * gbuffer.normal;
       image_GBuffer[image.getIndexInt(gi(i, j))] = gbuffer;
       color = color * (1.f / Real(samples_per_pixel));

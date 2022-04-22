@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-14 17:35:20
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-21 17:29:39
+ * @LastEditTime: 2022-04-22 14:57:52
  * @Description:
  */
 
@@ -362,26 +362,26 @@ void init_svgf(Index<int> shape) {
 }
 
 // Denoise
-bool ui_temporal_enable = true;
-bool ui_spatial_enable = true;
-Real ui_color_alpha = 0.2;
-Real ui_moment_alpha = 0.2;
-bool ui_blurvariance = true;
-Real ui_sigmal = 0.45f;
-Real ui_sigmax = 0.35f;
-Real ui_sigman = 0.2f;
-int ui_atrous_nlevel =
+bool svgf_op_temporal_enable = true;
+bool svgf_op_spatial_enable = true;
+Real svgf_op_color_alpha = 0.2;
+Real svgf_op_moment_alpha = 0.2;
+bool svgf_op_blurvariance = true;
+Real svgf_op_sigmal = 0.45f;
+Real svgf_op_sigmax = 0.35f;
+Real svgf_op_sigman = 0.2f;
+int svgf_op_atrous_nlevel =
     5;  // How man levels of A-trous filter used in denoising?
-int ui_history_level =
+int svgf_op_history_level =
     1;  // Which level of A-trous output is sent to history buffer?
-bool ui_sepcolor = false;
-bool ui_addcolor = false;
+bool svgf_op_sepcolor = false;
+bool svgf_op_addcolor = false;
 
 void denoise_svgf(Tensor<dym::Vector<Real, dym::PIC_RGB>>& input,
                   Tensor<GBuffer, false>& gbuffer) {
-  Real color_alpha = ui_temporal_enable ? ui_color_alpha : 1.0;
-  Real moment_alpha = ui_temporal_enable ? ui_moment_alpha : 1.0;
-  if (ui_temporal_enable) {
+  Real color_alpha = svgf_op_temporal_enable ? svgf_op_color_alpha : 1.0;
+  Real moment_alpha = svgf_op_temporal_enable ? svgf_op_moment_alpha : 1.0;
+  if (svgf_op_temporal_enable) {
     BackProjection(variance, history_length, history_length_update,
                    moment_history, color_history, moment_acc, color_acc, input,
                    gbuffer, gbuffer_prev, color_alpha, moment_alpha);
@@ -396,14 +396,16 @@ void denoise_svgf(Tensor<dym::Vector<Real, dym::PIC_RGB>>& input,
       color_history[i] = input[i];
     }
   }
-  if (ui_atrous_nlevel != 0 && ui_atrous_nlevel) {
-    for (int level = 1; level <= ui_atrous_nlevel; level++) {
+  if (svgf_op_atrous_nlevel != 0 && svgf_op_atrous_nlevel) {
+    for (int level = 1; level <= svgf_op_atrous_nlevel; level++) {
       auto& src = (level == 1) ? color_history : temp[level % 2];
-      auto& dst = (level == ui_atrous_nlevel) ? output : temp[(level + 1) % 2];
+      auto& dst =
+          (level == svgf_op_atrous_nlevel) ? output : temp[(level + 1) % 2];
       ATrousFilter(input, src, dst, variance, gbuffer, level,
-                   (level == ui_atrous_nlevel), ui_sigmal, ui_sigman, ui_sigmax,
-                   ui_blurvariance, (ui_sepcolor && ui_addcolor));
-      if (level == ui_history_level) {
+                   (level == svgf_op_atrous_nlevel), svgf_op_sigmal,
+                   svgf_op_sigman, svgf_op_sigmax, svgf_op_blurvariance,
+                   (svgf_op_sepcolor && svgf_op_addcolor));
+      if (level == svgf_op_history_level) {
 #pragma omp parallel for
         for (int i = 0; i < color_history.size(); ++i) {
           color_history[i] = dst[i];

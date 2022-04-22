@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-02-10 15:49:14
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-11 16:06:49
+ * @LastEditTime: 2022-04-22 16:29:57
  * @Description: mls-mpm based simulator.
  */
 #pragma once
@@ -171,10 +171,12 @@ class MLSMPM {
   _DYM_FORCE_INLINE_ auto &getPos() { return x; }
   _DYM_FORCE_INLINE_ auto getParticlesNum() { return n_particles; }
 
-  u_int addParticle(Tensor<Vector3> newX, const u_int &material_index) {
+  u_int addParticle(Tensor<Vector3> newX, const u_int &material_index,
+                    Vector3 velocity = 0) {
     qprint(material_index);
     int par_num = newX.shape()[0];
     Particle_o par;
+    par.v = velocity;
     par.material = material_index;
     particles.insert(particles.end(), par_num, par);
     x.reShape(dym::gi(n_particles + par_num));
@@ -233,6 +235,10 @@ class MLSMPM {
                         weight * p_mass);
           }
     });
+    const auto grid_shape = grid_vm.shape();
+    const Vector3 grid_shape3(
+        {(Real)grid_shape[0], (Real)grid_shape[1], (Real)grid_shape[2]});
+    // qprint("grid_shape3", grid_shape3);
     grid_vm.for_each_i([&](Vector4 &gvm, int i, int j, int k) {
       auto &g_m = gvm[dim];
       if (g_m > 0) {
@@ -244,11 +250,12 @@ class MLSMPM {
         // gvm[1] -= dt * 9.8 * 2.f;
         gvm += Vector4(dt * globalForce);
 
-        auto old = gvm;
-        gvm = collision(Vector3({Real(i), Real(j), Real(k)}), Vector3(gvm));
-        gvm.for_each([&](Real &v, int iii) {
-          if (gvm[iii] != old[iii] && iii != 3) qprint("bug!", old, gvm);
-        });
+        // auto old = gvm;
+        gvm = collision(Vector3({Real(i), Real(j), Real(k)}) / (Real)n_grid,
+                        Vector3(gvm));
+        // gvm.for_each([&](Real &v, int iii) {
+        //   if (gvm[iii] != old[iii] && iii != 3) qprint("bug!", old, gvm);
+        // });
 
         if constexpr (BC == BoundConditionOpt::OneSeparateOtherSticky) {
           if ((i < bound || k < bound) ||

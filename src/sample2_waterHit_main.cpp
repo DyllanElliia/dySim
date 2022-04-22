@@ -1,10 +1,11 @@
 /*
  * @Author: DyllanElliia
- * @Date: 2022-04-15 15:13:05
+ * @Date: 2022-04-22 15:07:41
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-22 15:04:36
+ * @LastEditTime: 2022-04-22 18:05:01
  * @Description:
  */
+
 #define DYM_USE_MARCHING_CUBES
 #include <dyGraphic.hpp>
 #include <dyPicture.hpp>
@@ -32,6 +33,15 @@ _DYM_FORCE_INLINE_ auto whiteMetalSur(Real fuzz = 0) {
 }
 _DYM_FORCE_INLINE_ auto whiteGalssSur() {
   auto white_surface = std::make_shared<dym::rt::Dielectric>(1.5);
+
+  return white_surface;
+}
+
+_DYM_FORCE_INLINE_ auto whiteWaterSur() {
+  auto white_texture =
+      std::make_shared<dym::rt::SolidColor>(dym::rt::ColorRGB({0.9, 1, 1}));
+  auto white_surface =
+      std::make_shared<dym::rt::Dielectric>(white_texture, 1.5);
 
   return white_surface;
 }
@@ -76,20 +86,26 @@ auto cornell_box() {
 }
 
 int main(int argc, char const *argv[]) {
-  dym::MLSMPM<dym::MidGrid, dym::OneSeparateOtherSticky> sim;
-  sim.globalForce = dym::Vector3({0.f, -9.8 * 2.f, 0.f});
+  dym::MLSMPM<dym::HighGrid, dym::OneSeparateOtherSticky> sim;
+  sim.globalForce = dym::Vector3({0.f, -9.8 * 10.f, 0.f});
   std::default_random_engine re;
   std::uniform_real_distribution<Real> u(-1.f, 1.f);
-  u_int n3 = 15000;
+  u_int n3 = 80;
+  int add_counter = 0;
+  const Real dt = 1e-4;
   dym::Tensor<dym::Vector3> newX(0, dym::gi(n3));
 
+  dym::Vector3 newXoffset({0.1, 0.7, 0.7});
+  Real delx = 0.01;
+  const int steps = 25;
+  Real vx = delx / (dt * steps);
   newX.for_each_i([&](dym::Vector3 &pos) {
-    pos = dym::Vector3({u(re), u(re), u(re)}) * 0.18f;
+    pos = dym::Vector3({u(re) * delx, u(re) * 0.05, u(re) * 0.05}) + newXoffset;
   });
 
-  sim.addParticle(newX + dym::Vector3(0.5), sim.addLiquidMaterial());
+  auto fluidMaterial = sim.addLiquidMaterial();
+  // sim.addParticle(newX, sim.addLiquidMaterial());
 
-  const Real dt = 1e-4;
   const int volume_n = 64;
 
   dym::Tensor<Real> volume(0, dym::gi(volume_n, volume_n, volume_n));
@@ -128,6 +144,20 @@ int main(int argc, char const *argv[]) {
   lights.add(std::make_shared<dym::rt::xz_rect>(
       begin, end, begin, end, 0.998, std::shared_ptr<dym::rt::Material>()));
 
+  dym::rt::HittableList hitObject;
+
+  hitObject.addObject<dym::rt::Box>(dym::Vector3({0.49, -0.01, 0.2}),
+                                    dym::Vector3({0.51, 0.65, 1.01}),
+                                    whiteGalssSur());
+  hitObject.addObject<dym::rt::Sphere>(dym::Vector3({0.2, 0.0, 0.5}), 0.15,
+                                       whiteGalssSur());
+
+  hitObject.addObject<dym::rt::Box>(dym::Vector3({0.65, -0.1, 0.4}),
+                                    dym::Vector3({0.85, 0.2, 0.6}),
+                                    whiteGalssSur());
+
+  world.add(std::make_shared<dym::rt::BvhNode>(hitObject));
+
   // Camera
   dym::rt::Point3 lookfrom({0.5, 0.5, -1.35});
   dym::rt::Point3 lookat({0.5, 0.5, 0});
@@ -149,7 +179,7 @@ int main(int argc, char const *argv[]) {
   Real t = 1, t_inv = 1 - t;
   dym::TimeLog time;
   int ccc = 1;
-  const int steps = 25;
+
   dym::Matrix3 scalem = dym::matrix::identity<Real, 3>(1.02);
 
   // model
@@ -157,20 +187,39 @@ int main(int argc, char const *argv[]) {
 
   time.reStart();
   gui.update([&]() {
-    lookfrom[0] = 0.5 + dym::sin((Real)ccc / 10.0) * 0.2;
-    qprint(lookfrom);
-    render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
-                         dist_to_focus);
+    // lookfrom[0] = 0.5 + dym::sin((Real)ccc / 10.0) * 0.2;
+    // qprint(lookfrom);
+    // render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
+    //                      dist_to_focus);
+    if (add_counter < 40000)
+      sim.addParticle(newX, fluidMaterial, dym::Vector3({vx, 0, 0})),
+          add_counter += n3;
+    qprint("Partical nums: ", add_counter);
     dym::TimeLog partTime;
     Tp(sim.getPos());
-    for (int i = 0; i < steps; ++i) sim.advance(dt);
+    Real minT = 1000;
+    for (int i = 0; i < steps; ++i)
+      sim.advance(dt, [&](const dym::Vector3 &pos, dym::Vector3 vul) {
+        dym::rt::HitRecord rec;
+        dym::rt::Ray r(pos, vul.normalize());
+        if (!hitObject.hit(r, 1e-7, 10000, rec)) return vul;
+        // if (dym::rt::random_real() < 0.0001)
+        //   qprint(pos, vul.normalize(), rec.t);
+        minT = dym::min(rec.t, minT);
+        if (rec.t < 4.0 / 64.0) {
+          // qprint("hit!!!!!!!!!!!");
+          return vul - 1.25 * vul.dot(rec.normal) * rec.normal;
+        }
+        return vul;
+      });
+    qprint("minT: ", minT);
     qprint("fin sim part time:", partTime.getRecord());
     partTime.reStart();
     auto mesh = dym::marchingCubes(volume, 0.5);
     qprint("fin mc part time:", partTime.getRecord());
     partTime.reStart();
 
-    wmesh->reBuild(mesh, whiteGalssSur());
+    wmesh->reBuild(mesh, whiteWaterSur());
 
     dym::rt::HittableList worlds;
     worlds.add(std::make_shared<dym::rt::BvhNode>(world));
@@ -197,7 +246,7 @@ int main(int argc, char const *argv[]) {
     // auto image = render.getFrameGBuffer("depth", 100);
     auto image = render.getFrame();
     dym::imwrite(image,
-                 "./rt_out/mctest/frame_" + std::to_string(ccc - 1) + ".png");
+                 "./rt_out/sample/2/frame_" + std::to_string(ccc - 1) + ".png");
 
     // image = dym::filter2D(image, dym::Matrix3(1.f / 9.f));
 

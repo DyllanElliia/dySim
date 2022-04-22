@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-14 14:49:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-18 14:38:35
+ * @LastEditTime: 2022-04-22 15:03:05
  * @Description:
  */
 
@@ -401,7 +401,8 @@ _DYM_FORCE_INLINE_ IdPoint calculateIntersection(std::size_t x, std::size_t y,
   return intersection;
 }
 
-Mesh reindex(PointIdMapping& vertexMapping, std::vector<Vector3ui>& triangles) {
+Mesh reindex(PointIdMapping& vertexMapping, std::vector<Vector3ui>& triangles,
+             Real xDim, Real yDim, Real zDim) {
   std::size_t nextId = 0;
 
   for (auto& pair : vertexMapping) {
@@ -417,9 +418,9 @@ Mesh reindex(PointIdMapping& vertexMapping, std::vector<Vector3ui>& triangles) {
   std::vector<Vertex> vertices(vertexCount);
   std::size_t index = 0;
   for (const auto& pair : vertexMapping) {
-    vertices[index].Position[0] = pair.second.x;
-    vertices[index].Position[1] = pair.second.y;
-    vertices[index].Position[2] = pair.second.z;
+    vertices[index].Position[0] = pair.second.x / xDim - 0.5;
+    vertices[index].Position[1] = pair.second.y / yDim - 0.5;
+    vertices[index].Position[2] = pair.second.z / zDim - 0.5;
     ++index;
   }
 
@@ -597,7 +598,7 @@ Mesh marchingCubes(Tensor<Real>& volume, Real isoLevel) {
     //       vertexMapping.insert(vertexm);
     //     }
   }
-  Mesh mesh = reindex(vertexMapping, triangles);
+  Mesh mesh = reindex(vertexMapping, triangles, xDim + 1, yDim + 1, zDim + 1);
 
   calculateNormals(mesh);
 

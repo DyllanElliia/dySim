@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-15 15:13:05
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-22 15:04:36
+ * @LastEditTime: 2022-04-22 15:26:54
  * @Description:
  */
 #define DYM_USE_MARCHING_CUBES
@@ -32,6 +32,15 @@ _DYM_FORCE_INLINE_ auto whiteMetalSur(Real fuzz = 0) {
 }
 _DYM_FORCE_INLINE_ auto whiteGalssSur() {
   auto white_surface = std::make_shared<dym::rt::Dielectric>(1.5);
+
+  return white_surface;
+}
+
+_DYM_FORCE_INLINE_ auto whiteWaterSur() {
+  auto white_texture =
+      std::make_shared<dym::rt::SolidColor>(dym::rt::ColorRGB({0.9, 1, 1}));
+  auto white_surface =
+      std::make_shared<dym::rt::Dielectric>(white_texture, 1.5);
 
   return white_surface;
 }
@@ -76,11 +85,11 @@ auto cornell_box() {
 }
 
 int main(int argc, char const *argv[]) {
-  dym::MLSMPM<dym::MidGrid, dym::OneSeparateOtherSticky> sim;
+  dym::MLSMPM<dym::HighGrid, dym::OneSeparateOtherSticky> sim;
   sim.globalForce = dym::Vector3({0.f, -9.8 * 2.f, 0.f});
   std::default_random_engine re;
   std::uniform_real_distribution<Real> u(-1.f, 1.f);
-  u_int n3 = 15000;
+  u_int n3 = 30000;
   dym::Tensor<dym::Vector3> newX(0, dym::gi(n3));
 
   newX.for_each_i([&](dym::Vector3 &pos) {
@@ -90,7 +99,7 @@ int main(int argc, char const *argv[]) {
   sim.addParticle(newX + dym::Vector3(0.5), sim.addLiquidMaterial());
 
   const Real dt = 1e-4;
-  const int volume_n = 64;
+  const int volume_n = 80;
 
   dym::Tensor<Real> volume(0, dym::gi(volume_n, volume_n, volume_n));
   auto Tp = [&](dym::Tensor<dym::Vector3> &x) {
@@ -157,10 +166,10 @@ int main(int argc, char const *argv[]) {
 
   time.reStart();
   gui.update([&]() {
-    lookfrom[0] = 0.5 + dym::sin((Real)ccc / 10.0) * 0.2;
-    qprint(lookfrom);
-    render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
-                         dist_to_focus);
+    // lookfrom[0] = 0.5 + dym::sin((Real)ccc / 10.0) * 0.2;
+    // qprint(lookfrom);
+    // render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
+    //                      dist_to_focus);
     dym::TimeLog partTime;
     Tp(sim.getPos());
     for (int i = 0; i < steps; ++i) sim.advance(dt);
@@ -170,7 +179,7 @@ int main(int argc, char const *argv[]) {
     qprint("fin mc part time:", partTime.getRecord());
     partTime.reStart();
 
-    wmesh->reBuild(mesh, whiteGalssSur());
+    wmesh->reBuild(mesh, whiteWaterSur());
 
     dym::rt::HittableList worlds;
     worlds.add(std::make_shared<dym::rt::BvhNode>(world));

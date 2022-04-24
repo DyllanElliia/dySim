@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-22 15:07:41
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-22 18:05:01
+ * @LastEditTime: 2022-04-22 18:06:12
  * @Description:
  */
 
@@ -69,7 +69,7 @@ auto cornell_box() {
       std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.73, .73, .73}));
   auto green =
       std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.12, .45, .15}));
-  auto light = std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB(15));
+  auto light = std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB(18));
 
   objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 1, green));
   objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 0, red));

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-15 15:13:05
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-22 15:26:54
+ * @LastEditTime: 2022-04-22 18:06:22
  * @Description:
  */
 #define DYM_USE_MARCHING_CUBES
@@ -68,7 +68,7 @@ auto cornell_box() {
       std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.73, .73, .73}));
   auto green =
       std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.12, .45, .15}));
-  auto light = std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB(15));
+  auto light = std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB(18));
 
   objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 1, green));
   objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 0, red));

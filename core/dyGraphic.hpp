@@ -122,8 +122,8 @@ class GUI {
     lastX = xpos;
     lastY = ypos;
     m_xoffset += xoffset, m_yoffset += yoffset;
-    qprint("GUI message: reveive mouse call pos = (", xoffset, ",", yoffset,
-           ")");
+    // qprint("GUI message: reveive mouse call pos = (", xoffset, ",", yoffset,
+    //        ")");
     // camera.ProcessMouseMovement(xoffset, yoffset);
   }
 

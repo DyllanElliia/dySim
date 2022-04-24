@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-15 15:13:05
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-22 18:06:22
+ * @LastEditTime: 2022-04-24 14:55:32
  * @Description:
  */
 #define DYM_USE_MARCHING_CUBES
@@ -86,7 +86,7 @@ auto cornell_box() {
 
 int main(int argc, char const *argv[]) {
   dym::MLSMPM<dym::HighGrid, dym::OneSeparateOtherSticky> sim;
-  sim.globalForce = dym::Vector3({0.f, -9.8 * 2.f, 0.f});
+  sim.globalForce = dym::Vector3({0.f, -9.8 * 8.f, 0.f});
   std::default_random_engine re;
   std::uniform_real_distribution<Real> u(-1.f, 1.f);
   u_int n3 = 30000;
@@ -98,7 +98,7 @@ int main(int argc, char const *argv[]) {
 
   sim.addParticle(newX + dym::Vector3(0.5), sim.addLiquidMaterial());
 
-  const Real dt = 1e-4;
+  const Real dt = 5e-5;
   const int volume_n = 80;
 
   dym::Tensor<Real> volume(0, dym::gi(volume_n, volume_n, volume_n));
@@ -158,8 +158,8 @@ int main(int argc, char const *argv[]) {
   Real t = 1, t_inv = 1 - t;
   dym::TimeLog time;
   int ccc = 1;
-  const int steps = 25;
-  dym::Matrix3 scalem = dym::matrix::identity<Real, 3>(1.02);
+  const int steps = 30;
+  dym::Matrix3 scalem = dym::matrix::identity<Real, 3>(1.03);
 
   // model
   auto wmesh = std::make_shared<dym::rt::Mesh>();
@@ -183,7 +183,8 @@ int main(int argc, char const *argv[]) {
 
     dym::rt::HittableList worlds;
     worlds.add(std::make_shared<dym::rt::BvhNode>(world));
-    worlds.add(std::make_shared<dym::rt::Transform3>(wmesh, scalem, 0.5));
+    worlds.add(std::make_shared<dym::rt::Transform3>(
+        wmesh, scalem, dym::Vector3({0.5, 0.5 - 0.02, 0.5})));
     qprint("fin build worlds part time:", partTime.getRecord());
     partTime.reStart();
 
@@ -206,7 +207,7 @@ int main(int argc, char const *argv[]) {
     // auto image = render.getFrameGBuffer("depth", 100);
     auto image = render.getFrame();
     dym::imwrite(image,
-                 "./rt_out/mctest/frame_" + std::to_string(ccc - 1) + ".png");
+                 "./rt_out/sample/1/frame_" + std::to_string(ccc - 1) + ".jpg");
 
     // image = dym::filter2D(image, dym::Matrix3(1.f / 9.f));
 

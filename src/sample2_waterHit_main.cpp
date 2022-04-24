@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-22 15:07:41
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-22 18:06:12
+ * @LastEditTime: 2022-04-24 14:33:06
  * @Description:
  */
 
@@ -137,7 +137,7 @@ int main(int argc, char const *argv[]) {
   dym::rt::RtRender render(image_width, image_height);
 
   // static world
-  dym::rt::HittableList world; 
+  dym::rt::HittableList world;
   dym::rt::HittableList lights;
 
   Real begin = 0.35, end = 0.65;
@@ -147,22 +147,24 @@ int main(int argc, char const *argv[]) {
       begin, end, begin, end, 0.998, std::shared_ptr<dym::rt::Material>()));
 
   dym::rt::HittableList hitObject;
-  Real yMove=0.025;
+  Real yMove = 0.025;
 
   hitObject.addObject<dym::rt::Box>(dym::Vector3({0.49, -0.1, 0.4}),
                                     dym::Vector3({0.51, 0.7, 1.01}),
                                     whiteGalssSur());
-  hitObject.addObject<dym::rt::Sphere>(dym::Vector3({0.2, 0.0+yMove, 0.5}), 0.15,
-                                       whiteGalssSur());
+  hitObject.addObject<dym::rt::Sphere>(dym::Vector3({0.2, 0.0 + yMove, 0.5}),
+                                       0.15, whiteGalssSur());
 
   hitObject.addObject<dym::rt::Box>(dym::Vector3({0.65, -0.1, 0.4}),
-                                    dym::Vector3({0.85, 0.2+yMove, 0.6}),
+                                    dym::Vector3({0.85, 0.2 + yMove, 0.6}),
                                     whiteGalssSur());
 
+  dym::Matrix3 scalem = dym::matrix::identity<Real, 3>(1.02);
 
-  dym::Matrix3 scalem = dym::matrix::identity<Real, 3>(1.02); 
-
-  world.add(std::make_shared<dym::rt::Transform3>(std::make_shared<dym::rt::BvhNode>(hitObject),scalem,dym::Vector3({0,-yMove,0})-dym::Vector3(0.5)*(scalem*dym::Vector3(1)-1)));
+  world.add(std::make_shared<dym::rt::Transform3>(
+      std::make_shared<dym::rt::BvhNode>(hitObject), scalem,
+      dym::Vector3({0, -yMove, 0}) -
+          dym::Vector3(0.5) * (scalem * dym::Vector3(1) - 1)));
   // Camera
   dym::rt::Point3 lookfrom({0.5, 0.5, -1.35});
   dym::rt::Point3 lookat({0.5, 0.5, 0});
@@ -185,7 +187,6 @@ int main(int argc, char const *argv[]) {
   dym::TimeLog time;
   int ccc = 1;
 
-
   // model
   auto wmesh = std::make_shared<dym::rt::Mesh>();
 
@@ -196,7 +197,7 @@ int main(int argc, char const *argv[]) {
     // render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
     //                      dist_to_focus);
     if (add_counter < 25000)
-      sim.addParticle(newX, fluidMaterial, dym::Vector3({vx, 0, 0})), 
+      sim.addParticle(newX, fluidMaterial, dym::Vector3({vx, 0, 0})),
           add_counter += n3;
     qprint("Partical nums: ", add_counter);
     dym::TimeLog partTime;
@@ -227,7 +228,8 @@ int main(int argc, char const *argv[]) {
 
     dym::rt::HittableList worlds;
     worlds.add(std::make_shared<dym::rt::BvhNode>(world));
-    worlds.add(std::make_shared<dym::rt::Transform3>(wmesh, scalem, dym::Vector3({0.5,0.5-yMove,0.5})));
+    worlds.add(std::make_shared<dym::rt::Transform3>(
+        wmesh, scalem, dym::Vector3({0.5, 0.5 - yMove, 0.5})));
     qprint("fin build worlds part time:", partTime.getRecord());
     partTime.reStart();
 
@@ -250,7 +252,7 @@ int main(int argc, char const *argv[]) {
     // auto image = render.getFrameGBuffer("depth", 100);
     auto image = render.getFrame();
     dym::imwrite(image,
-                 "./rt_out/sample/2/frame_" + std::to_string(ccc - 1) + ".png");
+                 "./rt_out/sample/2/frame_" + std::to_string(ccc - 1) + ".jpg");
 
     // image = dym::filter2D(image, dym::Matrix3(1.f / 9.f));
 

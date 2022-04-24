@@ -87,7 +87,7 @@ auto cornell_box() {
 
 int main(int argc, char const *argv[]) {
   dym::MLSMPM<dym::HighGrid, dym::OneSeparateOtherSticky> sim;
-  sim.globalForce = dym::Vector3({0.f, -9.8 * 10.f, 0.f});
+  sim.globalForce = dym::Vector3({0.f, -9.8 * 8.f, 0.f});
   std::default_random_engine re;
   std::uniform_real_distribution<Real> u(-1.f, 1.f);
   u_int n3 = 80;
@@ -127,6 +127,8 @@ int main(int argc, char const *argv[]) {
   };
 
   // Render
+  // dym::rt::svgf_op_sepcolor = true;
+  // dym::rt::svgf_op_addcolor = true;
   const auto aspect_ratio = 1.f;
   const int image_width = 600;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
@@ -135,7 +137,7 @@ int main(int argc, char const *argv[]) {
   dym::rt::RtRender render(image_width, image_height);
 
   // static world
-  dym::rt::HittableList world;
+  dym::rt::HittableList world; 
   dym::rt::HittableList lights;
 
   Real begin = 0.35, end = 0.65;
@@ -145,19 +147,22 @@ int main(int argc, char const *argv[]) {
       begin, end, begin, end, 0.998, std::shared_ptr<dym::rt::Material>()));
 
   dym::rt::HittableList hitObject;
+  Real yMove=0.025;
 
-  hitObject.addObject<dym::rt::Box>(dym::Vector3({0.49, -0.01, 0.2}),
-                                    dym::Vector3({0.51, 0.65, 1.01}),
+  hitObject.addObject<dym::rt::Box>(dym::Vector3({0.49, -0.1, 0.4}),
+                                    dym::Vector3({0.51, 0.7, 1.01}),
                                     whiteGalssSur());
-  hitObject.addObject<dym::rt::Sphere>(dym::Vector3({0.2, 0.0, 0.5}), 0.15,
+  hitObject.addObject<dym::rt::Sphere>(dym::Vector3({0.2, 0.0+yMove, 0.5}), 0.15,
                                        whiteGalssSur());
 
   hitObject.addObject<dym::rt::Box>(dym::Vector3({0.65, -0.1, 0.4}),
-                                    dym::Vector3({0.85, 0.2, 0.6}),
+                                    dym::Vector3({0.85, 0.2+yMove, 0.6}),
                                     whiteGalssSur());
 
-  world.add(std::make_shared<dym::rt::BvhNode>(hitObject));
 
+  dym::Matrix3 scalem = dym::matrix::identity<Real, 3>(1.02); 
+
+  world.add(std::make_shared<dym::rt::Transform3>(std::make_shared<dym::rt::BvhNode>(hitObject),scalem,dym::Vector3({0,-yMove,0})-dym::Vector3(0.5)*(scalem*dym::Vector3(1)-1)));
   // Camera
   dym::rt::Point3 lookfrom({0.5, 0.5, -1.35});
   dym::rt::Point3 lookat({0.5, 0.5, 0});
@@ -180,7 +185,6 @@ int main(int argc, char const *argv[]) {
   dym::TimeLog time;
   int ccc = 1;
 
-  dym::Matrix3 scalem = dym::matrix::identity<Real, 3>(1.02);
 
   // model
   auto wmesh = std::make_shared<dym::rt::Mesh>();
@@ -191,8 +195,8 @@ int main(int argc, char const *argv[]) {
     // qprint(lookfrom);
     // render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
     //                      dist_to_focus);
-    if (add_counter < 40000)
-      sim.addParticle(newX, fluidMaterial, dym::Vector3({vx, 0, 0})),
+    if (add_counter < 25000)
+      sim.addParticle(newX, fluidMaterial, dym::Vector3({vx, 0, 0})), 
           add_counter += n3;
     qprint("Partical nums: ", add_counter);
     dym::TimeLog partTime;
@@ -206,9 +210,9 @@ int main(int argc, char const *argv[]) {
         // if (dym::rt::random_real() < 0.0001)
         //   qprint(pos, vul.normalize(), rec.t);
         minT = dym::min(rec.t, minT);
-        if (rec.t < 4.0 / 64.0) {
+        if (rec.t < 3.8 / 64.0) {
           // qprint("hit!!!!!!!!!!!");
-          return vul - 1.25 * vul.dot(rec.normal) * rec.normal;
+          return vul - 1.9 * vul.dot(rec.normal) * rec.normal;
         }
         return vul;
       });
@@ -223,7 +227,7 @@ int main(int argc, char const *argv[]) {
 
     dym::rt::HittableList worlds;
     worlds.add(std::make_shared<dym::rt::BvhNode>(world));
-    worlds.add(std::make_shared<dym::rt::Transform3>(wmesh, scalem, 0.5));
+    worlds.add(std::make_shared<dym::rt::Transform3>(wmesh, scalem, dym::Vector3({0.5,0.5-yMove,0.5})));
     qprint("fin build worlds part time:", partTime.getRecord());
     partTime.reStart();
 

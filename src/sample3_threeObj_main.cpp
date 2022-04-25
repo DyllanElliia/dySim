@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-15 15:13:05
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-24 14:55:32
+ * @LastEditTime: 2022-04-25 15:20:20
  * @Description:
  */
 #define DYM_USE_MARCHING_CUBES
@@ -19,7 +19,7 @@ _DYM_FORCE_INLINE_ auto earthSur() {
 }
 _DYM_FORCE_INLINE_ auto whiteSur() {
   auto white_texture =
-      std::make_shared<dym::rt::SolidColor>(dym::rt::ColorRGB(0.8f));
+      std::make_shared<dym::rt::SolidColor>(dym::rt::ColorRGB(1.0));
   auto white_surface = std::make_shared<dym::rt::Lambertian>(white_texture);
 
   return white_surface;
@@ -125,23 +125,17 @@ int main(int argc, char const *argv[]) {
     x.for_each_i([&](dym::Vector3 &pos, int i) {
       auto pos_off = pos * volume_n;
       auto pos_i = pos_off.cast<int>();
-      if (i / n3 == 0)
-        volume0[pos_i] += 0.5;
-      if (i / n3 == 1)
-        volume1[pos_i] += 0.5;
-      if (i / n3 == 2)
-        volume2[pos_i] += 0.5;
+      if (i / n3 == 0) volume0[pos_i] += 0.5;
+      if (i / n3 == 1) volume1[pos_i] += 0.5;
+      if (i / n3 == 2) volume2[pos_i] += 0.5;
       dym::Loop<int, 2>([&](auto ii) {
         dym::Loop<int, 2>([&](auto jj) {
           dym::Loop<int, 2>([&](auto kk) {
             auto pos_ijk = pos_i + dym::Vector3i({ii, jj, kk});
             if (pos_ijk >= 0; pos_ijk < volume_n) {
-              if (i / n3 == 0)
-                volume0[pos_ijk] += 0.5;
-              if (i / n3 == 1)
-                volume1[pos_ijk] += 0.5;
-              if (i / n3 == 2)
-                volume2[pos_ijk] += 0.5;
+              if (i / n3 == 0) volume0[pos_ijk] += 0.5;
+              if (i / n3 == 1) volume1[pos_ijk] += 0.5;
+              if (i / n3 == 2) volume2[pos_ijk] += 0.5;
               //   volume[pos_ijk] += 0.5;
             }
           });
@@ -154,7 +148,7 @@ int main(int argc, char const *argv[]) {
   const auto aspect_ratio = 1.f;
   const int image_width = 600;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
-  const int samples_per_pixel = 2;
+  const int samples_per_pixel = 3;
   const int max_depth = 20;
   dym::rt::RtRender render(image_width, image_height);
 
@@ -205,8 +199,7 @@ int main(int argc, char const *argv[]) {
     //                      dist_to_focus);
     dym::TimeLog partTime;
     Tp(sim.getPos());
-    for (int i = 0; i < steps; ++i)
-      sim.advance(dt);
+    for (int i = 0; i < steps; ++i) sim.advance(dt);
     qprint("fin sim part time:", partTime.getRecord());
     partTime.reStart();
     auto mesh0 = dym::marchingCubes(volume0, 0.5);
@@ -249,7 +242,7 @@ int main(int argc, char const *argv[]) {
     // auto image = render.getFrameGBuffer("depth", 100);
     auto image = render.getFrame();
     dym::imwrite(image,
-                 "./rt_out/sample/1/frame_" + std::to_string(ccc - 1) + ".jpg");
+                 "./rt_out/sample/3/frame_" + std::to_string(ccc - 1) + ".jpg");
 
     // image = dym::filter2D(image, dym::Matrix3(1.f / 9.f));
 

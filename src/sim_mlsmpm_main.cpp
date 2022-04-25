@@ -16,17 +16,19 @@ int main(int argc, char const *argv[]) {
   sim.globalForce = Vector3({0.f, -9.8 * 2.f, 0.f});
   std::default_random_engine re;
   std::uniform_real_distribution<Real> u(-1.f, 1.f);
-  u_int n3 = 3000;
+  u_int n3 = 10000;
   dym::Tensor<Vector3> newX(0, dym::gi(n3));
 
   newX.for_each_i([&](Vector3 &pos) {
     pos = Vector3({u(re), u(re), u(re)}) * 0.1f;
   });
 
-  sim.addParticle(newX + Vector3({0.35, 0.43, 0.5}), sim.addLiquidMaterial());
-  sim.addParticle(newX + Vector3({0.50, 0.64, 0.5}), sim.addJellyMaterial());
-  sim.addParticle(newX + Vector3({0.65, 0.84, 0.5}), sim.addPlasticMaterial());
-
+  sim.addParticle(newX + dym::Vector3({0.35, 0.42, 0.5}),
+                  sim.addLiquidMaterial());
+  sim.addParticle(newX + dym::Vector3({0.50, 0.63, 0.5}),
+                  sim.addJellyMaterial());
+  sim.addParticle(newX + dym::Vector3({0.65, 0.84, 0.5}),
+                  sim.addPlasticMaterial());
   // newX.for_each_i([&](Vector3 &pos) {
   //   pos = Vector3({u(re), u(re), u(re)}) * 0.25f;
   // });

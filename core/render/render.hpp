@@ -113,9 +113,9 @@ class RtRender {
       int samples_per_pixel, int max_depth,
       const std::function<ColorRGB(const Ray& r)>& background =
           [](const Ray& r) { return ColorRGB(0.f); }) {
-    auto viewMatrix = cam.getViewMatrix4_transform();
-    Matrix3 viewMatrix3 = viewMatrix;
-    viewMatrix = cam.getViewMatrix4_Perspective() * viewMatrix;
+    // auto viewMatrix = cam.getViewMatrix4_transform();
+    // Matrix3 viewMatrix3 = viewMatrix;
+    // viewMatrix = cam.getViewMatrix4_Perspective() * viewMatrix;
 
     image.for_each_i([&](dym::Vector<Real, dym::PIC_RGB>& color, int i, int j) {
       auto color_pre = color;
@@ -129,9 +129,9 @@ class RtRender {
             r, worlds, std::make_shared<dym::rt::HittableList>(lights),
             max_depth, background, gbuffer);
       }
-      auto pos4 = viewMatrix * Vector4(gbuffer.position, 1);
-      gbuffer.position = pos4 / pos4[3];
-      gbuffer.normal = viewMatrix3 * gbuffer.normal;
+      // auto pos4 = viewMatrix * Vector4(gbuffer.position, 1);
+      // gbuffer.position = pos4 / pos4[3];
+      // gbuffer.normal = viewMatrix3 * gbuffer.normal;
       image_GBuffer[image.getIndexInt(gi(i, j))] = gbuffer;
       color = color * (1.f / Real(samples_per_pixel));
       color = dym::clamp(dym::sqrt(color) * 255.f, 0.0, 255.99);
@@ -149,29 +149,33 @@ class RtRender {
     return imageP;
   }
 
-  Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>>& getFrameGBuffer(
-      std::string GBuffer_type, Real posScale = 255) {
+  Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> &
+  getFrameGBuffer(std::string GBuffer_type, Real posScale = 255) {
+    auto viewMatrix = cam.getViewMatrix4_transform();
+    Matrix3 viewMatrix3 = viewMatrix;
+    viewMatrix = cam.getViewMatrix4_Perspective() * viewMatrix;
     switch (hash_(GBuffer_type.c_str())) {
       case hash_compile_time("normal"):
-        imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB>& e, int i) {
-          auto pix = (image_GBuffer[i].normal + 1) / 2.0;
+        imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB> &e, int i) {
+          auto pix = (viewMatrix3 * image_GBuffer[i].normal + 1) / 2.0;
           pix = dym::clamp(pix * 255, 0.0, 255.99);
           e = pix.cast<dym::Pixel>();
           e[2] = 255;
         });
         break;
       case hash_compile_time("position"):
-        imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB>& e, int i) {
-          auto pix = image_GBuffer[i].position;
-          pix = dym::clamp(dym::abs(pix) * posScale, 0.0, 255.99);
-          e = pix.cast<dym::Pixel>();
+        imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB> &e, int i) {
+          auto pix = viewMatrix * Vector4(image_GBuffer[i].position, 1.0);
+          pix = dym::clamp(dym::abs(pix / pix[3]) * posScale, 0.0, 255.99);
+          e = Vector3(pix).cast<dym::Pixel>();
           e[2] = 255;
         });
         break;
       case hash_compile_time("depth"):
-        imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB>& e, int i) {
-          e = (dym::Pixel)dym::clamp(
-              dym::abs(image_GBuffer[i].position[2]) * posScale, 0.0, 255.99);
+        imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB> &e, int i) {
+          auto pix = viewMatrix * Vector4(image_GBuffer[i].position, 1.0);
+          e = (dym::Pixel)dym::clamp(dym::abs(pix[2] / pix[3]) * posScale, 0.0,
+                                     255.99);
         });
         break;
       case hash_compile_time("albedo"):
@@ -197,7 +201,11 @@ class RtRender {
     return imageP;
   }
 
-  void denoise() { denoise_svgf(image, image_GBuffer); }
+  void denoise() {
+    denoise_svgf(image, image_GBuffer);
+    svgf_viewMatrix =
+        cam.getViewMatrix4_Perspective() * cam.getViewMatrix4_transform();
+  }
 
  private:
   const Real aspect_ratio;

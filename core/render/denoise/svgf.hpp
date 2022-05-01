@@ -11,6 +11,8 @@
 
 namespace dym {
 namespace rt {
+
+Matrix4 svgf_viewMatrix = matrix::identity<Real, 4>(1.0);
 namespace {
 std::vector<dym::Vector<Real, dym::PIC_RGB>> output;
 
@@ -152,7 +154,7 @@ _DYM_FORCE_INLINE_ bool isReprjValid(const Index<int>& res,
       prev_gbuffer[q].obj_id != curr_gbuffer[p].obj_id)
     return false;
   // reject if the normal deviation is not acceptable
-  if ((prev_gbuffer[q].normal - curr_gbuffer[p].normal).length_sqr() > 1e-1f)
+  if ((prev_gbuffer[q].normal - curr_gbuffer[p].normal).length_sqr() > 1e-2f)
     return false;
   return true;
 }
@@ -190,7 +192,9 @@ void BackProjection(
       // Real prevx = ndcx * res[0] - 0.5;
       // Real prevy = ndcy * res[1] - 0.5;
       // v2
-      auto& viewspace_position = current_gbuffer[p].position;
+      Vector4 viewspace_position =
+          svgf_viewMatrix * Vector4(current_gbuffer[p].position, 1.0);
+      viewspace_position /= viewspace_position[3];
       Real clipx = viewspace_position[1] /** tanf(PI / 4)*/;
       Real clipy = viewspace_position[0] /** tanf(PI / 4)*/;
       Real ndcx = clipx * 0.5 + 0.5;

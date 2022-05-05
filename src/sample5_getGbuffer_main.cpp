@@ -8,7 +8,7 @@
 #include <dyGraphic.hpp>
 #include <dyPicture.hpp>
 #include <dyRender.hpp>
-#include <memory>
+#include <memory> 
 _DYM_FORCE_INLINE_ auto earthSur() {
   auto earth_texture =
       std::make_shared<dym::rt::ImageTexture>("image/earthmap.jpg");
@@ -174,10 +174,6 @@ int main(int argc, char const *argv[]) {
 
   time.reStart();
   gui.update([&]() {
-    lookfrom = dym::rt::Point3(
-        {0.5 + dym::cos(ccc * 0.02 / 3.1415926585), 0.5, -1.35});
-    render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
-                         dist_to_focus);
     dym::TimeLog partTime;
     render.render(samples_per_pixel, max_depth);
 
@@ -192,10 +188,10 @@ int main(int argc, char const *argv[]) {
     ccc++;
     time.record();
     time.reStart();
-    // auto image = render.getFrameGBuffer("depth", 100);
-    auto image = render.getFrame();
+    auto image = render.getFrameGBuffer("objId", 255);
+    // auto image = render.getFrame();
     dym::imwrite(image,
-                 "./rt_out/sample/4/frame_" + std::to_string(ccc - 1) + ".jpg");
+                 "./rt_out/sample/5/frame_" + std::to_string(ccc - 1) + ".jpg");
     gui.imshow(image);
   });
   return 0;

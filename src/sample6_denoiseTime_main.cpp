@@ -80,10 +80,6 @@ int main(int argc, char const *argv[]) {
   const int image_height = static_cast<int>(image_width / aspect_ratio);
   const int samples_per_pixel = 3;
   const int max_depth = 20;
-  dym::Tensor<dym::Vector<Real, dym::PIC_RGB>> image(
-      0, dym::gi(image_height, image_width));
-  dym::Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> imageP(
-      0, dym::gi(image_height, image_width));
   // World
 
   dym::rt::HittableList world;
@@ -168,16 +164,11 @@ int main(int argc, char const *argv[]) {
   // GUI
   dym::GUI gui("rt");
   gui.init(image_width, image_height);
-  Real t = 0.4, t_inv = 1 - t;
   dym::TimeLog time;
   int ccc = 1;
 
   time.reStart();
   gui.update([&]() {
-    lookfrom = dym::rt::Point3(
-        {0.5 + dym::cos(ccc * 0.02 / 3.1415926585), 0.5, -1.35});
-    render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
-                         dist_to_focus);
     dym::TimeLog partTime;
     render.render(samples_per_pixel, max_depth);
 
@@ -192,10 +183,10 @@ int main(int argc, char const *argv[]) {
     ccc++;
     time.record();
     time.reStart();
-    // auto image = render.getFrameGBuffer("depth", 100);
+    // auto image = render.getFrameGBuffer("objId", 255);
     auto image = render.getFrame();
     dym::imwrite(image,
-                 "./rt_out/sample/4/frame_" + std::to_string(ccc - 1) + ".jpg");
+                 "./rt_out/sample/6/frame_" + std::to_string(ccc - 1) + ".jpg");
     gui.imshow(image);
   });
   return 0;

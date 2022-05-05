@@ -8,6 +8,7 @@
 #pragma once
 #include "camera.hpp"
 #include "hittableList.hpp"
+#include "randomFun.hpp"
 #include "ray.hpp"
 
 // Bvh
@@ -111,8 +112,9 @@ class RtRender {
   }
   void render(
       int samples_per_pixel, int max_depth,
-      const std::function<ColorRGB(const Ray& r)>& background =
-          [](const Ray& r) { return ColorRGB(0.f); }) {
+      const std::function<ColorRGB(const Ray &r)> &background =
+          [](const Ray &r) { return ColorRGB(0.f); },
+      const Real &max_color = 256) {
     // auto viewMatrix = cam.getViewMatrix4_transform();
     // Matrix3 viewMatrix3 = viewMatrix;
     // viewMatrix = cam.getViewMatrix4_Perspective() * viewMatrix;
@@ -134,17 +136,21 @@ class RtRender {
       // gbuffer.normal = viewMatrix3 * gbuffer.normal;
       image_GBuffer[image.getIndexInt(gi(i, j))] = gbuffer;
       color = color * (1.f / Real(samples_per_pixel));
-      color = dym::clamp(dym::sqrt(color) * 255.f, 0.0, 255.99);
+      color = dym::sqrt(color) * 255.0;
       dym::Loop<int, 3>([&](auto pi) {
         if (dym::isnan(color[pi])) color[pi] = 0;
-        if (dym::isinf(color[pi])) color[pi] = color_pre[pi];
+        if (dym::isinf(color[pi]))
+          color[pi] = color_pre[pi];
+        if (color[pi] > max_color)
+          color[pi] = max_color;
       });
     });
   }
 
   Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>>& getFrame() {
-    imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB>& e, int i) {
-      e = image[i].cast<dym::Pixel>();
+    imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB> &e, int i) {
+      auto color = dym::clamp(image[i], 0.0, 255.99);
+      e = color.cast<dym::Pixel>();
     });
     return imageP;
   }
@@ -166,7 +172,7 @@ class RtRender {
       case hash_compile_time("position"):
         imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB> &e, int i) {
           auto pix = viewMatrix * Vector4(image_GBuffer[i].position, 1.0);
-          pix = dym::clamp(dym::abs(pix / pix[3]) * posScale, 0.0, 255.99);
+          pix = dym::clamp((1.0 + pix / pix[3]) / 2 * posScale, 0.0, 255.99);
           e = Vector3(pix).cast<dym::Pixel>();
           e[2] = 255;
         });
@@ -174,6 +180,9 @@ class RtRender {
       case hash_compile_time("depth"):
         imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB> &e, int i) {
           auto pix = viewMatrix * Vector4(image_GBuffer[i].position, 1.0);
+          if (random_real() < 1e-5)
+            qprint(pix);
+
           e = (dym::Pixel)dym::clamp(dym::abs(pix[2] / pix[3]) * posScale, 0.0,
                                      255.99);
         });

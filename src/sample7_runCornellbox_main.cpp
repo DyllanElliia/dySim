@@ -78,7 +78,7 @@ int main(int argc, char const *argv[]) {
   const auto aspect_ratio = 1.f;
   const int image_width = 600;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
-  int samples_per_pixel = 1;
+  int samples_per_pixel = 100;
   const int max_depth = 50;
   dym::Tensor<dym::Vector<Real, dym::PIC_RGB>> image(
       0, dym::gi(image_height, image_width));
@@ -176,25 +176,25 @@ int main(int argc, char const *argv[]) {
   gui.update([&]() {
     dym::TimeLog partTime;
     render.render(samples_per_pixel, max_depth);
-    if (samples_per_pixel == 1000) {
-      qprint("fin all");
-      getchar();
-    }
-    if (samples_per_pixel == 200)
-      samples_per_pixel = 1000, getchar();
-    if (samples_per_pixel == 100)
-      samples_per_pixel = 200;
-    if (samples_per_pixel == 25)
-      samples_per_pixel = 100;
-    if (samples_per_pixel == 5)
-      samples_per_pixel = 25;
-    if (samples_per_pixel == 1)
-      samples_per_pixel = 5;
+    // if (samples_per_pixel == 1000) {
+    //   qprint("fin all");
+    //   getchar();
+    // }
+    // if (samples_per_pixel == 200)
+    //   samples_per_pixel = 1000, getchar();
+    // if (samples_per_pixel == 100)
+    //   samples_per_pixel = 200;
+    // if (samples_per_pixel == 25)
+    //   samples_per_pixel = 100;
+    // if (samples_per_pixel == 5)
+    //   samples_per_pixel = 25;
+    // if (samples_per_pixel == 1)
+    //   samples_per_pixel = 5;
 
     qprint("fin render part time:", partTime.getRecord());
     partTime.reStart();
 
-    // render.denoise();
+    render.denoise();
 
     // qprint("fin denoise part time:", partTime.getRecord());
     // partTime.reStart();

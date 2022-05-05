@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.18)
 # program name
 project(dyMath C CXX)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 option(CUDA_ENABLE "Use CUDA" OFF)
 if(CUDA_ENABLE)
   enable_language(CUDA)

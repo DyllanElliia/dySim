@@ -76,10 +76,10 @@ auto cornell_box() {
 
 int main(int argc, char const *argv[]) {
   const auto aspect_ratio = 1.f;
-  const int image_width = 1000;
+  const int image_width = 600;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
-  const int samples_per_pixel = 3;
-  const int max_depth = 20;
+  int samples_per_pixel = 1;
+  const int max_depth = 50;
   dym::Tensor<dym::Vector<Real, dym::PIC_RGB>> image(
       0, dym::gi(image_height, image_width));
   dym::Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> imageP(
@@ -176,22 +176,36 @@ int main(int argc, char const *argv[]) {
   gui.update([&]() {
     dym::TimeLog partTime;
     render.render(samples_per_pixel, max_depth);
+    if (samples_per_pixel == 1000) {
+      qprint("fin all");
+      getchar();
+    }
+    if (samples_per_pixel == 200)
+      samples_per_pixel = 1000, getchar();
+    if (samples_per_pixel == 100)
+      samples_per_pixel = 200;
+    if (samples_per_pixel == 25)
+      samples_per_pixel = 100;
+    if (samples_per_pixel == 5)
+      samples_per_pixel = 25;
+    if (samples_per_pixel == 1)
+      samples_per_pixel = 5;
 
     qprint("fin render part time:", partTime.getRecord());
     partTime.reStart();
 
-    render.denoise();
+    // render.denoise();
 
-    qprint("fin denoise part time:", partTime.getRecord());
-    partTime.reStart();
+    // qprint("fin denoise part time:", partTime.getRecord());
+    // partTime.reStart();
 
     ccc++;
     time.record();
     time.reStart();
-    auto image = render.getFrameGBuffer("objId", 255);
-    // auto image = render.getFrame();
+    // auto image = render.getFrameGBuffer("depth", 100);
+    auto image = render.getFrame();
     dym::imwrite(image,
-                 "./rt_out/sample/5/frame_" + std::to_string(ccc - 1) + ".jpg");
+                 "./rt_out/sample/7/frame_" + std::to_string(ccc - 1) + ".jpg");
     gui.imshow(image);
   });
   return 0;

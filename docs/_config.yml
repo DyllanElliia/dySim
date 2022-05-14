@@ -1,31 +1,79 @@
-title: DySim Documentation
-description: How to Use DySim
+# ----
+# Site
 
-theme: null
+title: Edition Template
+url: "https://long-pig.cloudvent.net"
+baseurl:
+google_analytics_key:
+show_full_navigation: true
 
-# debug:
-#   compress: true
-#   dist: false
-#   shortcodes: true
+# Values for the jekyll-seo-tag gem (https://github.com/jekyll/jekyll-seo-tag)
+logo: /siteicon.png
+description: Product documentation template for Jekyll.
+author:
+  name:
+  email:
+  twitter: # twitter username without the @ symbol
+social:
+  name: Edition Template
+  links:
+    - https://github.com/CloudCannon/edition-jekyll-template
 
-readme_index:
-  with_frontmatter: true
+# -----
+# Build
+
+timezone: Etc/UTC
+
+permalink: pretty
 
 plugins:
-  - jemoji
-  - jekyll-avatar
-  - jekyll-mentions
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-feed
 
 exclude:
-  - Makefile
-  - CNAME
-  - LICENSE
-  - update.sh
   - Gemfile
   - Gemfile.lock
-  - requirements.txt
-  - node_modules
-  - package.json
-  - package-lock.json
-  - webpack.config.js
-  - jekyll-rtd-theme.gemspec
+  - README.md
+  - LICENCE
+
+collections:
+  docs:
+    title: Documentation
+    permalink: /:path/
+    output: true
+
+defaults:
+  -
+    scope:
+      path: ""
+    values:
+      layout: default
+  -
+    scope:
+      path: ""
+      type: "docs"
+    values:
+      seo:
+        type: Article
+      _comments:
+        category: Group navigation links with this field
+        order: Used to sort links in the navigation
+      _options:
+        content:
+          width: 800
+          height: 2000
+  -
+    scope:
+      path: ""
+      type: "posts"
+    values:
+      _comments:
+        type: Marks the impact of this release
+
+# -----------
+# CloudCannon
+
+types:
+  - minor
+  - major

@@ -1,79 +1,54 @@
-# ----
-# Site
+# Configurations
+title:            Jekyll Gitbook
+longtitle:        Jekyll Gitbook
+author:           HE Tao
+email:            sighingnow@gmail.com
+description: >
+  Build Jekyll site with the GitBook style.
 
-title: Edition Template
-url: "https://long-pig.cloudvent.net"
-baseurl:
-google_analytics_key:
-show_full_navigation: true
+version:          1.0
+gitbook_version:  3.2.3
 
-# Values for the jekyll-seo-tag gem (https://github.com/jekyll/jekyll-seo-tag)
-logo: /siteicon.png
-description: Product documentation template for Jekyll.
-author:
-  name:
-  email:
-  twitter: # twitter username without the @ symbol
-social:
-  name: Edition Template
-  links:
-    - https://github.com/CloudCannon/edition-jekyll-template
+url:              'https://sighingnow.github.io'
+baseurl:          '/jekyll-gitbook'
+rss:              RSS
 
-# -----
-# Build
+toc:
+  enabled: true
+  h_min: 1
+  h_max: 3
 
-timezone: Etc/UTC
+# markdown render engine.
+markdown:         kramdown
+kramdown:
+  auto_ids:               true
+  input:                  GFM
+  math_engine:            mathjax
+  smart_quotes:           lsquo,rsquo,ldquo,rdquo
+  toc_levels:             1..6
+  syntax_highlighter:     rouge
+  syntax_highlighter_opts:
+    guess_lang:           true
 
-permalink: pretty
+syntax_highlighter_style: colorful
 
-plugins:
-  - jekyll-sitemap
-  - jekyll-seo-tag
-  - jekyll-feed
+markdown_ext:     markdown,mkdown,mkdn,mkd,md
+
+# Permalinks
+permalink:        /:categories/:year-:month-:day-:title:output_ext
 
 exclude:
-  - Gemfile
-  - Gemfile.lock
-  - README.md
-  - LICENCE
+  - _drafts
 
 collections:
-  docs:
-    title: Documentation
-    permalink: /:path/
+  pages:
     output: true
+    permalink: /:collection/:path/
 
-defaults:
-  -
-    scope:
-      path: ""
-    values:
-      layout: default
-  -
-    scope:
-      path: ""
-      type: "docs"
-    values:
-      seo:
-        type: Article
-      _comments:
-        category: Group navigation links with this field
-        order: Used to sort links in the navigation
-      _options:
-        content:
-          width: 800
-          height: 2000
-  -
-    scope:
-      path: ""
-      type: "posts"
-    values:
-      _comments:
-        type: Marks the impact of this release
+destination:      ./_site
+incremental:      false
+regenerate:       true
 
-# -----------
-# CloudCannon
-
-types:
-  - minor
-  - major
+plugins:
+  - jekyll-feed
+  - jemoji

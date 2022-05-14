@@ -1,5 +1,5 @@
 ---
-title: Welcome
+title: Welcome | 欢迎
 ---
 
 ![logoAddWord](README.assets/logoAddWord-16435318604501.png)

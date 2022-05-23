@@ -36,4 +36,4 @@ make -j8
 
 若没有问题，当你运行编译结果`rtInOneWeek_main.out`时，是可以看到窗口显示一个带焦距的小球世界，你的CPU也会被这个程序吃满。
 
-![rt_test_42](C:\code\cpp\dySim\src\rt_out\rtOneWeek\rt_test_42.jpg)
+![rt_test_42](.\README.assets\rt_test_42.jpg)

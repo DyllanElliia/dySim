@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-13 16:50:00
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-02 16:36:02
+ * @LastEditTime: 2022-05-23 16:12:42
  * @Description:
  */
 #pragma once
@@ -151,17 +151,17 @@ Tensor<Vector<Type, color_size>> imread(std::string picPath) {
     std::cerr << str << '\n';
     exit(EXIT_FAILURE);
   }
-  Tensor<Vector<Type, color_size>> result(0, gi(y, x));
+  Tensor<Vector<Type, color_size>> result(0, gi(x, y));
   int xc = x * channel;
   if (channel < color_size)
     result.for_each_i([&data, &x](Vector<Type, color_size> &e, int i, int j) {
-      e = (Type)data[i * x + j];
+      e = (Type)data[j * x + i];
     });
   else
     result.for_each_i(
         [&data, &xc, &channel](Vector<Type, color_size> &e, int i, int j) {
           for (int k = 0; k < color_size; ++k)
-            e[k] = (Type)data[i * xc + j * channel + k];
+            e[k] = (Type)data[j * xc + i * channel + k];
         });
   stbi_image_free(data);
   return result;
@@ -171,13 +171,13 @@ template <typename Type = short, std::size_t color_size>
 int imwrite(Tensor<Vector<Type, color_size>> &pic, std::string picPath) {
   Index size_ = pic.shape();
   if (size_.size() != 2) return -1;
-  int &x = size_[1], &y = size_[0];
+  int &x = size_[0], &y = size_[1];
   int xc = x * color_size, size_i = y * xc;
   // std::cout << "here " << size_i << std::endl;
   unsigned char *data = new unsigned char[size_i];
   pic.for_each_i([&data, &xc](Vector<Type, color_size> &e, int i, int j) {
     for (int k = 0; k < color_size; ++k) {
-      auto &datai = data[i * xc + j * color_size + k];
+      auto &datai = data[j * xc + i * color_size + k];
       auto pici = e[k];
       if (pici < 0) pici = 0;
       if (pici > 255) pici = 255;

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-14 17:35:20
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-22 14:57:52
+ * @LastEditTime: 2022-05-23 15:52:03
  * @Description:
  */
 
@@ -195,8 +195,8 @@ void BackProjection(
       Vector4 viewspace_position =
           svgf_viewMatrix * Vector4(current_gbuffer[p].position, 1.0);
       viewspace_position /= viewspace_position[3];
-      Real clipx = viewspace_position[1] /** tanf(PI / 4)*/;
-      Real clipy = viewspace_position[0] /** tanf(PI / 4)*/;
+      Real clipx = viewspace_position[0] /** tanf(PI / 4)*/;
+      Real clipy = viewspace_position[1] /** tanf(PI / 4)*/;
       Real ndcx = clipx * 0.5 + 0.5;
       Real ndcy = clipy * 0.5 + 0.5;
       Real prevx = ndcx * res[0] - 0.5;

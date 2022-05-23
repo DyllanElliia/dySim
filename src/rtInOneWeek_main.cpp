@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-04 13:50:22
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-03-29 14:57:13
+ * @LastEditTime: 2022-05-23 15:25:38
  * @Description:
  */
 /*
@@ -80,9 +80,9 @@ int main(int argc, char const* argv[]) {
   const int samples_per_pixel = 1;
   const int max_depth = 50;
   dym::Tensor<dym::Vector<Real, dym::PIC_RGB>> image(
-      0, dym::gi(image_height, image_width));
+      0, dym::gi(image_width, image_height));
   dym::Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> imageP(
-      0, dym::gi(image_height, image_width));
+      0, dym::gi(image_width, image_height));
   // World
 
   auto world = random_scene();
@@ -109,8 +109,8 @@ int main(int argc, char const* argv[]) {
 
       color = 0.f;
       for (int samples = 0; samples < samples_per_pixel; samples++) {
-        auto u = (j + dym::rt::random_real()) / (image_width - 1);
-        auto v = (i + dym::rt::random_real()) / (image_height - 1);
+        auto u = (i + dym::rt::random_real()) / (image_width - 1);
+        auto v = (j + dym::rt::random_real()) / (image_height - 1);
         dym::rt::Ray r = cam.get_ray(u, v);
         color += ray_color_pdf(
             r, world, nullptr, max_depth, [](const dym::rt::Ray& r) {

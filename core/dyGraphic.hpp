@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-12 16:02:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-12 16:10:58
+ * @LastEditTime: 2022-05-23 15:47:54
  * @Description:
  */
 #pragma once
@@ -289,9 +289,9 @@ class GUI {
     // ------------------------------------------------------------------
     float vertices[] = {
         // positions        // colors         // texture coords
-        1.0f,  1.0f,  0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,  // top right
+        1.0f,  1.0f,  0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,  // top right
         1.0f,  -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,  // bottom right
-        -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,  // bottom left
+        -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,  // bottom left
         -1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f   // top left
     };
     unsigned int indices[] = {

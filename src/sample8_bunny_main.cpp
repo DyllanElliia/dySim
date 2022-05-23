@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-01 15:34:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-05-06 15:04:41
+ * @LastEditTime: 2022-05-23 15:50:02
  * @Description:
  */
 #include <dyGraphic.hpp>
@@ -75,10 +75,10 @@ auto cornell_box() {
 }
 
 int main(int argc, char const *argv[]) {
-  const auto aspect_ratio = 1.f;
+  const auto aspect_ratio = 1.2f / 1.f;
   const int image_width = 600;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
-  int samples_per_pixel = 1;
+  int samples_per_pixel = 3;
   const int max_depth = 50;
   dym::Tensor<dym::Vector<Real, dym::PIC_RGB>> image(
       0, dym::gi(image_height, image_width));
@@ -89,66 +89,20 @@ int main(int argc, char const *argv[]) {
   dym::rt::HittableList world;
   dym::rt::HittableList lights;
   Real begin = 0.35, end = 0.65;
-  // lights.add(std::make_shared<dym::rt::xz_rect>(
-  //     begin, end, begin, end, 0.998, std::shared_ptr<dym::rt::Material>()));
+  lights.add(std::make_shared<dym::rt::xz_rect>(
+      begin, end, begin, end, 0.998, std::shared_ptr<dym::rt::Material>()));
 
   world.add(std::make_shared<dym::rt::BvhNode>(cornell_box()));
 
-  auto boxo = std::make_shared<dym::rt::Box>(
-      dym::rt::Point3(-1), dym::rt::Point3(1), whiteGalssSur());
+  dym::Model loader("./PLYFiles/ply/Bunny10K.ply");
 
-  dym::Matrix3 scalem1 = dym::matrix::identity<Real, 4>(0.08);
-  dym::Matrix3 scalem2 = dym::matrix::identity<Real, 4>(0.1);
-  scalem2[1][1] = 0.2;
-
-  dym::Vector3 translate0({0.5, -0.25, 0.5});
-  dym::Vector3 translate1({0.5, 0.55, 0.5});
-  dym::Vector3 translate2({0.5, 0.2, 0.5});
-
-  dym::Quaternion rotate0 = dym::getQuaternion<Real>(0, {0, 1, 0});
-  dym::Quaternion rotate1 =
-      dym::getQuaternion<Real>(dym::atan(dym::sqrt(2.0)), {1, 0, 1});
-  dym::Quaternion rotate2 = dym::getQuaternion<Real>(dym::Pi / 4, {0, 1, 0});
+  dym::Quaternion rotate = dym::getQuaternion<Real>(dym::Pi, {0, 1, 0});
+  dym::Matrix3 scalem = dym::matrix::identity<Real, 3>(3.5);
+  dym::Vector3 translation({0.4, 0, 0.55});
 
   world.add(std::make_shared<dym::rt::Transform3>(
-      std::make_shared<dym::rt::Box>(dym::rt::Point3(-0.3),
-                                     dym::rt::Point3(0.3), whiteSur()),
-      rotate2.to_matrix(), translate0));
-
-  world.add(std::make_shared<dym::rt::Transform3>(
-      boxo, scalem1 * rotate1.to_matrix(), translate1));
-
-  world.add(std::make_shared<dym::rt::ConstantMedium>(
-      std::make_shared<dym::rt::Transform3>(boxo, scalem2 * rotate2.to_matrix(),
-                                            translate2),
-      200, dym::rt::ColorRGB({0.2, 0.4, 0.9})));
-
-  world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.8, 0.2, 0.8}),
-                                              0.1, earthSur()));
-
-  world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.2, 0.2, 0.2}),
-                                              0.1, whiteMetalSur(0.8)));
-  world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.8, 0.2, 0.2}),
-                                              0.1, whiteGalssSur()));
-
-  world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.2, 0.2, 0.8}),
-                                              0.1, whiteMetalSur()));
-
-  auto mat = earthSur();
-  auto mat2 = whiteMetalSur(0.8);
-  dym::Vector3 tnormal({0, 0, -1});
-  dym::rt::Vertex v0(dym::rt::Point3({0, 0, 0.999}), tnormal, 0, 0),
-      v1(dym::rt::Point3({0, 1, 0.999}), tnormal, 0, 1),
-      v2(dym::rt::Point3({1, 1, 0.999}), tnormal, 1, 1);
-  dym::rt::Vertex v3(dym::rt::Point3({0, 0, 0.999}), tnormal, 0, 0),
-      v4(dym::rt::Point3({1, 0, 0.999}), tnormal, 1, 0),
-      v5(dym::rt::Point3({1, 1, 0.999}), tnormal, 1, 1);
-  world.add(std::make_shared<dym::rt::Triangle>(v0, v1, v2, mat));
-  world.add(std::make_shared<dym::rt::Triangle>(v3, v4, v5, mat2));
-
-  // world.add(std::make_shared<dym::rt::xy_rect>(0, 1, 0, 1, 1, mat));
-
-  //   auto worlds = dym::rt::BvhNode(world);
+      std::make_shared<dym::rt::Mesh>(loader.meshes[0], whiteMetalSur()),
+      scalem * rotate.to_matrix(), translation));
 
   // Camera
   dym::rt::Point3 lookfrom({0.5, 0.5, -1.35});
@@ -175,26 +129,14 @@ int main(int argc, char const *argv[]) {
   time.reStart();
   gui.update([&]() {
     dym::TimeLog partTime;
-    qprint(1);
     render.render(samples_per_pixel, max_depth);
-    // if (samples_per_pixel == 1000) {
-    //   qprint("fin all");
-    //   getchar();
-    // }
-    qprint(2);
-
-    if (samples_per_pixel == 200) samples_per_pixel = 1, getchar();
-    if (samples_per_pixel == 100) samples_per_pixel = 200;
-    if (samples_per_pixel == 25) samples_per_pixel = 100;
-    if (samples_per_pixel == 5) samples_per_pixel = 25;
-    if (samples_per_pixel == 1) samples_per_pixel = 5;
 
     qprint("fin render part time:", partTime.getRecord());
     partTime.reStart();
 
-    // render.denoise();
+    render.denoise();
 
-    // qprint("fin denoise part time:", partTime.getRecord());
+    qprint("fin denoise part time:", partTime.getRecord());
     // partTime.reStart();
 
     ccc++;
@@ -203,7 +145,7 @@ int main(int argc, char const *argv[]) {
     // auto image = render.getFrameGBuffer("depth", 100);
     auto image = render.getFrame();
     dym::imwrite(image,
-                 "./rt_out/sample/7/frame_" + std::to_string(ccc - 1) + ".jpg");
+                 "./rt_out/sample/8/frame_" + std::to_string(ccc - 1) + ".jpg");
     gui.imshow(image);
   });
   return 0;

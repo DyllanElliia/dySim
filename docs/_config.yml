@@ -1,16 +1,16 @@
 title: DySim Documentation
 description: How to Use DySim
 
-theme: colorful
+theme: base16.solarized.dark
 
 # debug:
 #   compress: true
 #   dist: false
 #   shortcodes: true
 markdown: kramdown
-# highlighter: rouge
-# kramdown:
-#   syntax_highlighter: rouge
+highlighter: rouge
+kramdown:
+  syntax_highlighter: rouge
 
 readme_index:
   with_frontmatter: true

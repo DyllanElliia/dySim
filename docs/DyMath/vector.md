@@ -2,6 +2,8 @@
 sort: 1
 ---
 
+<link href="https://github.com/brazacz/rouge-themes/blob/main/css/base16.dark.css" rel="stylesheet"/>
+
 # Vector 向量
 
 dyMath提供了绝大多数的数值计算所需的向量工具，包含常用的向量函数。

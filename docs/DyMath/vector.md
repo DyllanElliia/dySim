@@ -1,178 +1,225 @@
+<!--
+ * @Author: DyllanElliia
+ * @Date: 2022-05-25 15:57:27
+ * @LastEditors: DyllanElliia
+ * @LastEditTime: 2022-05-25 17:37:00
+ * @Description: 
+-->
 ---
 sort: 1
 ---
 
 # Vector 向量
 
-Text can be **bold**, _italic_, or ~~strikethrough~~. [Links](https://github.com) should be blue with no underlines (unless hovered over).
+dyMath提供了绝大多数的数值计算所需的向量工具，包含常用的向量函数。
 
-There should be whitespace between paragraphs. There should be whitespace between paragraphs. There should be whitespace between paragraphs. There should be whitespace between paragraphs.
+在使用dyMath前，你需要了解dyMath提供的替代`int`、`float`和`double`等变量的符号，而且非常推荐使用dyMath提供的替换符号：
+|变量名|含义|
+|:---:|:---:|
+|`Real`|64位浮点|
+|`Reali`|32位整形|
+|`uReal`|32位无符号整型|
 
-There should be whitespace between paragraphs. There should be whitespace between paragraphs. There should be whitespace between paragraphs. There should be whitespace between paragraphs.
+> 关于`Real`的选择，起初考虑过32位浮点，但在做高精度模拟时发现，这并不实用，而且本人做高精度模拟更多一些，因此选择默认64位浮点。
 
-> There should be no margin above this first sentence.
->
-> Blockquotes should be a lighter gray with a gray border along the left side.
->
-> There should be no margin below this final sentence.
+## 基本操作
+### 创建一个Vector
 
-# Header 1
-
-This is a normal paragraph following a header. Bacon ipsum dolor sit amet t-bone doner shank drumstick, pork belly porchetta chuck sausage brisket ham hock rump pig. Chuck kielbasa leberkas, pork bresaola ham hock filet mignon cow shoulder short ribs biltong.
-
-## Header 2
-
-> This is a blockquote following a header. Bacon ipsum dolor sit amet t-bone doner shank drumstick, pork belly porchetta chuck sausage brisket ham hock rump pig. Chuck kielbasa leberkas, pork bresaola ham hock filet mignon cow shoulder short ribs biltong.
-
-### Header 3
-
-```
-This is a code block following a header.
+```C++
+template <typename Type, std::size_t dim>
+struct Vector;
 ```
 
-#### Header 4
-
-- This is an unordered list following a header.
-- This is an unordered list following a header.
-- This is an unordered list following a header.
-
-##### Header 5
-
-1. This is an ordered list following a header.
-2. This is an ordered list following a header.
-3. This is an ordered list following a header.
-
-###### Header 6
-
-| What    | Follows  |
-| ------- | -------- |
-| A table | A header |
-| A table | A header |
-| A table | A header |
-
----
-
-There's a horizontal rule above and below this.
-
----
-
-Here is an unordered list:
-
-- Salt-n-Pepa
-- Bel Biv DeVoe
-- Kid 'N Play
-
-And an ordered list:
-
-1. Michael Jackson
-2. Michael Bolton
-3. Michael Bublé
-
-And an unordered task list:
-
-- [x] Create a sample markdown document
-- [x] Add task lists to it
-- [ ] Take a vacation
-
-And a "mixed" task list:
-
-- [ ] Steal underpants
-- ?
-- [ ] Profit!
-
-And a nested list:
-
-- Jackson 5
-  - Michael
-  - Tito
-  - Jackie
-  - Marlon
-  - Jermaine
-- TMNT
-  - Leonardo
-  - Michelangelo
-  - Donatello
-  - Raphael
-
-Definition lists can be used with HTML syntax. Definition terms are bold and italic.
-
-<dl>
-    <dt>Name</dt>
-    <dd>Godzilla</dd>
-    <dt>Born</dt>
-    <dd>1952</dd>
-    <dt>Birthplace</dt>
-    <dd>Japan</dd>
-    <dt>Color</dt>
-    <dd>Green</dd>
-</dl>
-
----
-
-Tables should have bold headings and alternating shaded rows.
-
-| Artist          | Album          | Year |
-| --------------- | -------------- | ---- |
-| Michael Jackson | Thriller       | 1982 |
-| Prince          | Purple Rain    | 1984 |
-| Beastie Boys    | License to Ill | 1986 |
-
-If a table is too wide, it should condense down and/or scroll horizontally.
-
-<!-- prettier-ignore-start -->
-
-| Artist            | Album           | Year | Label       | Awards   | Songs     |
-|-------------------|-----------------|------|-------------|----------|-----------|
-| Michael Jackson   | Thriller        | 1982 | Epic Records | Grammy Award for Album of the Year, American Music Award for Favorite Pop/Rock Album, American Music Award for Favorite Soul/R&B Album, Brit Award for Best Selling Album, Grammy Award for Best Engineered Album, Non-Classical | Wanna Be Startin' Somethin', Baby Be Mine, The Girl Is Mine, Thriller, Beat It, Billie Jean, Human Nature, P.Y.T. (Pretty Young Thing), The Lady in My Life |
-| Prince            | Purple Rain     | 1984 | Warner Brothers Records | Grammy Award for Best Score Soundtrack for Visual Media, American Music Award for Favorite Pop/Rock Album, American Music Award for Favorite Soul/R&B Album, Brit Award for Best Soundtrack/Cast Recording, Grammy Award for Best Rock Performance by a Duo or Group with Vocal | Let's Go Crazy, Take Me With U, The Beautiful Ones, Computer Blue, Darling Nikki, When Doves Cry, I Would Die 4 U, Baby I'm a Star, Purple Rain |
-| Beastie Boys      | License to Ill  | 1986 | Mercury Records | noawardsbutthistablecelliswide | Rhymin & Stealin, The New Style, She's Crafty, Posse in Effect, Slow Ride, Girls, (You Gotta) Fight for Your Right, No Sleep Till Brooklyn, Paul Revere, Hold It Now, Hit It, Brass Monkey, Slow and Low, Time to Get Ill |
-
-<!-- prettier-ignore-end -->
-
----
-
-Code snippets like `var foo = "bar";` can be shown inline.
-
-Also, `this should vertically align` ~~`with this`~~ ~~and this~~.
-
-Code can also be shown in a block element.
-
-```
-var foo = "bar";
+`Vector`是一个模板，使用它前你需要定义它存储什么类型的变量和它的维度，按照初始化提供初始化内容，创建如下：
+```C++
+dym::Vector<Real, 3> a(1);
+Out: a = {1.0, 1.0, 1.0}
 ```
 
-Code can also use syntax highlighting.
-
-```javascript
-var foo = "bar";
+```C++
+dym::Vector<Real, 3> b({1, 2, 3});
+Out: b = {1.0, 2.0, 3.0}
 ```
 
+当输入为空，即`dym::Vector<Real, 3>()`，等效于`dym::Vector<Real, 3>(Real(0))`。
+
+除了使用数字构造向量，还能使用向量构造向量：
+
+```C++
+auto d = dym::Vector<Real, 5>(b, 6);
+Out: d = {1.0, 2.0, 3.0, 6.0, 6.0, 6.0}
 ```
-Long, single-line code blocks should not wrap. They should horizontally scroll if they are too long. This line should be long enough to demonstrate this.
+```C++
+auto e = dym::Vector<Real, 2>(d);
+Out: e = {1.0, 2.0}
 ```
 
-```javascript
-var foo =
-  "The same thing is true for code with syntax highlighting. A single line of code should horizontally scroll if it is really long.";
+为了提供一些特殊使用一些帮助，`Vector`支持使用Lambda表达式进行构造：
+```C++
+dym::Vector<Real, 10> g([&](Real& e, int i) { e = i; });
+Out: g = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0}
 ```
 
-Inline code inside table cells should still be distinguishable.
+### 向量操作符
 
-| Language   | Code               |
-| ---------- | ------------------ |
-| Javascript | `var foo = "bar";` |
-| Ruby       | `foo = "bar"`      |
+dyMath对`Vector`提供了非常完整的操作符适配，基本满足大多数需求。
 
----
-
-Small images should be shown at their actual size.
-
-![Octocat](https://github.githubassets.com/images/icons/emoji/octocat.png)
-
-Large images should always scale down and fit in the content container.
-
-![Branching](https://guides.github.com/activities/hello-world/branching.png)
-
+对于`=`，对常见操作提供了赋值操作，对于不同维度的`Vector`提供了统一赋值：
+```C++
+dym::Vector<Real, 3> a;
+a = 10.0;
+Out: a = {10.0, 10.0, 10.0}
 ```
-This is the final element on the page and there should be no margin below this.
+```C++
+dym::Vector<Real, 3> a;
+dym::Vector<Real, 3> b({1, 2, 3});
+a = b;
+Out: a = {1.0, 2.0, 3.0}
+```
+```C++
+dym::Vector<Real, 2> c(1.0);
+dym::Vector<Real, 4> d(1.0);
+c = b, d = b;
+Out: c = {1.0, 2.0}
+     d = {1.0, 2.0, 3.0, 1.0}
+```
+
+对于不同变量类型的`Vector`赋值，dyMath提供了转换模板`cast`，使用如下：
+```C++
+dym::Vector<Real, 3> b({1, 2, 3});
+auto a = b.cast<Reali>();
+Out: a = {1, 2, 3}
+```
+
+除外，还有常用数学操作符，首先为了简写，使用`R`代表实数`Real`和`Reali`等，使用`V`代表向量`Vector`：
+|操作符|操作|备注|
+|:---:|:---|:---|
+|`+`|`R+V`, `V+R`, `V+V`||
+|`-`|`R-V`, `V-R`, `V-V`||
+|`*`|`R*V`, `V*R`||
+|`/`|`R/V`, `V/R`||
+|`+=`|`V+=R`, `V+=V`||
+|`-=`|`V-=R`, `V-=V`||
+|`*=`|`V*=R`, `V*=V`||
+|`/=`|`V/=R`, `V/=V`||
+|`<`|`V<R`, `V<V`|所有变量一一满足时返回`true`|
+|`>`|`V>R`, `V>V`|同上|
+|`<=`|`V<=R`, `V<=V`|同上|
+|`>=`|`V>=R`, `V>=V`|同上|
+|`==`|`V==R`, `V==V`|等效于`abs(a-b)<1e-7`|
+
+> 对于`V/V`这个操作，数学定义上是不存在的，因为缺乏意义。但还是考虑到了可能存在的需求，保留了`V/=V`，定义为：
+> $$\cfrac {\vec a} {\vec b}=(\cfrac{\vec a_1}{\vec b_1},\cfrac{\vec a_2}{\vec b_2},...,\cfrac{\vec a_n}{\vec b_n})$$
+> 同样，将乘法中`V*V`做了同样的定义：
+> $$\vec a*\vec b=(\vec a_1*\vec b_1,\vec a_2*\vec b_2,...,\vec a_n*\vec b_n)$$
+> 其他乘法，如`dot`和`cross`，单独作为一个数值计算函数。
+
+### 元素访问
+
+dyMath提供两种方法元素访问：
+```C++
+dym::Vector<Real, 3> a(1.0);
+dym::Vector<Real, 3> b(2.0);
+a[0] = 2; // 有效
+b[1] = a[1];
+Out: a = {2.0, 1.0, 1.0}
+     b = {2.0, 1.0, 2.0}
+```
+```C++
+dym::Vector<Real, 3> a(1.0);
+dym::Vector<Real, 3> b(2.0);
+a.y() = 2; // 无效
+b[1] = a.y();
+Out: a = {1.0, 1.0, 1.0}
+     b = {2.0, 1.0, 2.0}
+```
+> 使用函数进行访问，最多只支持到4维向量，即`x()`、`y()`、`z()`和`w()`。
+
+## 向量数值方法
+
+### dot & cross
+实现两个向量的点乘与叉乘。
+```C++
+dym::Vector<Real, 3> a(1.0);
+dym::Vector<Real, 3> b(2.0);
+Real c;
+
+// dot
+c = a.dot(b);
+c = dym::vector::dot(a,b);
+
+Out: c = 6.0
+```
+```C++
+dym::Vector<Real, 3> a(1.0);
+dym::Vector<Real, 3> b(2.0);
+dym::Vector<Real, 3> c;
+
+// cross
+c = a.cross(b);
+c = dym::vector::cross(a,b);
+
+Out: c = {0.0, 0.0, 0.0}
+```
+叉乘方法支持高维向量叉乘：
+```C++
+dym::Vector<Real, 3> c;
+
+// cross
+c = dym::Vector<Real, 4>({ 1.0,  2.0, 3.0, 4.0}).cross(
+    dym::Vector<Real, 4>({-4.0, -2.0, 3.0, 1.0}),
+    dym::Vector<Real, 4>({10.0, -8.0, 6.0, 5.0}));
+
+c = dym::vector::cross(dym::Vector<Real, 4>({ 1.0,  2.0, 3.0, 4.0}),
+                       dym::Vector<Real, 4>({-4.0, -2.0, 3.0, 1.0}),
+                       dym::Vector<Real, 4>({10.0, -8.0, 6.0, 5.0}));
+
+Out: c = {72.0, 117.0, 266.0, -276.0}
+```
+
+### length & length_sqr 模长
+实现计算向量模长：
+```C++
+dym::Vector<Real, 2> a({3.0, 4.0});
+
+Real b = a.length_sqr();
+
+Out: b = 25.0
+```
+```C++
+dym::Vector<Real, 2> a({3.0, 4.0});
+Real b;
+
+b = dym::sqrt(a.length_sqr());
+b = a.length();
+
+Out: b = 5.0
+```
+### normalize 单位化
+
+实现向量单位化为单位向量：
+
+```C++
+dym::Vector<Real, 3> a({0.0, 3.0, 0.0});
+dym::Vector<Real, 3> b;
+
+b = a.normalize();
+b = dym::vector::normalized(a);
+
+Out: b = {0.0, 1.0, 0.0}
+```
+
+### reflect 反射
+
+图形学中经常要算一个向量关于一个法线的反射：
+$$\vec a'=\vec a-2(\vec a \cdot \vec normal)*\vec normal$$
+
+因此，dyMath提供了`Vector`的反射函数：
+```C++
+dym::Vector<Real, 3> a({1.0, -1.0, 0.0});
+dym::Vector<Real, 3> normal({0.0, 1.0, 0.0});
+
+auto b = a.reflect(normal);
+
+Out: b = {1.0, 1.0, 0.0}
 ```

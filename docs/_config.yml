@@ -7,6 +7,10 @@ theme: null
 #   compress: true
 #   dist: false
 #   shortcodes: true
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  syntax_highlighter: rouge
 
 readme_index:
   with_frontmatter: true

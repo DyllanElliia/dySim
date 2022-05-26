@@ -22,7 +22,7 @@ plugins:
 
 exclude:
   - Makefile
-  # - CNAME
+  - CNAME
   - LICENSE
   - update.sh
   - Gemfile
@@ -32,4 +32,4 @@ exclude:
   - package.json
   - package-lock.json
   - webpack.config.js
-  # - jekyll-rtd-theme.gemspec
+  - jekyll-rtd-theme.gemspec

@@ -136,3 +136,7 @@
 .highlight .ss {
     color: #859900;
 }
+
+pre[class='highlight'] {
+    background-color: #f8f8f8;
+}

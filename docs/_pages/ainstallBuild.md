@@ -1,7 +1,7 @@
 ---
 title: Install & Build
 author: DyllanElliia
-date: 2022-02-04
+date: 2022-02-10
 category: Jekyll
 layout: post
 ---

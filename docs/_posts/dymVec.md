@@ -1,5 +1,5 @@
 ---
-title: DyMath 数学库
+title: DyMath Vector 向量
 author: DyllanElliia
 date: 2022-05-25
 category: Jekyll
@@ -7,7 +7,6 @@ layout: post
 ---
 
 
-# Vector 向量
 
 dyMath提供了绝大多数的数值计算所需的向量工具，包含常用的向量函数。
 
@@ -288,27 +287,3 @@ dym::Vector<Real, a.shape()> b = a;
 
 Out: b = {1.0, 2.0, 3.0}
 ~~~
-
-# Matrix 矩阵
-
-## 基本操作
-
-## 矩阵数值方法
-
-# Index 索引
-
-## 基本操作
-
-# Tensor 张量
-
-## 基本操作
-
-## 张量数值方法
-
-
-
-# Quaternion 四元数
-
-## 基本操作
-
-## 四元数数值方法

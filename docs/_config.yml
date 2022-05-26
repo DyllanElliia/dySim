@@ -30,7 +30,7 @@ kramdown:
   syntax_highlighter_opts:
     guess_lang:           true
 
-syntax_highlighter_style: base16.solarized.light
+syntax_highlighter_style: thankful_eyes
 
 markdown_ext:     markdown,mkdown,mkdn,mkd,md
 

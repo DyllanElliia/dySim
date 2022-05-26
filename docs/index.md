@@ -2,7 +2,7 @@
 layout: home
 ---
 
-# DySim Documentation
+## DySim Documentation
 
 ![logoAddWord](README.assets/logoAddWord-16435318604501.png)
 

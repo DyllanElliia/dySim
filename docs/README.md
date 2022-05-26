@@ -1,35 +1,132 @@
-# DySim Documentation
+# Jekyll GitBook
 
-![logoAddWord](README.assets/logoAddWord-16435318604501.png)
+Make Jelly site have a GitBook look!
 
->Make Simulation Great Again🤺
+## Demo
 
-## DySim 是什么🏷️
+Live demo on Github Pages: [https://sighingnow.github.io/jekyll-gitbook](https://sighingnow.github.io/jekyll-gitbook)
 
-DySim 的名字取自于我的昵称 Dyllan 和这个工具 Simulator，表意就是“我的模拟器”！它起源于我的数学框架 DyMath，是对 DyMath 的拓展，因此你会看到非常多原框架遗留下的内容（如 `namespace dym`）。但由于 DyMath 这个库已经被别人创建了，所以我就将它命名为 DySim。
+[![Jekyll Themes](https://img.shields.io/badge/featured%20on-JekyllThemes-red.svg)](https://jekyll-themes.com/jekyll-gitbook/)
 
-DySim 是什么？它是一个提供开发者更专注于写模拟的图形学架构，你可以用它很方便地验证一些数学方法。相比于其他方法，DySim 更适合：
+## Why Jekyll with GitBook
 
-1. 喜欢泛型和函数式编程的你🥰
-2. 调各种材质参数的你😜
-3. 懒得写各种并行的你🤔
-4. 喜欢写CPP的你😂（符合这点的应该没多少人）
+GitBook is an amazing frontend style to present and organize contents (such as book chapters
+and blogs) on Web. The typical to deploy GitBook at [Github Pages][1]
+is building HTML files locally and then push to Github repository, usually to the `gh-pages`
+branch. It's quite annoying to repeat such workload and make it hard for people do version
+control via git for when there are generated HTML files to be staged in and out.
 
-DySim 是我的本科毕业设计作品，它包含了泛型并行数学库、基于物质点法的物理模拟模块、基于光线追踪的渲染模块 和 一个简单的 GUI 模块。它或许不是一个能传世的框架，但它是我设计的适合我的一个 Simulator。若你喜欢这个 idea，给我一个 ⭐️ ！同时，欢迎一起让它变得更好！
+This theme takes style definition out of generated GitBook site and provided the template
+for Jekyll to rendering markdown documents to HTML, thus the whole site can be deployed
+to [Github Pages][1] without generating and uploading HTML bundle every time when there are
+changes to the original repo.
 
-## DySim 总览🍿
+## How to Get Started
 
-在 DySim 中，不同模块有不同类与方法，下表为你可在详细文档中所看到的内容
+This theme can be used just as other [Jekyll themes][1].
 
-|       类名       | 所属模块  | 功能                     |
-| :--------------: | :-------: | :----------------------- |
-|     `Vector`     |  dyMath   | 泛型向量计算             |
-|     `Matrix`     |  dyMath   | 泛型矩阵计算             |
-|     `Tensor`     |  dyMath   | 可用于并行计算的泛型模块 |
-|     `Index`      |  dyMath   | 可用于`Tensor`的元素索引 |
-|   `algorithm`    |  dyMath   | 上述类的数学方法部分     |
-| `imread/imwrite` | dyPicture | 图像读写                 |
-|  `picAlgorithm`  | dyPicture | 图像相关算法部分         |
-|      `GUI`       |  dyGraph  | 简易 GUI 模块            |
+[Fork][3] this repository and add your markdown posts to the `_posts` folder.
 
-## DySim 可以写什么？
+### Deploy Locally with Jekyll Serve
+
+This theme can be ran locally using Ruby and Gemfiles.
+
+[Testing your GitHub Pages site locally with Jekyll](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll) - GitHub
+
+## Full-text search
+
+The search functionality in jekyll-gitbook theme is powered by the [gitbook-plugin-search-pro][5] plugin and is enabled by default.
+
+[https://sighingnow.github.io/jekyll-gitbook/?q=generated](https://sighingnow.github.io/jekyll-gitbook/?q=generated)
+
+## Code highlight
+
+The code highlight style is configurable the following entry in `_config.yaml`:
+
+```yaml
+syntax_highlighter_style: colorful
+```
+
+The default code highlight style is `colorful`, the full supported styles can be found from [the rouge repository][6]. Customized
+style can be added to [./gitbook/rouge/](./gitbook/rouge/).
+
+## How to generate TOC
+
+The jekyll-gitbook theme leverages [jekyll-toc][4] to generate the *Contents* for the page.
+The TOC feature is not enabled by default. To use the TOC feature, modify the TOC
+configuration in `_config.yml`:
+
+```yaml
+toc:
+    enabled: true
+    h_min: 1
+    h_max: 3
+```
+
+## Google Analytics, etc.
+
+The jekyll-gitboook theme supports embedding the [Google Analytics][7], [CNZZ][8] and [Application Insights][9] website analytical tools with the following
+minimal configuration in `_config.yaml`:
+
+```yaml
+tracker:
+  google_analytics: "<YOUR GOOGLE ANALYTICS KEY, e.g, UA-xxxxxx-x>"
+```
+
+Similarly, CNZZ can be added with the following configuration in `_config.yaml`
+
+```yaml
+tracker:
+  cnzz: "<YOUR CNZZ ANALYTICS KEY, e.g., xxxxxxxx>"
+```
+
+Application Insights can be added with the following configuration in `_config.yaml`
+
+```yaml
+tracker:
+  application_insights: "<YOUR APPLICATION INSIGHTS CONNECTION STRING>"
+```
+
+## Extra StyleSheet or Javascript elements
+
+You can add extra CSS or JavaScript references using configuration collections:
+
+- extra_css: for additional style sheets. If the url does not start by http, the path must be relative to the root of the site, without a starting `/`.
+- extra_header_js: for additional scripts to be included in the `<head>` tag, after the `extra_css` has been added. If the url does not start by http, the path must be relative to the root of the site, without a starting `/`.
+- extra_footer_js: for additional scripts to be included at the end of the HTML document, just before the site tracking script. If the url does not start by http, the path must be relative to the root of the site, without a starting `/`.
+
+## Cover image inside pages
+
+The jekyll-gitbook theme supports adding a cover image to a specific page by adding
+a `cover` field to the page metadata:
+
+```diff
+  ---
+  title: Page with cover image
+  author: Tao He
+  date: 2022-05-24
+  category: Jekyll
+  layout: post
++ cover: /jekyll-gitbook/dinosaur.gif
+  ---
+```
+
+The effect can be previewed from
+
+[A page with a cover image](https://sighingnow.github.io/jekyll-gitbook/jekyll/2022-05-24-page_cover.html)
+
+## License
+
+This work is open sourced under the Apache License, Version 2.0.
+
+Copyright 2019 Tao He.
+
+[1]: https://pages.github.com
+[2]: https://pages.github.com/themes
+[3]: https://github.com/sighingnow/jekyll-gitbook/fork
+[4]: https://github.com/allejo/jekyll-toc
+[5]: https://github.com/gitbook-plugins/gitbook-plugin-search-pro
+[6]: https://github.com/rouge-ruby/rouge/tree/master/lib/rouge/themes
+[7]: https://analytics.google.com/analytics/web/
+[8]: https://www.cnzz.com/
+[9]: https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview

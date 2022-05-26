@@ -243,3 +243,28 @@ auto b = a.reflect(normal);
 
 Out: b = {1.0, 1.0, 0.0}
 ~~~
+
+### for_each 遍历
+
+dyMath提供了`for_each`方法，用户遍历`Vector`元素时，可以使用该方法实现基于循环展开的遍历操作：
+
+~~~cpp
+dym::Vector<Real, 3> a({1.0, 2.0, 3.0});
+
+a.for_each([&](Real &e){ e = 0.0; });
+Out: a = {0.0, 0.0, 0.0}
+
+a.for_each([&](Real &e, int i){ e = i; });
+Out: a = {0.0, 1.0, 2.0}
+~~~
+
+### shape 维度
+
+`shape`函数返回这个`Vector`的维度，基于`constexpr`修饰，你可以将它用于模板参数中：
+
+~~~cpp
+dym::Vector<Real, 3> a({1.0, 2.0, 3.0});
+dym::Vector<Real, a.shape()> b = a;
+
+Out: b = {1.0, 2.0, 3.0}
+~~~

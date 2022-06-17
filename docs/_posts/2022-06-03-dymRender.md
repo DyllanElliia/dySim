@@ -95,14 +95,12 @@ _DYM_FORCE_INLINE_ auto lightEarthSur() {
 
 #### 模型网格
 
-## 渲染方案
+## PTRender 基于重要性采样的路径追踪
 
-### PTRender 基于重要性采样的路径追踪
+### 案例一：Balls‘ world
 
-#### 案例一：Bolls‘ world
+### 案例二：Cornell Box
 
-#### 案例二：Cornell Box
+### 案例三：Moving Cornell Box
 
-#### 案例三：Moving Cornell Box
-
-#### 案例四：bunny Box
+### 案例四：bunny Box

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-03-11 14:57:05
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-14 14:41:38
+ * @LastEditTime: 2022-06-20 17:47:13
  * @Description:
  */
 #pragma once
@@ -12,9 +12,9 @@
 namespace dym {
 namespace rt {
 class Transform3 : public Hittable {
- public:
-  Transform3(const shared_ptr<Hittable>& ptr, const Matrix3& mat,
-             const Vector3& offset = 0)
+public:
+  Transform3(const shared_ptr<Hittable> &ptr, const Matrix3 &mat,
+             const Vector3 &offset = 0)
       : ptr(ptr), mat(mat), offset(offset) {
     mat_inv = mat.inverse();
     hasbox = ptr->bounding_box(bbox);
@@ -37,11 +37,11 @@ class Transform3 : public Hittable {
     bbox = aabb(minp + offset, maxp + offset);
   }
 
-  virtual bool hit(const Ray& r, Real t_min, Real t_max,
-                   HitRecord& rec) const override;
-  virtual bool bounding_box(aabb& output_box) const override;
+  virtual bool hit(const Ray &r, Real t_min, Real t_max,
+                   HitRecord &rec) const override;
+  virtual bool bounding_box(aabb &output_box) const override;
 
- public:
+public:
   shared_ptr<Hittable> ptr;
   Matrix3 mat, mat_inv;
   Vector3 offset;
@@ -49,14 +49,15 @@ class Transform3 : public Hittable {
   aabb bbox;
 };
 
-bool Transform3::hit(const Ray& r, Real t_min, Real t_max,
-                     HitRecord& rec) const {
+bool Transform3::hit(const Ray &r, Real t_min, Real t_max,
+                     HitRecord &rec) const {
   auto origin = mat_inv * (r.origin() - offset);
   auto direction = mat_inv * r.direction();
 
   Ray tf_r(origin, direction, r.time());
 
-  if (!ptr->hit(tf_r, t_min, t_max, rec)) return false;
+  if (!ptr->hit(tf_r, t_min, t_max, rec))
+    return false;
 
   rec.p = mat * rec.p + offset;
   auto normal = mat * rec.normal;
@@ -64,10 +65,10 @@ bool Transform3::hit(const Ray& r, Real t_min, Real t_max,
 
   return true;
 }
-bool Transform3::bounding_box(aabb& output_box) const {
+bool Transform3::bounding_box(aabb &output_box) const {
   output_box = bbox;
   return hasbox;
 }
 
-}  // namespace rt
-}  // namespace dym
+} // namespace rt
+} // namespace dym

@@ -2,13 +2,13 @@
  * @Author: DyllanElliia
  * @Date: 2021-09-13 16:50:00
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-05-23 16:12:42
+ * @LastEditTime: 2022-06-20 17:46:33
  * @Description:
  */
 #pragma once
 
-#include "math/tensor.hpp"
 #include "math/matrix.hpp"
+#include "math/tensor.hpp"
 #include <string>
 
 #ifndef STB_IMAGE_IMPLEMENTATION
@@ -37,7 +37,8 @@ int scatter(Tensor<Vector<ValueType, color_size>> &pic,
             const int radius = 1) {
   const Index locShape = loc.shape();
   const auto &vec_num = locShape[0], &vec_d = locShape[1];
-  if (vec_d != 1) return -1;
+  if (vec_d != 1)
+    return -1;
   const Index picShape = pic.shape();
   const auto &picx = picShape[0], &picy = picShape[1];
   const float fpicx = picx, fpicy = picy;
@@ -60,7 +61,8 @@ int scatter(Tensor<Vector<ValueType, color_size>> &pic,
       // qprint(std::to_string(i) + " (" + std::to_string(pos[0]) + " " +
       //        std::to_string(pos[1]) + ")->(" + std::to_string(xi) + " " +
       //        std::to_string(yi) + ")");
-      if (xi < 0 || xi >= picx || yi < 0 || yi >= picy) continue;
+      if (xi < 0 || xi >= picx || yi < 0 || yi >= picy)
+        continue;
       pic[gi(xi, yi)] = color_default, ++ans_i;
     }
     ans += ans_i;
@@ -71,12 +73,12 @@ int scatter(Tensor<Vector<ValueType, color_size>> &pic,
 
 template <class InputType, class KernelType, std::size_t color_size,
           std::size_t kernel_m, std::size_t kernel_n>
-Tensor<Vector<InputType, color_size>> filter2D(
-    Tensor<Vector<InputType, color_size>> &in,
-    const Matrix<KernelType, kernel_m, kernel_n> &kernel,
-    BorderType border = BORDER_CONSTANT,
-    Vector<InputType, color_size> DefaultColor =
-        Vector<InputType, color_size>(0)) {
+Tensor<Vector<InputType, color_size>>
+filter2D(Tensor<Vector<InputType, color_size>> &in,
+         const Matrix<KernelType, kernel_m, kernel_n> &kernel,
+         BorderType border = BORDER_CONSTANT,
+         Vector<InputType, color_size> DefaultColor =
+             Vector<InputType, color_size>(0)) {
   Index<int> vShape = in.shape(), vBorder1 = vShape - gi(1, 1);
   auto &vShapeX = vShape[0], &vShapeY = vShape[1];
   auto &vBorder1X = vBorder1[0], &vBorder1Y = vBorder1[1];
@@ -133,8 +135,12 @@ Tensor<Vector<InputType, color_size>> filter2D(
 #define _dym_pixel_typedef_
 typedef unsigned char Pixel;
 #endif
+
+#ifndef _dym_pic_rgb_
+#define _dym_pic_rgb_
 const std::size_t PIC_GRAY = 1;
 const std::size_t PIC_RGB = 3;
+#endif
 
 template <typename Type = short, std::size_t color_size = PIC_RGB>
 Tensor<Vector<Type, color_size>> imread(std::string picPath) {
@@ -170,7 +176,8 @@ Tensor<Vector<Type, color_size>> imread(std::string picPath) {
 template <typename Type = short, std::size_t color_size>
 int imwrite(Tensor<Vector<Type, color_size>> &pic, std::string picPath) {
   Index size_ = pic.shape();
-  if (size_.size() != 2) return -1;
+  if (size_.size() != 2)
+    return -1;
   int &x = size_[0], &y = size_[1];
   int xc = x * color_size, size_i = y * xc;
   // std::cout << "here " << size_i << std::endl;
@@ -179,8 +186,10 @@ int imwrite(Tensor<Vector<Type, color_size>> &pic, std::string picPath) {
     for (int k = 0; k < color_size; ++k) {
       auto &datai = data[j * xc + i * color_size + k];
       auto pici = e[k];
-      if (pici < 0) pici = 0;
-      if (pici > 255) pici = 255;
+      if (pici < 0)
+        pici = 0;
+      if (pici > 255)
+        pici = 255;
       datai = pici;
     }
   });
@@ -200,31 +209,30 @@ int imwrite(Tensor<Vector<Type, color_size>> &pic, std::string picPath) {
   std::string picPath_end = picPath.substr(fne_r + 1);
 
   switch (hash_(picPath_end.c_str())) {
-    case hash_compile_time("jpg"):
-      return_ = stbi_write_jpg(picPath.c_str(), x, y, color_size, data, 0);
-      break;
-    case hash_compile_time("png"):
-      return_ = stbi_write_png(picPath.c_str(), x, y, color_size, data, 0);
-      break;
-    case hash_compile_time("bmp"):
-      return_ = stbi_write_bmp(picPath.c_str(), x, y, color_size, data);
-      break;
-    case hash_compile_time("tga"):
-      return_ = stbi_write_tga(picPath.c_str(), x, y, color_size, data);
-      break;
-    case hash_compile_time(""):
-      std::cout << "\033[1;31mimwrite error: please specify a file type for "
-                   "writing.\033[0m"
-                << std::endl;
-      break;
-    default:
-      std::cout
-          << "\033[1;31mimwrite error: dyPicture does not support write " +
-                 picPath_end + ".\033[0m"
-          << std::endl;
+  case hash_compile_time("jpg"):
+    return_ = stbi_write_jpg(picPath.c_str(), x, y, color_size, data, 0);
+    break;
+  case hash_compile_time("png"):
+    return_ = stbi_write_png(picPath.c_str(), x, y, color_size, data, 0);
+    break;
+  case hash_compile_time("bmp"):
+    return_ = stbi_write_bmp(picPath.c_str(), x, y, color_size, data);
+    break;
+  case hash_compile_time("tga"):
+    return_ = stbi_write_tga(picPath.c_str(), x, y, color_size, data);
+    break;
+  case hash_compile_time(""):
+    std::cout << "\033[1;31mimwrite error: please specify a file type for "
+                 "writing.\033[0m"
+              << std::endl;
+    break;
+  default:
+    std::cout << "\033[1;31mimwrite error: dyPicture does not support write " +
+                     picPath_end + ".\033[0m"
+              << std::endl;
   }
   delete[] data;
   return return_;
 }
 
-}  // namespace dym
+} // namespace dym

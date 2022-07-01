@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-04-12 16:21:12
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-04-14 14:55:36
+ * @LastEditTime: 2022-07-01 15:00:18
  * @Description:
  */
 
@@ -112,7 +112,7 @@ auto cornell_box2() {
   return dym::rt::BvhNode(objects);
 }
 
-int main(int argc, char const* argv[]) {
+int main(int argc, char const *argv[]) {
   qprint(dym::rt::random_cosine_direction());
   qprint(std::exp(800),
          exp(800) == exp(800) ? "inf is same" : "inf is not same");
@@ -146,7 +146,8 @@ int main(int argc, char const* argv[]) {
       dym::rt::Point3({end, begin, end}),
       dym::rt::Point3({begin, end, end}),
       dym::rt::Point3({end, end, end})};
-  for (auto& p : positions) p -= 0.5;
+  for (auto &p : positions)
+    p -= 0.5;
   std::vector<dym::Vector3ui> faces = {
       dym::Vector3ui({0, 3, 1}), dym::Vector3ui({0, 2, 3}),
       dym::Vector3ui({0, 6, 2}), dym::Vector3ui({0, 4, 6}),
@@ -155,9 +156,10 @@ int main(int argc, char const* argv[]) {
       dym::Vector3ui({1, 3, 5}), dym::Vector3ui({5, 3, 7}),
       dym::Vector3ui({5, 7, 6}), dym::Vector3ui({5, 6, 4})};
 
-  dym::Quaternion rotate = dym::getQuaternion<Real>(dym::Pi, {0, 1, 0});
+  dym::Quaternion rotate = dym::getQuaternion<Real>(dym::Pi, {0.0, 1.0, 0.0});
 
-  dym::Quaternion rotate2 = dym::getQuaternion<Real>(dym::Pi / 4, {1, 0, 0});
+  dym::Quaternion rotate2 =
+      dym::getQuaternion<Real>(dym::Pi / 4, {1.0, 0.0, 0.0});
   dym::Matrix3 scalem = dym::matrix::identity<Real, 3>(3.5);
 
   dym::Vector3 translation({0.4, 0, 0.5});
@@ -170,7 +172,7 @@ int main(int argc, char const* argv[]) {
 
   dym::TimeLog ttt;
 
-  auto pAABB = [&](dym::rt::Hittable& obj) {
+  auto pAABB = [&](dym::rt::Hittable &obj) {
     dym::rt::aabb objaabb;
     obj.bounding_box(objaabb);
     qprint(objaabb.min(), objaabb.max());
@@ -210,7 +212,7 @@ int main(int argc, char const* argv[]) {
 
   time.reStart();
   gui.update([&]() {
-    image.for_each_i([&](dym::Vector<Real, dym::PIC_RGB>& color, int i, int j) {
+    image.for_each_i([&](dym::Vector<Real, dym::PIC_RGB> &color, int i, int j) {
       auto oldColor = dym::sqr(color / 255.f) * Real(ccc - 1);
       color = 0.f;
       for (int samples = 0; samples < samples_per_pixel; samples++) {
@@ -238,8 +240,10 @@ int main(int argc, char const* argv[]) {
       // if (color[1] != color[1]) color[1] = 0.0;
       // if (color[2] != color[2]) color[2] = 0.0;
       dym::Loop<int, 3>([&](auto pi) {
-        if (dym::isnan(color[pi])) color[pi] = 0;
-        if (dym::isinf(color[pi])) color[pi] = oldColor[pi];
+        if (dym::isnan(color[pi]))
+          color[pi] = 0;
+        if (dym::isinf(color[pi]))
+          color[pi] = oldColor[pi];
       });
     });
     ccc++;
@@ -248,7 +252,7 @@ int main(int argc, char const* argv[]) {
     dym::imwrite(image, "./rt_out/rt_test" + std::to_string(ccc) + ".jpg");
 
     // image = dym::filter2D(image, dym::Matrix3(1.f / 9.f));
-    imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB>& e, int i) {
+    imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB> &e, int i) {
       e = image[i].cast<dym::Pixel>();
     });
 

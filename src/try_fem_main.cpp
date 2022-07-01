@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-06-20 17:03:28
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-06-20 18:16:00
+ * @LastEditTime: 2022-07-01 16:27:13
  * @Description:
  */
 #include <dyGraphic.hpp>
@@ -13,7 +13,7 @@ const Real dt = 5e-5;
 const Real dx = 1.0 / N;
 const Real rho = 4e1;
 const int NF = 2 * dym::exp(N);
-const int NV = dym::exp(N + 1);
+const int NV = dym::pow(N + 1, 2);
 const Real E = 4e4, nu = 0.2;
 const Real mu = E / 2 / (1 + nu), lam = E * nu / (1 + nu) / (1 - 2 * nu);
 
@@ -51,7 +51,21 @@ _DYM_FORCE_INLINE_ void update_U() {
   });
 }
 
+_DYM_FORCE_INLINE_ auto solveGrad(int &i) {}
+
+void advance() {}
+
+template <typename type> type tryFun(type x) { return 3.0 * x * x + 2.0 * x; }
+
 int main(int argc, char const *argv[]) {
   dym::GUI("fem", dym::gi(0, 0, 0));
+  dym::Vector<int, 3> v{1, 2, 3};
+  v.show();
+  dym::Matrix<Real, 2, 2> m{{1.0, 2.0}, {3.0, 4.0}};
+  m.show();
+  Real x = 2.f;
+  auto res = tryFun(dym::DualNum<Real>{x, 1});
+  qprint(res);
+
   return 0;
 }

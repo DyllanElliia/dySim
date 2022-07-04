@@ -24,6 +24,7 @@ Real damping = 14.5;
 dym::Tensor<dym::Vector2> pos(0, dym::gi(NV));
 dym::Tensor<dym::Vector2> vel(0, dym::gi(NV));
 dym::Tensor<dym::Vector3i> f2v(0, dym::gi(NF));
+std::vector<std::vector<int>> v2f(NV);
 dym::Tensor<dym::Matrix<Real, 2, 2>> B(0, dym::gi(NF)), F(0, dym::gi(NF));
 dym::Tensor<Real> V(0, dym::gi(NF)), phi(0, dym::gi(NF));
 Real U = 0;
@@ -67,11 +68,13 @@ int main(int argc, char const *argv[]) {
   auto res = tryFun(dym::DualNum<Real>{x, 1});
   qprint(res);
 
-  dym::Vector<dym::DualNum<Real>, 3> point{1.0, 2.0, 3.0};
+  dym::DualNum<dym::Vector3> point{{1.0, 2.0, 3.0}, 1};
   point.show();
 
-  dym::Matrix<dym::DualNum<Real>, 3, 3> mat{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+  dym::Matrix3 mat{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
   auto resmp = mat * point;
   qprint(resmp);
+  qprint((mat * (dym::Vector3{1, 2, 3} + 1e3) - mat * dym::Vector3{1, 2, 3}) /
+         1e3);
   return 0;
 }

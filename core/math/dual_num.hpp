@@ -6,8 +6,10 @@
  * @Description:
  */
 #pragma once
-#include "math/define.hpp"
-#include "realALG.hpp"
+
+#include "./matrix.hpp"
+#include "math/realALG.hpp"
+#include <cstddef>
 #include <cstdlib>
 #include <initializer_list>
 #include <string>
@@ -127,18 +129,32 @@ public:
   Type A, B;
 };
 
-#define _dym_dual_num_oneArg_alg_(funname, doSomething)                        \
+template <typename Type, std::size_t m, std::size_t n>
+_DYM_FORCE_INLINE_ DualNum<Vector<Type, m>>
+operator*(const Matrix<Type, m, n> &ma, const DualNum<Vector<Type, n>> &ve) {
+  return {
+      Vector<Type, m>([&](Type &e, int i) { e = vector::dot(ma[i], ve.A); }),
+      Vector<Type, m>([&](Type &e, int i) { e = vector::dot(ma[i], ve.B); })};
+}
+
+#define _dym_dual_num_oneArg_alg_(funname, ...)                                \
   template <typename Type_>                                                    \
   _DYM_FORCE_INLINE_ DualNum<Type_> funname(const DualNum<Type_> &d) {         \
-    return doSomething;                                                        \
+    return __VA_ARGS__;                                                        \
   }
 
-#define _dym_dual_num_twoArg_alg_(funname, argType, argName, doSomething)      \
+#define _dym_dual_num_twoArg_alg_(funname, argTypeName, ...)                   \
   template <typename Type_>                                                    \
   _DYM_FORCE_INLINE_ DualNum<Type_> funname(const DualNum<Type_> &d,           \
-                                            argType argName) {                 \
-    return doSomething;                                                        \
+                                            argTypeName) {                     \
+    return __VA_ARGS__;                                                        \
   }
 
-// _dym_dual_num_oneArg_alg_(sqrt)
+_dym_dual_num_oneArg_alg_(sqr, d *d);
+_dym_dual_num_twoArg_alg_(pow, const int &s,
+                          {dym::pow(d.A, s), s *dym::pow(d.B, s - 1)});
+_dym_dual_num_oneArg_alg_(sqrt, {dym::sqrt(d.A), 1 / (2 * dym::sqrt(d.B))});
+_dym_dual_num_oneArg_alg_(cos, {dym::cos(d.A), -dym::sin(d.B)});
+_dym_dual_num_oneArg_alg_(cosh, {dym::cosh(d.A), dym::sinh(d.B)});
+_dym_dual_num_oneArg_alg_(acos,{})
 } // namespace dym

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-06-20 17:03:28
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-01 16:27:13
+ * @LastEditTime: 2022-07-04 16:12:55
  * @Description:
  */
 #include <dyGraphic.hpp>
@@ -67,5 +67,11 @@ int main(int argc, char const *argv[]) {
   auto res = tryFun(dym::DualNum<Real>{x, 1});
   qprint(res);
 
+  dym::Vector<dym::DualNum<Real>, 3> point{1.0, 2.0, 3.0};
+  point.show();
+
+  dym::Matrix<dym::DualNum<Real>, 3, 3> mat{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+  auto resmp = mat * point;
+  qprint(resmp);
   return 0;
 }

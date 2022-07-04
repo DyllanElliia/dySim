@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:32:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-01 15:03:06
+ * @LastEditTime: 2022-07-04 16:09:30
  * @Description:
  */
 #pragma once
@@ -53,13 +53,7 @@ public:
     std::memcpy(a.data(), v.a.data(), sizeof(Vector));
   }
 
-  void show() const {
-    std::string res = "Vec: [";
-    for (auto &i : a)
-      res += std::to_string(i) + " ";
-    res += "]";
-    std::cout << res << std::endl;
-  }
+  void show() const { std::cout << *this << std::endl; }
   constexpr _DYM_FORCE_INLINE_ auto data() const { return a.data(); }
   _DYM_FORCE_INLINE_ void for_each(std::function<void(Type &)> func) {
     // for (auto &e : a) func(e);
@@ -105,11 +99,10 @@ public:
   }
 
   friend std::ostream &operator<<(std::ostream &output, const Vector &v) {
-    std::string res = "Vec: [";
+    output << "Vec: [";
     for (auto &i : v.a)
-      res += std::to_string(i) + " ";
-    res += "]";
-    output << res;
+      output << i << " ";
+    output << "]";
     return output;
   }
   template <typename cType> inline Vector<cType, dim> cast() const {

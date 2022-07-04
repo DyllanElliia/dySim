@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-07-01 15:37:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-01 16:40:07
+ * @LastEditTime: 2022-07-04 16:24:13
  * @Description:
  */
 #pragma once
@@ -10,6 +10,7 @@
 #include "realALG.hpp"
 #include <cstdlib>
 #include <initializer_list>
+#include <string>
 namespace dym {
 template <class Type> class DualNum {
 private:
@@ -24,7 +25,7 @@ public:
   }
   DualNum(const thisType &d) { A = d.A, B = d.B; }
   DualNum(const thisType &&d) { A = d.A, B = d.B; }
-  DualNum(const Type &vul = 0) { A = vul, B = Type(0); }
+  DualNum(const Type &vul = 0) { A = vul, B = Type(1); }
   ~DualNum() {}
 
   inline DualNum operator=(const DualNum &d) {
@@ -50,12 +51,18 @@ public:
     return thisType{Type(1) / A, B * Type(-1) / (A * A)};
   }
 
-  thisType operator+(const thisType &rhs) { return {A + rhs.A, B + rhs.B}; }
-  thisType operator-(const thisType &rhs) { return {A - rhs.A, B - rhs.B}; }
-  thisType operator*(const thisType &rhs) {
+  thisType operator+(const thisType &rhs) const {
+    return {A + rhs.A, B + rhs.B};
+  }
+  thisType operator-(const thisType &rhs) const {
+    return {A - rhs.A, B - rhs.B};
+  }
+  thisType operator*(const thisType &rhs) const {
     return {A * rhs.A, A * rhs.B + B * rhs.A};
   }
-  thisType operator/(const thisType &rhs) { return *this * rhs.inverse(); }
+  thisType operator/(const thisType &rhs) const {
+    return *this * rhs.inverse();
+  }
 
   thisType &operator+=(const thisType &rhs) {
     A = A + rhs.A, B = B + rhs.B;
@@ -119,4 +126,19 @@ public:
 public:
   Type A, B;
 };
+
+#define _dym_dual_num_oneArg_alg_(funname, doSomething)                        \
+  template <typename Type_>                                                    \
+  _DYM_FORCE_INLINE_ DualNum<Type_> funname(const DualNum<Type_> &d) {         \
+    return doSomething;                                                        \
+  }
+
+#define _dym_dual_num_twoArg_alg_(funname, argType, argName, doSomething)      \
+  template <typename Type_>                                                    \
+  _DYM_FORCE_INLINE_ DualNum<Type_> funname(const DualNum<Type_> &d,           \
+                                            argType argName) {                 \
+    return doSomething;                                                        \
+  }
+
+// _dym_dual_num_oneArg_alg_(sqrt)
 } // namespace dym

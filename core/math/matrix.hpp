@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-07 12:19:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-01 15:21:38
+ * @LastEditTime: 2022-07-04 16:13:46
  * @Description:
  */
 #pragma once
@@ -77,16 +77,7 @@ public:
   Matrix(const Matrix<Type, m, n> &&v) { std::memcpy(a, v.a, sizeof(Matrix)); }
   Matrix(const Matrix<Type, m, n> &v) { std::memcpy(a, v.a, sizeof(Matrix)); }
 
-  void show() const {
-    std::string res = "Mat: [\n";
-    for (auto &v : a) {
-      for (int i = 0; i < n; ++i)
-        res += std::to_string(v[i]) + " ";
-      res += "\n";
-    }
-    res += "]";
-    std::cout << res << std::endl;
-  }
+  void show() const { std::cout << *this << std::endl; }
   _DYM_FORCE_INLINE_ Matrix &for_each(std::function<void(Type &)> func) {
     Loop<int, m>([&](auto i) { func(a[i]); });
     // for (auto &e : a) func(e);
@@ -123,14 +114,13 @@ public:
     return *this;
   }
   friend std::ostream &operator<<(std::ostream &output, const Matrix &v) {
-    std::string res = "Mat: [\n";
+    output << "Mat: [\n";
     for (auto &v : v.a) {
       for (int i = 0; i < n; ++i)
-        res += std::to_string(v[i]) + " ";
-      res += "\n";
+        output << v[i] << " ";
+      output << "\n";
     }
-    res += "]";
-    output << res;
+    output << "]";
     return output;
   }
   template <typename cType>

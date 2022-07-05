@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:32:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-04 16:09:30
+ * @LastEditTime: 2022-07-05 14:49:27
  * @Description:
  */
 #pragma once
@@ -186,7 +186,7 @@ _dym_vector_type_operator_binary_(/);
 template <typename Type, std::size_t dim>
 _DYM_FORCE_INLINE_ Vector<Type, dim> operator/(const Vector<Type, dim> &f,
                                                const Vector<Type, dim> &s) {
-  return f;
+  return Vector<Type, dim>([&](Type &e, int i) { e = f[i] / s[i]; });
 }
 
 #define _dym_vector_operator_binary_(op)                                       \

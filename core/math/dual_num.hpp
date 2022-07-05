@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-07-01 15:37:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-04 16:24:13
+ * @LastEditTime: 2022-07-05 16:20:40
  * @Description:
  */
 #pragma once
@@ -48,8 +48,10 @@ public:
     return output;
   }
 
-  _DYM_FORCE_INLINE_ auto conjugate() { return thisType{A, B * Type(-1)}; }
-  _DYM_FORCE_INLINE_ auto inverse() {
+  _DYM_FORCE_INLINE_ auto conjugate() const {
+    return thisType{A, B * Type(-1)};
+  }
+  _DYM_FORCE_INLINE_ auto inverse() const {
     return thisType{Type(1) / A, B * Type(-1) / (A * A)};
   }
 
@@ -63,7 +65,7 @@ public:
     return {A * rhs.A, A * rhs.B + B * rhs.A};
   }
   thisType operator/(const thisType &rhs) const {
-    return *this * rhs.inverse();
+    return (*this) * rhs.inverse();
   }
 
   thisType &operator+=(const thisType &rhs) {
@@ -152,9 +154,33 @@ operator*(const Matrix<Type, m, n> &ma, const DualNum<Vector<Type, n>> &ve) {
 
 _dym_dual_num_oneArg_alg_(sqr, d *d);
 _dym_dual_num_twoArg_alg_(pow, const int &s,
-                          {dym::pow(d.A, s), s *dym::pow(d.B, s - 1)});
-_dym_dual_num_oneArg_alg_(sqrt, {dym::sqrt(d.A), 1 / (2 * dym::sqrt(d.B))});
-_dym_dual_num_oneArg_alg_(cos, {dym::cos(d.A), -dym::sin(d.B)});
-_dym_dual_num_oneArg_alg_(cosh, {dym::cosh(d.A), dym::sinh(d.B)});
-_dym_dual_num_oneArg_alg_(acos,{})
+                          {dym::pow(d.A, s), s *d.B *dym::pow(d.A, s - 1)});
+_dym_dual_num_oneArg_alg_(sqrt, {dym::sqrt(d.A), d.B / (2 * dym::sqrt(d.A))});
+_dym_dual_num_oneArg_alg_(cos, {dym::cos(d.A), -d.B *dym::sin(d.A)});
+_dym_dual_num_oneArg_alg_(cosh, {dym::cosh(d.A), d.B *dym::sinh(d.A)});
+_dym_dual_num_oneArg_alg_(acos, {dym::acos(d.A),
+                                 -d.B / dym::sqrt(1 - dym::sqr(d.A))});
+_dym_dual_num_oneArg_alg_(acosh, {dym::acosh(d.A),
+                                  d.B / dym::sqrt(dym::sqr(d.A) - 1)});
+_dym_dual_num_oneArg_alg_(sin, {dym::sin(d.A), d.B *dym::cos(d.A)});
+_dym_dual_num_oneArg_alg_(sinh, {dym::sinh(d.A), d.B *dym::cosh(d.A)});
+_dym_dual_num_oneArg_alg_(asin,
+                          {dym::asin(d.A), d.B / dym::sqrt(1 - dym::sqr(d.A))});
+_dym_dual_num_oneArg_alg_(asinh, {dym::asinh(d.A),
+                                  d.B / dym::sqrt(dym::sqr(d.A) + 1)});
+_dym_dual_num_oneArg_alg_(tan, {dym::tan(d.A), d.B / dym::sqr(dym::cos(d.A))});
+_dym_dual_num_oneArg_alg_(tanh,
+                          {dym::tanh(d.A), 2 * d.B / (1 + dym::cosh(2 * d.A))});
+_dym_dual_num_oneArg_alg_(atan, {dym::atan(d.A), d.B / (1 + dym::sqr(d.A))});
+_dym_dual_num_oneArg_alg_(atanh, {dym::atanh(d.A), d.B / (1 - dym::sqr(d.A))});
+_dym_dual_num_oneArg_alg_(exp, {dym::exp(d.A), d.B *dym::exp(d.A)});
+_dym_dual_num_oneArg_alg_(exp2, {dym::exp2(d.A),
+                                 d.B *dym::exp2(d.A) * dym::exp((Type_)2)});
+_dym_dual_num_oneArg_alg_(expm1, {dym::expm1(d.A), d.B *dym::exp(d.A)});
+_dym_dual_num_oneArg_alg_(log, {dym::log(d.A), d.B / d.A});
+_dym_dual_num_oneArg_alg_(log2,
+                          {dym::log2(d.A), d.B / (d.A * dym::log((Type_)2))});
+_dym_dual_num_oneArg_alg_(log10,
+                          {dym::log10(d.A), d.B / (d.A * dym::log((Type_)10))});
+_dym_dual_num_oneArg_alg_(log1p, {dym::log1p(d.A), d.B / (d.A + 1)});
 } // namespace dym

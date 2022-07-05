@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-07 12:19:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-04 16:13:46
+ * @LastEditTime: 2022-07-05 14:47:27
  * @Description:
  */
 #pragma once
@@ -199,7 +199,7 @@ inline Matrix<Type, m1, n2> operator*(const Matrix<Type, m1, n1> &a,
 template <typename Type, std::size_t m, std::size_t n>
 inline Matrix<Type, m, n> operator/(const Matrix<Type, m, n> &v1,
                                     const Matrix<Type, m, n> &v2) {
-  return Matrix<Type, m, n>(Type(0));
+  return v1 * v2.inverse();
 }
 
 template <typename Type, std::size_t m, std::size_t n>

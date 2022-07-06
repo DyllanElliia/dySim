@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.18)
+
 # program name
 project(dyMath C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(CUDA_ENABLE "Use CUDA" OFF)
+
 if(CUDA_ENABLE)
   enable_language(CUDA)
   set(CMAKE_CUDA_STANDARD 17)
@@ -18,7 +20,7 @@ if(CUDA_ENABLE)
   add_library(dyMath_cuda STATIC ${CUDA_SOURCE})
   target_compile_features(dyMath_cuda PRIVATE cuda_std_17)
   set_target_properties(dyMath_cuda
-                       PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
   set_property(TARGET dyMath_cuda PROPERTY CUDA_ARCHITECTURES 70 75)
   set(dyMath_libs ${dyMath_libs} dyMath_cuda)
   add_definitions(-DDYM_USE_CUDA)
@@ -27,12 +29,15 @@ endif(CUDA_ENABLE)
 # add package
 # find_package(OpenCL REQUIRED)
 find_package(Threads)
+
 # set(dyMath_libs ${dyMath_libs} ${CMAKE_THREAD_LIBS_INIT} OpenCL::OpenCL)
 set(dyMath_libs ${dyMath_libs} ${CMAKE_THREAD_LIBS_INIT})
 
 option(OPENMP_ENABLE "Use OpenMP" ON)
+
 if(OPENMP_ENABLE)
   find_package(OpenMP REQUIRED)
+
   if(OpenMP_FOUND)
     add_definitions(-DDYM_USE_OPENMP)
     set(dyMath_libs ${dyMath_libs} OpenMP::OpenMP_CXX)
@@ -42,8 +47,9 @@ endif(OPENMP_ENABLE)
 
 # set compiler argument
 set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_C_COMPILER "clang")
 set(CMAKE_CXX_COMPILER "clang++")
-set(CMAKE_CXX_STANDARD 20) 
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -o3   ${OpenMP_CXX_FLAGS}")
 
@@ -59,12 +65,12 @@ find_package(GLFW3 REQUIRED)
 message(STATUS "-> GLFW3 included at ${GLFW3_INCLUDE_DIR}")
 find_package(ASSIMP REQUIRED)
 message(STATUS "-> ASSIMP included at ${ASSIMP_INCLUDE_DIR}")
+
 # find_package(SOIL REQUIRED)
 # message(STATUS "Found SOIL in ${SOIL_INCLUDE_DIR}")
 # find_package(GLEW REQUIRED)
 # message(STATUS "Found GLEW in ${GLEW_INCLUDE_DIR}")
-
-if (POLICY CMP0072)
+if(POLICY CMP0072)
   set(OpenGL_GL_PREFERENCE LEGACY)
 endif()
 
@@ -77,10 +83,11 @@ elseif(UNIX AND NOT APPLE)
   message(STATUS "-> OpenGL included at ${OPENGL_INCLUDE_DIR}")
   find_package(X11 REQUIRED)
   message(STATUS "-> X11.X11 included at ${X11_X11_INCLUDE_PATH}")
+
   # note that the order is important for setting the libs
   # use pkg-config --libs $(pkg-config --print-requires --print-requires-private glfw3) in a terminal to confirm
   set(LIBS ${GLFW3_LIBRARY} X11 Xrandr Xinerama Xi Xxf86vm Xcursor GL dl pthread freetype ${ASSIMP_LIBRARY})
-  set (CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} -ldl")
+  set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} -ldl")
 elseif(APPLE)
   INCLUDE_DIRECTORIES(/System/Library/Frameworks)
   FIND_LIBRARY(COCOA_LIBRARY Cocoa)
@@ -92,7 +99,7 @@ elseif(APPLE)
   SET(APPLE_LIBS ${APPLE_LIBS} ${GLFW3_LIBRARY} ${ASSIMP_LIBRARY})
   set(LIBS ${LIBS} ${APPLE_LIBS})
 else()
-  set(LIBS )
+  set(LIBS)
 endif(WIN32)
 
 configure_file(configuration/root_directory.h.in configuration/root_directory.h)
@@ -101,8 +108,8 @@ include_directories(${CMAKE_BINARY_DIR}/configuration)
 # first create relevant static libraries requried for other projects
 # add_library(STB_IMAGE "src/stb_image.cpp")
 # set(LIBS ${LIBS} STB_IMAGE)
-
 add_library(GLAD "core/glad.c")
+
 # target_compile_features(GLAD PRIVATE cxx_std_17)
 set(LIBS ${LIBS} GLAD)
 
@@ -128,39 +135,45 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
 # read main.cpp
-file(GLOB MAIN 
-      "src/*_main.cpp" 
-      # "src/*_main.cu"
+file(GLOB MAIN
+  "src/*_main.cpp"
+
+  # "src/*_main.cu"
 )
 
 # read other file
 file(GLOB SOURCE
-      "src/*.h"
-      "src/*.hpp"
-      # "src/*.cpp"
-      # "src/*.cu"
-      "src/*.vs"
-      "src/*.fs"
-      "src/*.gs"
+  "src/*.h"
+  "src/*.hpp"
+
+  # "src/*.cpp"
+  # "src/*.cu"
+  "src/*.vs"
+  "src/*.fs"
+  "src/*.gs"
 )
 
 # target
 FILE(GLOB_RECURSE SRC_FILES "*.c" "*.cpp" "*.cu")
+
 foreach(MAIN_PATH ${MAIN})
   string(REGEX REPLACE ".+/(.+)\\..*" "\\1" MAIN_NAME ${MAIN_PATH})
   string(REGEX REPLACE ".+\\.(.+)" "\\1" MAIN_TYPE ${MAIN_PATH})
   string(CONCAT MAIN_NAME ${MAIN_NAME} ".out")
   message(STATUS "==> build ${MAIN_PATH} (Type: ${MAIN_TYPE}) as --> ${MAIN_NAME}")
   add_executable(${MAIN_NAME} ${MAIN_PATH} ${SOURCE})
+
   if(CUDA_ENABLE)
     if(${MAIN_TYPE} STREQUAL "cu")
       message(STATUS "    -> use nvcc")
       set_property(TARGET ${MAIN_NAME} PROPERTY CUDA_SEPARABLE_COMPILATION ON)
       set_property(TARGET ${MAIN_NAME} PROPERTY CUDA_ARCHITECTURES 70 75)
     endif()
+
     # target_compile_features(dyMath_cuda PRIVATE cuda_std_17 cxx_std_20)
   endif(CUDA_ENABLE)
-  target_link_libraries(${MAIN_NAME} ${dyMath_libs} )
+
+  target_link_libraries(${MAIN_NAME} ${dyMath_libs})
 endforeach(MAIN_PATH)
 
 # include file

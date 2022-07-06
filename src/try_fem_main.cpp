@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-06-20 17:03:28
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-05 15:50:13
+ * @LastEditTime: 2022-07-06 14:58:36
  * @Description:
  */
 #include "math/dual_num.hpp"
@@ -22,24 +22,24 @@ dym::Vector2 ball_pos({0.2, 0.2});
 Real ball_radius = 0.31;
 Real damping = 14.5;
 
-dym::Tensor<dym::DualNum<dym::Vector2>> pos({0, 1}, dym::gi(NV));
+dym::Tensor<dym::Dual<dym::Vector2>> pos({0, 1}, dym::gi(NV));
 dym::Tensor<dym::Vector2> vel(0, dym::gi(NV));
 dym::Tensor<dym::Vector3i> f2v(0, dym::gi(NF));
 std::vector<std::vector<int>> v2f(NV);
 dym::Tensor<dym::Matrix<Real, 2, 2>> B(0, dym::gi(NF));
-dym::Tensor<dym::DualNum<dym::Matrix<Real, 2, 2>>> F({0, 1}, dym::gi(NF));
+dym::Tensor<dym::Dual<dym::Matrix<Real, 2, 2>>> F({0, 1}, dym::gi(NF));
 dym::Tensor<Real> V(0, dym::gi(NF)), phi(0, dym::gi(NF));
 Real U = 0;
 
 dym::Vector2 gravity({0, 0}), attractor_pos({0, 0}), attractor_strength({0, 0});
 
 _DYM_FORCE_INLINE_ void update_U() {
-  F.for_each_i([&](dym::DualNum<dym::Matrix<Real, 2, 2>> &Fi, int i) {
+  F.for_each_i([&](dym::Dual<dym::Matrix<Real, 2, 2>> &Fi, int i) {
     const auto &ia = f2v[i][0], &ib = f2v[i][1], &ic = f2v[i][2];
     auto &a = pos[ia], &b = pos[ib], &c = pos[ic];
     auto ac = a - c, bc = b - c;
     V[i] = dym::abs(((ac.A).cross(bc.A)).length());
-    dym::DualNum<dym::Matrix<Real, 2, 2>> D_i;
+    dym::Dual<dym::Matrix<Real, 2, 2>> D_i;
     D_i.A.setColVec(0, ac.A), D_i.A.setColVec(1, bc.A);
     D_i.B.setColVec(0, ac.B), D_i.B.setColVec(1, bc.B);
     F[i] = D_i * B[i];
@@ -69,10 +69,10 @@ int main(int argc, char const *argv[]) {
   dym::Matrix<Real, 2, 2> m{{1.0, 2.0}, {3.0, 4.0}};
   m.show();
   Real x = 2.f;
-  auto res = tryFun(dym::DualNum<Real>{x, 1});
+  auto res = tryFun(dym::Dual<Real>{x, 1});
   qprint(res);
 
-  dym::DualNum<dym::Vector3> point{{1.0, 2.0, 3.0}, 1};
+  dym::Dual<dym::Vector3> point{{1.0, 2.0, 3.0}, 1};
   point.show();
 
   dym::Matrix3 mat{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};

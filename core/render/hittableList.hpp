@@ -10,37 +10,36 @@
 namespace dym {
 namespace rt {
 class HittableList : public Hittable {
- public:
+public:
   HittableList() {}
   HittableList(shared_ptr<Hittable> object) { add(object); }
-  HittableList(const HittableList& object) { objects = object.objects; }
+  HittableList(const HittableList &object) { objects = object.objects; }
 
   void clear() { objects.clear(); }
   void add(shared_ptr<Hittable> object) { objects.push_back(object); }
 
-  template <class objType, typename... Args>
-  void addObject(Args... args) {
+  template <class objType, typename... Args> void addObject(Args... args) {
     add(std::make_shared<objType>(args...));
   }
 
-  virtual bool hit(const Ray& r, Real t_min, Real t_max,
-                   HitRecord& rec) const override;
-  virtual bool bounding_box(aabb& output_box) const override;
+  virtual bool hit(const Ray &r, Real t_min, Real t_max,
+                   HitRecord &rec) const override;
+  virtual bool bounding_box(aabb &output_box) const override;
 
-  virtual Real pdf_value(const Point3& origin, const Vector3& v) const override;
-  virtual Vector3 random(const Point3& origin) const override;
+  virtual Real pdf_value(const Point3 &origin, const Vector3 &v) const override;
+  virtual Vector3 random(const Point3 &origin) const override;
 
- public:
+public:
   std::vector<shared_ptr<Hittable>> objects;
 };
 
-bool HittableList::hit(const Ray& r, Real t_min, Real t_max,
-                       HitRecord& rec) const {
+bool HittableList::hit(const Ray &r, Real t_min, Real t_max,
+                       HitRecord &rec) const {
   HitRecord temp_rec;
   bool hit_anything = false;
   auto closest_so_far = t_max;
 
-  for (const auto& object : objects) {
+  for (const auto &object : objects) {
     if (object->hit(r, t_min, closest_so_far, temp_rec)) {
       hit_anything = true;
       closest_so_far = temp_rec.t;
@@ -50,14 +49,16 @@ bool HittableList::hit(const Ray& r, Real t_min, Real t_max,
 
   return hit_anything;
 }
-bool HittableList::bounding_box(aabb& output_box) const {
-  if (objects.empty()) return false;
+bool HittableList::bounding_box(aabb &output_box) const {
+  if (objects.empty())
+    return false;
 
   aabb temp_box;
   bool first_box = true;
 
-  for (const auto& object : objects) {
-    if (!object->bounding_box(temp_box)) return false;
+  for (const auto &object : objects) {
+    if (!object->bounding_box(temp_box))
+      return false;
     output_box = first_box ? temp_box : surrounding_box(output_box, temp_box);
     first_box = false;
   }
@@ -65,18 +66,19 @@ bool HittableList::bounding_box(aabb& output_box) const {
   return true;
 }
 
-Real HittableList::pdf_value(const Point3& o, const Vector3& v) const {
+Real HittableList::pdf_value(const Point3 &o, const Vector3 &v) const {
   auto weight = 1.0 / objects.size();
   auto sum = 0.0;
 
-  for (const auto& object : objects) sum += weight * object->pdf_value(o, v);
+  for (const auto &object : objects)
+    sum += weight * object->pdf_value(o, v);
 
   return sum;
 }
 
-Vector3 HittableList::random(const Vector3& o) const {
+Vector3 HittableList::random(const Vector3 &o) const {
   auto int_size = static_cast<int>(objects.size());
   return objects[static_cast<int>(random_real(0, int_size - 1))]->random(o);
 }
-}  // namespace rt
-}  // namespace dym
+} // namespace rt
+} // namespace dym

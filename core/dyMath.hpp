@@ -2,21 +2,27 @@
  * @Author: DyllanElliia
  * @Date: 2021-10-06 17:00:50
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-01 16:24:33
+ * @LastEditTime: 2022-07-12 15:59:50
  * @Description:
  */
 
 #pragma once
 
-// #include "./picture.hpp"
-#include "math/dual_num.hpp"
-#include "math/matALG.hpp"
-#include "math/matrix.hpp"
+// quat
 #include "math/quaternion.hpp"
+// real
 #include "math/realALG.hpp"
-#include "math/tensor.hpp"
+// vec
 #include "math/vecALG.hpp"
 #include "math/vector.hpp"
+// mat
+#include "math/matALG.hpp"
+#include "math/matrix.hpp"
+// dual
+#include "math/dual_alg.hpp"
+#include "math/dual_num.hpp"
+// tensor
+#include "math/tensor.hpp"
 
 namespace dym {
 typedef Matrix<Real, 3, 3> Matrix3;

@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:32:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-08 16:36:18
+ * @LastEditTime: 2022-07-12 14:51:23
  * @Description:
  */
 #pragma once
@@ -134,6 +134,8 @@ public:
     auto &vec = *this;
     return vec - 2 * (vec.dot(normal)) * normal;
   }
+
+  _DYM_FORCE_INLINE_ auto transpose() const;
 
   constexpr _DYM_FORCE_INLINE_ auto shape() const { return dim; }
 };

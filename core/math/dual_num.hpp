@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-07-01 15:37:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-06 16:22:11
+ * @LastEditTime: 2022-07-12 16:53:09
  * @Description:
  */
 #pragma once
@@ -27,7 +27,7 @@ public:
   }
   Dual(const thisType &d) { A = d.A, B = d.B; }
   Dual(const thisType &&d) { A = d.A, B = d.B; }
-  Dual(const Type &vul = 0) { A = vul, B = Type(1); }
+  Dual(const Type &vul = 0) { A = vul, B = Type(0); }
   ~Dual() {}
 
   inline Dual operator=(const Dual &d) {

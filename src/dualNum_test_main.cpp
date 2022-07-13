@@ -2,9 +2,10 @@
  * @Author: DyllanElliia
  * @Date: 2022-07-05 15:21:15
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-12 16:45:44
+ * @LastEditTime: 2022-07-13 17:00:41
  * @Description:
  */
+#include "math/matALG.hpp"
 #include <dyMath.hpp>
 #include <tuple>
 
@@ -25,21 +26,33 @@ auto tryFun3(typex x, typey y, typez z) {
 }
 
 dym::Dual<Real> tryFun3d(dym::Dual<Real> x, dym::Dual<Real> y,
-                         dym::Dual<Real> z) {
+                         dym::Dual<Real> z, dym::Dual<Real> t) {
   return dym::sin(x) * dym::cos(y) - dym::tanh(z) +
          2 * x / dym::exp(y) * dym::sqrt(x * z) +
          dym::pow(x, 4) * dym::log10(y * z);
 }
 
-int main(int argc, char const *argv[]) {
-  dym::Dual<Real> asdf(0);
-  Real x = 2.f;
-  auto res = tryFun1(dym::Dual<Real>{x, 1});
-  qprint(res);
+dym::Dual<Real> tryFun4d(dym::Vector<dym::Dual<Real>, 3> x) {
+  auto &x1 = x[0], &x2 = x[1], &x3 = x[2];
+  return dym::sqr(x1) + x1 * x2 + x2 * x3;
+}
 
+Real lam = 1.234, mu = 2.345;
+dym::Dual<Real> tryFun5d(dym::Matrix<dym::Dual<Real>, 2, 2> G) {
+  auto &euu = G[0][0], euv = G[0][1] + G[1][0], &evv = G[1][1];
+  euv.A /= 2.0;
+  return lam / 2.0 * dym::sqr(euu + evv) +
+         mu * (dym::sqr(euu) + dym::sqr(euv) + dym::sqr(evv));
+}
+
+int main(int argc, char const *argv[]) {
+  Real x = 2.f;
+  // 3*x^2+2x
+  qprint(tryFun1(dym::Dual<Real>{x, 1}));
+  // sin(x)*cos(y)-tanh(x)+2*x/exp(x)*sqrt(x)+x^4*log_10(x)
   qprint(tryFun2(dym::Dual<Real>{0.5, 1}));
   qprint();
-
+  // sin(x)*cos(y)-tanh(z)+2*x/exp(y)*sqrt(x*z)+x^4*log_10(y*z)
   Real x3 = 0.3, y3 = 0.5, z3 = 0.7;
   qprint("dx. ", tryFun3(dym::Dual<Real>{x3, 1}, dym::Dual<Real>{y3, 0},
                          dym::Dual<Real>{z3, 0}));
@@ -47,36 +60,34 @@ int main(int argc, char const *argv[]) {
                          dym::Dual<Real>{z3, 0}));
   qprint("dz. ", tryFun3(dym::Dual<Real>{x3, 0}, dym::Dual<Real>{y3, 0},
                          dym::Dual<Real>{z3, 1}));
-
   qprint("dx ", tryFun3(dym::Dual<Real>{x3, 1}, y3, z3));
   qprint("dy ", tryFun3(x3, dym::Dual<Real>{y3, 1}, z3));
   qprint("dz ", tryFun3(x3, y3, dym::Dual<Real>{z3, 1}));
   qprint();
-  dym::Dual<Real> tx1 = x3, tx2 = y3, tx3 = z3;
-  qprint("dx ", dym::AD::dx(tryFun3d, tx1, dym::AD::all(tx1, y3, z3)));
-  qprint("dy ", dym::AD::dx(tryFun3d, tx2, dym::AD::all(tx1, tx2, tx3)));
-  qprint("dz ", dym::AD::dx(tryFun3d, tx3, dym::AD::all(tx1, tx2, tx3)));
-
+  // sin(x)*cos(y)-tanh(z)+2*x/exp(y)*sqrt(x*z)+x^4*log_10(y*z)
+  dym::Dual<Real> tx1 = x3, tx2 = y3, tx3 = z3, tx4 = 1;
+  qprint("dx ", dym::AD::dx(tryFun3d, tx1, dym::AD::all(tx1, y3, z3, tx4)));
+  qprint("dy ", dym::AD::dx(tryFun3d, tx2, dym::AD::all(tx1, tx2, tx3, tx4)));
+  qprint("dz ", dym::AD::dx(tryFun3d, tx3, dym::AD::all(tx1, tx2, tx3, tx4)));
+  qprint("dt ", dym::AD::dx(tryFun3d, tx4, dym::AD::all(tx1, tx2, tx3, tx4)));
+  qprint();
+  // x1^2+x1*x2+x2*x3
+  dym::Vector<dym::Dual<Real>, 3> t4x = {1, 2, 3};
+  qprint("dV ", dym::AD::dx(tryFun4d, t4x, dym::AD::all(t4x)));
+  qprint();
+  // StVK: W(G)  = lambda/2*(e_uu+e_vv)^2+mu*(e_uu^2+e_uv^2+e_vv^2)
+  //       dW/dG = 2*mu*G+lambda*trace(G)*I
+  dym::Matrix<dym::Dual<Real>, 2, 2> G{{2, 3}, {3, 4}};
+  qprint("dG ", dym::AD::dx(tryFun5d, G, dym::AD::all(G)));
+  qprint("dG ", dym::Dual<Real>{2 * mu, 0} * G +
+                    lam * G.trace() *
+                        dym::matrix::identity<dym::Dual<Real>, 2>({1, 0}));
+  qprint();
   dym::Dual<dym::Vector3> point{{1.0, 2.0, 3.0}, 1};
-  point.show();
-
   dym::Matrix3 mat{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
-  auto resmp = mat * point;
-  qprint(resmp);
+  qprint(mat * point);
   qprint((mat * (dym::Vector3{1, 2, 3} + 1e3) - mat * dym::Vector3{1, 2, 3}) /
          1e3);
 
-  // int t1 = 114514;
-  // char t2 = 'a';
-  // dym::Dual<Real> t3 = 3;
-
-  // std::tuple<int &, char &, dym::Dual<Real> &> a{t1, t2, t3};
-  // dym::Loop<int, 3>([&](auto i) { qprint(std::get<i>(a)); });
-  // dym::Loop<int, 3>([&](auto i) {
-  //   dym::Loop<int, 3>([&](auto j) {
-  //     qprint(std::get<i>(a), std::get<j>(a),
-  //            (void *)&std::get<i>(a) == (void *)&std::get<j>(a));
-  //   });
-  // });
   return 0;
 }

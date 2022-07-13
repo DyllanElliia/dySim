@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-06-20 17:03:28
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-11 16:52:05
+ * @LastEditTime: 2022-07-13 17:25:38
  * @Description:
  */
 #include <dyGraphic.hpp>
@@ -32,6 +32,13 @@ const auto I = dym::matrix::identity<Real, 2>(1.0);
 
 dym::Vector2 gravity({0, -1});
 
+dym::Dual<Real> StVK(dym::Matrix<dym::Dual<Real>, 2, 2> G) {
+  auto &euu = G[0][0], euv = G[0][1] + G[1][0], &evv = G[1][1];
+  euv.A /= 2.0;
+  return lam / 2.0 * dym::sqr(euu + evv) +
+         mu * (dym::sqr(euu) + dym::sqr(euv) + dym::sqr(evv));
+}
+
 _DYM_FORCE_INLINE_ void update_f() {
   f = 0.0;
   F.for_each_i([&](dym::Matrix<Real, 2, 2> &Fi, int i) {
@@ -42,7 +49,10 @@ _DYM_FORCE_INLINE_ void update_f() {
     auto D_i = dym::Matrix<Real, 2, 2>({ac, bc}).transpose();
     Fi = D_i * B[i];
     auto G = (Fi.transpose() * Fi - I) / 2.0;
-    auto S = 2 * mu * G + lam * G.trace() * I;
+    dym::Matrix<dym::Dual<Real>, 2, 2> dG(
+        [&](auto &dGi, int i, int j) { dGi = G[i][j]; });
+    auto S = dym::AD::dx(StVK, dG, dym::AD::all(dG));
+    // auto S = 2 * mu * G + lam * G.trace() * I;
     auto f1 = -Aref * Fi * S * B[i][0], f2 = -Aref * Fi * S * B[i][1];
     auto f3 = -f1 - f2;
     f[ia] += f1, f[ib] += f2, f[ic] += f3;
@@ -154,8 +164,8 @@ int main(int argc, char const *argv[]) {
       return dym::Vector3{0.1, 0.15, 0.1};
     });
     auto &image = render.getFrame();
-    dym::imwrite(image, "./fem_out/sample/1/frame_" +
-                            std::to_string(ccc++ - 1) + ".jpg");
+    // dym::imwrite(image, "./fem_out/sample/1/frame_" +
+    //                         std::to_string(ccc++ - 1) + ".jpg");
     gui.imshow(image);
   });
 

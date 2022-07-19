@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-07 12:19:03
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-13 16:35:14
+ * @LastEditTime: 2022-07-19 16:07:40
  * @Description:
  */
 #pragma once
@@ -15,7 +15,8 @@ private:
   Vector<Type, n> a[m];
 
 public:
-  Matrix(const Type &num = 0) {
+  Matrix() {}
+  Matrix(const Type &num) {
     for (auto &i : a)
       i = num;
   }
@@ -79,7 +80,8 @@ public:
 
   void show() const { std::cout << *this << std::endl; }
   _DYM_FORCE_INLINE_ Matrix &for_each(std::function<void(Type &)> func) {
-    Loop<int, m>([&](auto i) { func(a[i]); });
+    Loop<int, m>(
+        [&](auto i) { a[i].for_each([&](Type &e, int j) { func(e); }); });
     // for (auto &e : a) func(e);
     return *this;
   }
@@ -183,7 +185,7 @@ inline Matrix<Type, m1, n2> operator*(const Matrix<Type, m1, n1> &a,
                 "Left Matrix's col must be equal to Right Matrix's row!");
   // dym::matrix::mul_swap
   // mul_fast is better, but difficult to implement. Because of const & ptr
-  Matrix<Type, m1, n2> o(0);
+  Matrix<Type, m1, n2> o(Type(0));
   // Loop<int, m1>([&](auto r) {
   //   Loop<int, n1>([&](auto i) {
   //     for (int c = 0; c < n2; ++c) o[r][c] += a[r][i] * b[i][c];

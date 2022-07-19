@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2022-01-14 14:51:57
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-12 14:52:54
+ * @LastEditTime: 2022-07-18 17:02:59
  * @Description:
  */
 #pragma once
@@ -167,6 +167,6 @@ _DYM_FORCE_INLINE_ Type Matrix<Type, m, n>::det() const {
 
 template <typename Type, std::size_t dim>
 _DYM_FORCE_INLINE_ auto Vector<Type, dim>::transpose() const {
-  return Matrix<Type, 1, dim>({*this});
+  return Matrix<Type, 1, dim>([&](Type &e, int i, int j) { e = a[j]; });
 }
 } // namespace dym

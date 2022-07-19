@@ -2,10 +2,9 @@
  * @Author: DyllanElliia
  * @Date: 2022-07-05 15:21:15
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-13 17:00:41
+ * @LastEditTime: 2022-07-19 16:24:59
  * @Description:
  */
-#include "math/matALG.hpp"
 #include <dyMath.hpp>
 #include <tuple>
 
@@ -25,24 +24,30 @@ auto tryFun3(typex x, typey y, typez z) {
          dym::pow(x, 4) * dym::log10(y * z);
 }
 
-dym::Dual<Real> tryFun3d(dym::Dual<Real> x, dym::Dual<Real> y,
-                         dym::Dual<Real> z, dym::Dual<Real> t) {
+auto tryFun3d(dym::Dual<Real> x, dym::Dual<Real> y, dym::Dual<Real> z,
+              dym::Dual<Real> t) {
   return dym::sin(x) * dym::cos(y) - dym::tanh(z) +
          2 * x / dym::exp(y) * dym::sqrt(x * z) +
          dym::pow(x, 4) * dym::log10(y * z);
 }
 
-dym::Dual<Real> tryFun4d(dym::Vector<dym::Dual<Real>, 3> x) {
+auto tryFun4d(dym::Vector<dym::Dual<Real>, 3> x) {
   auto &x1 = x[0], &x2 = x[1], &x3 = x[2];
   return dym::sqr(x1) + x1 * x2 + x2 * x3;
 }
 
 Real lam = 1.234, mu = 2.345;
-dym::Dual<Real> tryFun5d(dym::Matrix<dym::Dual<Real>, 2, 2> G) {
+auto tryFun5d(dym::Matrix<dym::Dual<Real>, 2, 2> G) {
   auto &euu = G[0][0], euv = G[0][1] + G[1][0], &evv = G[1][1];
   euv.A /= 2.0;
   return lam / 2.0 * dym::sqr(euu + evv) +
          mu * (dym::sqr(euu) + dym::sqr(euv) + dym::sqr(evv));
+}
+
+auto tryFun6d(dym::Vector<dym::Dual<Real>, 3> x,
+              dym::Matrix<dym::Dual<Real>, 3, 3> A,
+              dym::Vector<dym::Dual<Real>, 3> y) {
+  return x.transpose() * A * y;
 }
 
 int main(int argc, char const *argv[]) {
@@ -70,6 +75,9 @@ int main(int argc, char const *argv[]) {
   qprint("dy ", dym::AD::dx(tryFun3d, tx2, dym::AD::all(tx1, tx2, tx3, tx4)));
   qprint("dz ", dym::AD::dx(tryFun3d, tx3, dym::AD::all(tx1, tx2, tx3, tx4)));
   qprint("dt ", dym::AD::dx(tryFun3d, tx4, dym::AD::all(tx1, tx2, tx3, tx4)));
+  auto [dx, dy, dz] = dym::AD::d(tryFun3d, dym::AD::fc(tx1, tx2, tx3),
+                                 dym::AD::all(tx1, tx2, tx3, tx4));
+  qprint(dx, dy, dz);
   qprint();
   // x1^2+x1*x2+x2*x3
   dym::Vector<dym::Dual<Real>, 3> t4x = {1, 2, 3};
@@ -88,6 +96,20 @@ int main(int argc, char const *argv[]) {
   qprint(mat * point);
   qprint((mat * (dym::Vector3{1, 2, 3} + 1e3) - mat * dym::Vector3{1, 2, 3}) /
          1e3);
+
+  dym::Vector<dym::Dual<Real>, 3> x6{1, 2, 3};
+  dym::Matrix<dym::Dual<Real>, 3, 3> A6(
+      [&](dym::Dual<Real> &obj, int i, int j) { obj = i * 3 + j; });
+  dym::Vector<dym::Dual<Real>, 3> y6{4, 5, 6};
+  qprint(x6.transpose());
+  dym::Vector<dym::Vector<dym::Dual<Real>, 3>, 3> testy;
+
+  qprint("dx ", dym::AD::dx(tryFun6d, x6, dym::AD::all(x6, A6, y6)));
+  qprint("dA ", dym::AD::dx(tryFun6d, A6, dym::AD::all(x6, A6, y6)));
+  qprint("dy ", dym::AD::dx(tryFun6d, y6, dym::AD::all(x6, A6, y6)));
+  auto [dxv, dAm, dyv] =
+      dym::AD::d(tryFun6d, dym::AD::fc(x6, A6, y6), dym::AD::all(x6, A6, y6));
+  qprint(dxv, dAm, dyv);
 
   return 0;
 }

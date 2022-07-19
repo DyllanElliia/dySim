@@ -2,7 +2,7 @@
  * @Author: DyllanElliia
  * @Date: 2021-11-23 14:32:58
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-13 16:35:11
+ * @LastEditTime: 2022-07-19 15:19:54
  * @Description:
  */
 #pragma once
@@ -17,7 +17,8 @@ private:
   std::array<Type, dim> a;
 
 public:
-  Vector(const Type &num = 0) {
+  Vector() {}
+  Vector(const Type &num) {
     Loop<int, dim>([&](auto i) { a[i] = num; });
     // for (auto &i : a) i = num;
   }

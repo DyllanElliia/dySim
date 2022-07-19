@@ -2,17 +2,15 @@
  * @Author: DyllanElliia
  * @Date: 2022-07-01 15:37:04
  * @LastEditors: DyllanElliia
- * @LastEditTime: 2022-07-12 16:53:09
+ * @LastEditTime: 2022-07-19 16:09:34
  * @Description:
  */
 #pragma once
 
 #include "./matrix.hpp"
-#include "math/realALG.hpp"
 #include <cstddef>
 #include <cstdlib>
 #include <initializer_list>
-#include <string>
 namespace dym {
 template <typename Type = Real> class Dual {
 private:
@@ -27,7 +25,8 @@ public:
   }
   Dual(const thisType &d) { A = d.A, B = d.B; }
   Dual(const thisType &&d) { A = d.A, B = d.B; }
-  Dual(const Type &vul = 0) { A = vul, B = Type(0); }
+  Dual(const Type &vul) { A = vul, B = Type(0); }
+  Dual() {}
   ~Dual() {}
 
   inline Dual operator=(const Dual &d) {
@@ -129,6 +128,7 @@ public:
 
 public:
   Type A, B;
+  Type &value = A, &grad = B;
 };
 
 template <typename Type, std::size_t m, std::size_t n>

@@ -34,11 +34,11 @@
 #include <stb/stb_image_write.h>
 #endif
 
+namespace dym {
 bool *keys;
 GLfloat lastX, lastY;
 double m_xoffset = 0, m_yoffset = 0, s_yoffset = 0;
 bool firstMouse;
-namespace dym {
 enum ViewMode { VIEWER_2D, VIEWER_3D };
 
 #ifndef _dym_pixel_typedef_
@@ -46,11 +46,11 @@ enum ViewMode { VIEWER_2D, VIEWER_3D };
 typedef unsigned char Pixel;
 #endif
 class GUI {
- private:
+private:
   ViewMode viewMode;
   std::vector<std::function<void(GLFWwindow *)>> processInput;
   std::vector<unsigned int> VAO, VBO_v, VBO_c, u_shader,
-      EBO;  // VAO -> VBO : 1 -> 2
+      EBO; // VAO -> VBO : 1 -> 2
   std::vector<glm::vec3> color_l;
   std::vector<std::pair<unsigned short, unsigned int>> draw_property;
   unsigned int VxO_i;
@@ -93,37 +93,37 @@ class GUI {
     // displays.
     glViewport(0, 0, width, height);
   }
-  // Is called whenever a key is pressed/released via GLFW
-  static void key_callback(GLFWwindow *window, int key, int scancode,
-                           int action, int mode) {
-    // cout << key << endl;
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-      glfwSetWindowShouldClose(window, GL_TRUE);
-    if (key >= 0 && key < 1024) {
-      if (action == GLFW_PRESS)
-        keys[key] = true;
-      else if (action == GLFW_RELEASE)
-        keys[key] = false;
-      qprint("GUI message: reveive keyboard call key =", key, (char)key);
-    }
-  }
+  // // Is called whenever a key is pressed/released via GLFW
+  // static void key_callback(GLFWwindow *window, int key, int scancode,
+  //                          int action, int mode) {
+  //   if (key >= 0 && key < 1024 && key != GLFW_KEY_ESCAPE) {
+  //     if (action == GLFW_PRESS)
+  //       keys[key] = true;
+  //     else if (action == GLFW_RELEASE)
+  //       keys[key] = false;
+  //     qprint("GUI message: reveive keyboard call key =", key, (char)key);
+  //   }
+  // }
 
   static void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
+    float xpos_ = static_cast<float>(xpos);
+    float ypos_ = static_cast<float>(ypos);
+
     if (firstMouse) {
-      lastX = xpos;
-      lastY = ypos;
+      lastX = xpos_;
+      lastY = ypos_;
       firstMouse = false;
     }
 
-    GLfloat xoffset = xpos - lastX;
-    GLfloat yoffset =
-        lastY - ypos;  // Reversed since y-coordinates go from bottom to left
+    float xoffset = xpos_ - lastX;
+    float yoffset =
+        lastY - ypos_; // reversed since y-coordinates go from bottom to top
 
-    lastX = xpos;
-    lastY = ypos;
-    m_xoffset += xoffset, m_yoffset += yoffset;
-    // qprint("GUI message: reveive mouse call pos = (", xoffset, ",", yoffset,
-    //        ")");
+    lastX = xpos_;
+    lastY = ypos_;
+
+    m_xoffset = xoffset, m_yoffset = yoffset;
+
     // camera.ProcessMouseMovement(xoffset, yoffset);
   }
 
@@ -133,7 +133,7 @@ class GUI {
     // camera.ProcessMouseScroll(yoffset);
   }
 
- public:
+public:
   GLFWwindow *window;
   std::string windowName;
   Index<float> background_color;
@@ -144,28 +144,30 @@ class GUI {
   GUI(std::string windowName_ = "dyMath",
       Index<int> background_color_ = Index<int>(3, 0),
       ViewMode viewMode_ = VIEWER_2D)
-      : window(nullptr),
-        windowName(windowName_),
-        viewMode(viewMode_),
+      : window(nullptr), windowName(windowName_), viewMode(viewMode_),
         VxO_i(0) {
     keys = new bool[1024];
-    for (auto &bc : background_color_) background_color.push_back(bc / 255.0);
+    for (auto &bc : background_color_)
+      background_color.push_back(bc / 255.0);
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
   }
   ~GUI() {
-    for (auto &v : VAO) glDeleteVertexArrays(1, &v);
+    for (auto &v : VAO)
+      glDeleteVertexArrays(1, &v);
     // for (auto &v : VBO_c)
     //   glDeleteBuffers(1, &v);
-    for (auto &v : VBO_v) glDeleteBuffers(1, &v);
-    for (auto &v : EBO) glDeleteBuffers(1, &v);
+    for (auto &v : VBO_v)
+      glDeleteBuffers(1, &v);
+    for (auto &v : EBO)
+      glDeleteBuffers(1, &v);
     glfwTerminate();
     delete[] keys;
     qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::GREEN);
@@ -187,7 +189,7 @@ class GUI {
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetKeyCallback(window, key_callback);
+    // glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
@@ -205,43 +207,44 @@ class GUI {
     // add Input call_back
     processInput.push_back([](GLFWwindow *window) {
       if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+        // glfwSetWindowShouldClose(window, true);
+        qprint("-> Exit GUI run");
     });
     // add default shader
     switch (viewMode) {
-      case VIEWER_2D:
-        shaderList.push_back(
-            Shader("../shader/default2D.vs", "../shader/default2D.frag"));
-        shaderList.push_back(
-            Shader("../shader/default2Dpic.vs", "../shader/default2Dpic.frag"));
-        break;
-      case VIEWER_3D:
-        shaderList.push_back(
-            Shader("../shader/default3D.vs", "../shader/default3D.frag"));
-        shaderList.push_back(
-            Shader("../shader/default2Dpic.vs", "../shader/default2Dpic.frag"));
-        break;
-      default:
-        qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::RED);
-        qprint("GUI ERROR: Init default shader failure!");
-        qp_ctrl();
-        return false;
+    case VIEWER_2D:
+      shaderList.push_back(
+          Shader("../shader/default2D.vs", "../shader/default2D.frag"));
+      shaderList.push_back(
+          Shader("../shader/default2Dpic.vs", "../shader/default2Dpic.frag"));
+      break;
+    case VIEWER_3D:
+      shaderList.push_back(
+          Shader("../shader/default3D.vs", "../shader/default3D.frag"));
+      shaderList.push_back(
+          Shader("../shader/default2Dpic.vs", "../shader/default2Dpic.frag"));
+      break;
+    default:
+      qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::RED);
+      qprint("GUI ERROR: Init default shader failure!");
+      qp_ctrl();
+      return false;
     }
     // qprint("fin");
 
-    int sw, sh;
-    glfwGetFramebufferSize(window, &sw, &sh);
-    glViewport(0, 0, sw, sh);
+    // int sw, sh;
+    // glfwGetFramebufferSize(window, &sw, &sh);
+    // glViewport(0, 0, sw, sh);
 
-    if (viewMode == VIEWER_3D)
-      // Setup some OpenGL options
-      glEnable(GL_DEPTH_TEST);
+    // if (viewMode == VIEWER_3D)
+    // Setup some OpenGL options
+    glEnable(GL_DEPTH_TEST);
 
     qprint("-------------------------------------------------");
     qprint("************* Welcome to use dySim! *************");
     qprint("-------------------------------------------------");
-    qprint("OpenGL  version:  4.6");
-    qprint("dySim   version:  0.5 (Unreleased)");
+    qprint("OpenGL  version:  4.5");
+    qprint("dySim   version:  0.8 (Unreleased)");
     qprint("Author: DyllanElliia");
     qprint("Github: https://github.com/DyllanElliia/dySim\n");
 
@@ -253,7 +256,8 @@ class GUI {
                  unsigned int end = -1) {
     Index locShape = loc.shape();
     auto &vec_num = locShape[0];
-    if (end > vec_num) end = vec_num;
+    if (end > vec_num)
+      end = vec_num;
     checkObjId(VxO_i);
     u_shader[VxO_i] = shader_index;
     // add color
@@ -280,7 +284,8 @@ class GUI {
   template <std::size_t color_size>
   bool imshow(Tensor<Vector<Pixel, color_size>> &pic, int shader_index = 1) {
     Index picShape = pic.shape();
-    if (picShape.size() != 2) return false;
+    if (picShape.size() != 2)
+      return false;
     auto y = picShape[0], x = picShape[1];
     checkObjId(VxO_i);
     u_shader[VxO_i] = shader_index;
@@ -289,14 +294,14 @@ class GUI {
     // ------------------------------------------------------------------
     float vertices[] = {
         // positions        // colors         // texture coords
-        1.0f,  1.0f,  0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,  // top right
-        1.0f,  -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,  // bottom right
-        -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,  // bottom left
-        -1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f   // top left
+        1.0f,  1.0f,  0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, // top right
+        1.0f,  -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, // bottom right
+        -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, // bottom left
+        -1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f  // top left
     };
     unsigned int indices[] = {
-        0, 1, 3,  // first triangle
-        1, 2, 3   // second triangle
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
     };
     // unsigned int VBO, VAO, EBO;
     glBindVertexArray(VAO[VxO_i]);
@@ -326,12 +331,12 @@ class GUI {
     unsigned int texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D,
-                  texture);  // all upcoming GL_TEXTURE_2D operations now have
-                             // effect on this texture object
+                  texture); // all upcoming GL_TEXTURE_2D operations now have
+                            // effect on this texture object
     // set the texture wrapping parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-                    GL_REPEAT);  // set texture wrapping to GL_REPEAT (default
-                                 // wrapping method)
+                    GL_REPEAT); // set texture wrapping to GL_REPEAT (default
+                                // wrapping method)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     // set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -350,35 +355,35 @@ class GUI {
     return true;
   }
 
-  // template <std::size_t color_size>
-  // _DYM_FORCE_INLINE_ bool imshow(const Tensor<Vector<Real, color_size>> &pic,
-  //                                int shader_index = 1) {
-  //   qprint("here1");
-  //   Tensor<Vector<Pixel, color_size>> picPix(0, pic.shape());
-  //   picPix.for_each_i(
-  //       [&](Vector<Pixel, PIC_RGB> &e, int i) { e = pic[i].cast<Pixel>(); });
-  //   qprint(pic[1000], picPix[1000], pi(pic.shape()), pi(picPix.shape()));
-  //   qprint("here2");
-  //   imshow(picPix, shader_index);
-  // }
+  template <std::size_t color_size>
+  _DYM_FORCE_INLINE_ bool imshow(const Tensor<Vector<Real, color_size>> &pic,
+                                 int shader_index = 1) {
+    Tensor<Vector<Pixel, color_size>> picPix(0, pic.shape());
+    picPix.for_each_i([&](Vector<Pixel, color_size> &e, int i) {
+      e = pic[i].template cast<Pixel>();
+    });
+    imshow(picPix, shader_index);
+  }
 
-  bool update(std::function<void()> updateFun) {
+  bool update(std::function<void()> updateFun, float mouseMoveVul = 1.0) {
     qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::GREEN);
     qprint("dySim GUI run!");
     qp_ctrl();
     while (!glfwWindowShouldClose(window)) {
-      for (auto &fun : processInput) fun(window);
+      for (auto &fun : processInput)
+        fun(window);
       auto save_i = VxO_i;
-      // update all
-      updateFun();
 
-      // draw src
-
-      glfwPollEvents();
       // Clear the colorbuffer
       glClearColor(background_color[0], background_color[1],
                    background_color[2], 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+      // update user's func
+      updateFun();
+
+      // draw src
+
       // use default shader
 
       if (viewMode == VIEWER_2D) {
@@ -386,58 +391,63 @@ class GUI {
           auto &u_shader_i = u_shader[i];
           auto &ourShader = shaderList[u_shader_i];
           switch (u_shader_i) {
-            case 0: {
-              ourShader.use();
-              ourShader.setVec3("color", color_l[i]);
-              glBindVertexArray(VAO[i]);
-              glPointSize(3);
-              glDrawArrays(draw_property[i].first, 0, draw_property[i].second);
-              break;
-            }
-            case 1: {
-              // bind Texture
-              glActiveTexture(GL_TEXTURE0);
-              glBindTexture(GL_TEXTURE_2D, draw_property[i].first);
+          case 0: {
+            ourShader.use();
+            ourShader.setVec3("color", color_l[i]);
+            glBindVertexArray(VAO[i]);
+            glPointSize(3);
+            glDrawArrays(draw_property[i].first, 0, draw_property[i].second);
+            break;
+          }
+          case 1: {
+            // bind Texture
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, draw_property[i].first);
 
-              // render container
-              ourShader.use();
-              ourShader.setInt("ourTexture", 0);
-              glBindVertexArray(VAO[i]);
-              glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            // render container
+            ourShader.use();
+            ourShader.setInt("ourTexture", 0);
+            glBindVertexArray(VAO[i]);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-              break;
-            }
-            default: {
-              qp_ctrl(tColor::YELLOW, tType::BOLD, tType::UNDERLINE);
-              qprint("dyGUI Warning: Unknown shader index (", u_shader_i,
-                     ", in:", i, ").");
-              qp_ctrl();
-              getchar();
-              break;
-            }
+            break;
+          }
+          default: {
+            qp_ctrl(tColor::YELLOW, tType::BOLD, tType::UNDERLINE);
+            qprint("dyGUI Warning: Unknown shader index (", u_shader_i,
+                   ", in:", i, ").");
+            qp_ctrl();
+            getchar();
+            break;
+          }
           }
         }
         glBindVertexArray(0);
       } else if (viewMode == VIEWER_3D) {
-        int deltaTime = 1e-3;
+        float currentFrame = static_cast<float>(glfwGetTime());
+        float deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
         auto do_move = [&]() {
-          camera.ProcessMouseMovement(m_xoffset, m_yoffset);
+          camera.ProcessMouseMovement(m_xoffset * mouseMoveVul,
+                                      m_yoffset * mouseMoveVul);
           camera.ProcessMouseScroll(s_yoffset);
-          m_xoffset = 0, m_yoffset = 0, s_yoffset = 0;
-
           // Camera controls
-          if (keys[GLFW_KEY_W]) camera.ProcessKeyboard(FORWARD, deltaTime);
-          if (keys[GLFW_KEY_S]) camera.ProcessKeyboard(BACKWARD, deltaTime);
-          if (keys[GLFW_KEY_A]) camera.ProcessKeyboard(LEFT, deltaTime);
-          if (keys[GLFW_KEY_D]) camera.ProcessKeyboard(RIGHT, deltaTime);
-          if (keys[GLFW_KEY_SPACE]) run = false;
+          if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            camera.ProcessKeyboard(FORWARD, deltaTime);
+          if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            camera.ProcessKeyboard(BACKWARD, deltaTime);
+          if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            camera.ProcessKeyboard(LEFT, deltaTime);
+          if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            camera.ProcessKeyboard(RIGHT, deltaTime);
         };
+        do_move();
         // Create camera transformation
         glm::mat4 view;
         view = camera.GetViewMatrix();
         glm::mat4 projection;
         projection = glm::perspective(
-            camera.Zoom, (float)src_width / (float)src_height, 0.1f, 1000.0f);
+            camera.Zoom, (float)src_width / (float)src_height, 0.1f, 100.0f);
         glm::mat4 model = glm::translate(model, glm::vec3(0, 0, 0));
 
         for (int i = 0; i < VxO_i; ++i) {
@@ -456,8 +466,13 @@ class GUI {
       VxO_i = save_i;
       // Swap the buffers
       glfwSwapBuffers(window);
+      glfwPollEvents();
     }
+    keys[GLFW_KEY_ESCAPE] = false;
     return true;
   }
+
+private:
+  float lastFrame = 0;
 };
-}  // namespace dym
+} // namespace dym

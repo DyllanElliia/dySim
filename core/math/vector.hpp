@@ -7,6 +7,8 @@
  */
 #pragma once
 #include "Index.hpp"
+#include "glm/detail/qualifier.hpp"
+#include "glm/matrix.hpp"
 #include "launch.hpp"
 #include "realALG.hpp"
 #include <initializer_list>
@@ -139,6 +141,18 @@ public:
   _DYM_FORCE_INLINE_ auto transpose() const;
 
   constexpr _DYM_FORCE_INLINE_ auto shape() const { return dim; }
+
+  template <typename glmmT = float, glm::qualifier glmtp = glm::defaultp>
+  _DYM_FORCE_INLINE_ glm::vec<dim, glmmT, glmtp> to_glm_vec() const {
+    glm::vec<dim, glmmT, glm::defaultp> res;
+    Loop<int, dim>([&](auto i) { res[i] = a[i]; });
+    return res;
+  }
+
+  template <typename glmmT = float, glm::qualifier glmtp = glm::defaultp>
+  operator glm::vec<dim, glmmT, glmtp>() const {
+    return to_glm_vec();
+  }
 };
 
 namespace vector {

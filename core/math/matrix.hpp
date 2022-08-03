@@ -6,6 +6,9 @@
  * @Description:
  */
 #pragma once
+#include "glm/detail/qualifier.hpp"
+#include "glm/matrix.hpp"
+#include "math/define.hpp"
 #include "vector.hpp"
 #include <initializer_list>
 
@@ -169,6 +172,19 @@ public:
   }
 
   _DYM_FORCE_INLINE_ Type tr() const { return trace(); }
+
+  template <typename glmmT = float, glm::qualifier glmtp = glm::defaultp>
+  _DYM_FORCE_INLINE_ glm::mat<m, n, glmmT, glmtp> to_glm_mat() const {
+    glm::mat<m, n, glmmT, glm::defaultp> res;
+    Loop<int, m>(
+        [&](auto i) { Loop<int, n>([&](auto j) { res[i][j] = a[i][j]; }); });
+    return res;
+  }
+
+  template <typename glmmT = float, glm::qualifier glmtp = glm::defaultp>
+  operator glm::mat<m, n, glmmT, glmtp>() const {
+    return to_glm_mat();
+  }
 };
 
 template <typename Type, std::size_t m, std::size_t n>

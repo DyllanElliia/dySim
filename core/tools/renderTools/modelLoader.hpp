@@ -8,10 +8,10 @@
 
 #pragma once
 // gl,pic
-#include "../dyGraphic.hpp"
+#include "../../dyGraphic.hpp"
 
 // math
-#include "../dyMath.hpp"
+#include "../../dyMath.hpp"
 
 // assimp
 // importer
@@ -23,25 +23,26 @@
 
 namespace dym {
 
-typedef Vector<Real, 2> Vector2;
+typedef Vector<lReal, 2> Vector2l;
+typedef Vector<lReal, 3> Vector3l;
 typedef Vector<unsigned int, 3> Vector3ui;
 #define MAX_BONE_INFLUENCE 4
 
 struct Vertex {
   // position
-  Vector3 Position;
+  Vector3l Position;
   // normal
-  Vector3 Normal;
+  Vector3l Normal;
   // texCoords
-  Vector2 TexCoords;
+  Vector2l TexCoords;
   // tangent
-  Vector3 Tangent;
+  Vector3l Tangent;
   // bitangent
-  Vector3 Bitangent;
+  Vector3l Bitangent;
   // bone indexes which will influence this vertex
   int m_BoneIDs[MAX_BONE_INFLUENCE];
   // weights from each bone
-  Real m_Weights[MAX_BONE_INFLUENCE];
+  lReal m_Weights[MAX_BONE_INFLUENCE];
 };
 
 struct Texture {
@@ -51,7 +52,7 @@ struct Texture {
 };
 
 class Mesh {
- public:
+public:
   // mesh Data
   std::vector<Vertex> vertices;
   std::vector<Vector3ui> faces;
@@ -62,16 +63,13 @@ class Mesh {
   Mesh() {}
   Mesh(std::vector<Vertex> vertices, std::vector<Vector3ui> faces,
        std::vector<Texture> textures) {
-    qprint("here?");
     this->vertices = vertices;
     this->faces = faces;
     this->textures = textures;
-    qprint("or here?");
 
     // now that we have all the required data, set the vertex buffers and its
     // attribute pointers.
-    // setupMesh();
-    qprint("other?");
+    setupMesh();
   }
 
   // render the mesh
@@ -83,7 +81,7 @@ class Mesh {
     unsigned int heightNr = 1;
     for (unsigned int i = 0; i < textures.size(); i++) {
       glActiveTexture(GL_TEXTURE0 +
-                      i);  // active proper texture unit before binding
+                      i); // active proper texture unit before binding
       // retrieve texture number (the N in diffuse_textureN)
       std::string number;
       std::string name = textures[i].type;
@@ -91,11 +89,11 @@ class Mesh {
         number = std::to_string(diffuseNr++);
       else if (name == "texture_specular")
         number =
-            std::to_string(specularNr++);  // transfer unsigned int to stream
+            std::to_string(specularNr++); // transfer unsigned int to stream
       else if (name == "texture_normal")
-        number = std::to_string(normalNr++);  // transfer unsigned int to stream
+        number = std::to_string(normalNr++); // transfer unsigned int to stream
       else if (name == "texture_height")
-        number = std::to_string(heightNr++);  // transfer unsigned int to stream
+        number = std::to_string(heightNr++); // transfer unsigned int to stream
 
       // now set the sampler to the correct texture unit
       glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
@@ -105,14 +103,14 @@ class Mesh {
 
     // draw mesh
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, faces.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, faces.size() * 3, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
     // always good practice to set everything back to defaults once configured.
     glActiveTexture(GL_TEXTURE0);
   }
 
- private:
+private:
   // render data
   unsigned int VBO, EBO;
 
@@ -134,28 +132,28 @@ class Mesh {
                  &vertices[0], GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size() * sizeof(unsigned int),
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size() * sizeof(Vector3ui),
                  &faces[0], GL_STATIC_DRAW);
 
     // set the vertex attribute pointers
     // vertex Positions
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, sizeof(Vertex), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
     // vertex normals
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_DOUBLE, GL_FALSE, sizeof(Vertex),
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                           (void *)offsetof(Vertex, Normal));
     // vertex texture coords
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_DOUBLE, GL_FALSE, sizeof(Vertex),
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                           (void *)offsetof(Vertex, TexCoords));
     // vertex tangent
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_DOUBLE, GL_FALSE, sizeof(Vertex),
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                           (void *)offsetof(Vertex, Tangent));
     // vertex bitangent
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 3, GL_DOUBLE, GL_FALSE, sizeof(Vertex),
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                           (void *)offsetof(Vertex, Bitangent));
     // ids
     glEnableVertexAttribArray(5);
@@ -164,7 +162,7 @@ class Mesh {
 
     // weights
     glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_DOUBLE, GL_FALSE, sizeof(Vertex),
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                           (void *)offsetof(Vertex, m_Weights));
     glBindVertexArray(0);
   }
@@ -210,14 +208,14 @@ unsigned int TextureFromFile(const char *path, const std::string &directory,
 
   return textureID;
 }
-}  // namespace
+} // namespace
 
 class Model {
- public:
+public:
   // model data
   std::vector<Texture>
-      textures_loaded;  // stores all the textures loaded so far, optimization
-                        // to make sure textures aren't loaded more than once.
+      textures_loaded; // stores all the textures loaded so far, optimization
+                       // to make sure textures aren't loaded more than once.
   std::vector<Mesh> meshes;
   std::string directory;
   bool gammaCorrection;
@@ -229,13 +227,15 @@ class Model {
 
   // draws the model, and thus all its meshes
   void Draw(Shader &shader) {
-    for (unsigned int i = 0; i < meshes.size(); i++) meshes[i].Draw(shader);
+    for (unsigned int i = 0; i < meshes.size(); i++)
+      meshes[i].Draw(shader);
   }
 
- private:
+private:
   // loads a model with supported ASSIMP extensions from file and stores the
   // resulting meshes in the meshes vector.
   void loadModel(std::string const &path, unsigned short assimpLoadArg = 0) {
+    stbi_set_flip_vertically_on_load(true);
     // read file via ASSIMP
     Assimp::Importer importer;
     const aiScene *scene = importer.ReadFile(
@@ -244,7 +244,7 @@ class Model {
                   assimpLoadArg);
     // check for errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
-        !scene->mRootNode)  // if is Not Zero
+        !scene->mRootNode) // if is Not Zero
     {
       DYM_ERROR(
           std::string("ASSIMP ERROR: " + std::string(importer.GetErrorString()))
@@ -256,13 +256,14 @@ class Model {
 
     // process ASSIMP's root node recursively
     processNode(scene->mRootNode, scene);
+    stbi_set_flip_vertically_on_load(false);
   }
 
   // processes a node in a recursive fashion. Processes each individual mesh
   // located at the node and repeats this process on its children nodes (if
   // any).
   void processNode(aiNode *node, const aiScene *scene) {
-    qprint("in processNode");
+    // qprint("in processNode");
     // process each mesh located at the current node
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
       // the node object only contains faces to index the actual objects in
@@ -279,7 +280,6 @@ class Model {
   }
 
   Mesh processMesh(aiMesh *mesh, const aiScene *scene) {
-    qprint("in processMesh", mesh->mNumVertices);
     // data to fill
     std::vector<Vertex> vertices;
     std::vector<Vector3ui> faces;
@@ -287,22 +287,17 @@ class Model {
 
     // walk through each of the mesh's vertices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-      // qprint(i);
       Vertex vertex;
-      Vector3 vector;  // we declare a placeholder vector since assimp uses
+      Vector3l vector; // we declare a placeholder vector since assimp uses
                        // its own vector class that doesn't directly convert
-                       // to Vector3 class so we transfer the data to this
-                       // placeholder Vector3 first.
+                       // to Vector3l class so we transfer the data to this
+                       // placeholder Vector3l first.
       // positions
       vector[0] = mesh->mVertices[i].x;
       vector[1] = mesh->mVertices[i].y;
       vector[2] = mesh->mVertices[i].z;
       vertex.Position = vector;
-      if (i == 0) qprint(vector);
-      if (i == 35945) qprint(vector);
-      if (i == 35946) qprint(vector);
 
-      if (i == 35946) qprint("normal");
       // normals
       if (mesh->HasNormals()) {
         vector[0] = mesh->mNormals[i].x;
@@ -311,16 +306,15 @@ class Model {
         vertex.Normal = vector;
       }
 
-      if (i == 35946) qprint("texture");
-
       // texture coordinates
-      if (mesh->mTextureCoords[0])  // does the mesh contain texture
-                                    // coordinates?
+      if (mesh->mTextureCoords[0]) // does the mesh contain texture
+                                   // coordinates?
       {
-        Vector2 vec;
+        Vector2l vec;
         // a vertex can contain up to 8 different texture coordinates. We thus
-        // make the assumption that we won't use models where a vertex can have
-        // multiple texture coordinates so we always take the first set (0).
+        // make the assumption that we won't use models where a vertex can
+        // have multiple texture coordinates so we always take the first set
+        // (0).
         vec[0] = mesh->mTextureCoords[0][i].x;
         vec[1] = mesh->mTextureCoords[0][i].y;
         vertex.TexCoords = vec;
@@ -335,12 +329,10 @@ class Model {
         vector[2] = mesh->mBitangents[i].z;
         vertex.Bitangent = vector;
       } else
-        vertex.TexCoords = Vector2({0.0f, 0.0f});
+        vertex.TexCoords = Vector2l{0.0f, 0.0f};
 
-      if (i == 35946) qprint("end");
       vertices.push_back(vertex);
     }
-    qprint("next", mesh->mNumFaces);
     // now wak through each of the mesh's faces (a face is a mesh its triangle)
     // and retrieve the corresponding vertex faces.
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
@@ -349,7 +341,7 @@ class Model {
       // for (unsigned int j = 0; j < face.mNumIndices; j++)
       //   faces.push_back(face.mIndices[j]);
       faces.push_back(
-          Vector3ui({face.mIndices[0], face.mIndices[1], face.mIndices[2]}));
+          Vector3ui{face.mIndices[0], face.mIndices[1], face.mIndices[2]});
     }
     // process materials
     aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
@@ -386,7 +378,6 @@ class Model {
   std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type,
                                             std::string typeName) {
     std::vector<Texture> textures;
-    qprint("loadMater", mat->GetTextureCount(type));
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
       aiString str;
       mat->GetTexture(type, i, &str);
@@ -396,24 +387,24 @@ class Model {
       for (unsigned int j = 0; j < textures_loaded.size(); j++) {
         if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
           textures.push_back(textures_loaded[j]);
-          skip = true;  // a texture with the same filepath has already been
-                        // loaded, continue to next one. (optimization)
+          skip = true; // a texture with the same filepath has already been
+                       // loaded, continue to next one. (optimization)
           break;
         }
       }
-      if (!skip) {  // if texture hasn't been loaded already, load it
+      if (!skip) { // if texture hasn't been loaded already, load it
         Texture texture;
         texture.id = TextureFromFile(str.C_Str(), this->directory);
         texture.type = typeName;
         texture.path = str.C_Str();
         textures.push_back(texture);
         textures_loaded.push_back(
-            texture);  // store it as texture loaded for entire model, to ensure
-                       // we won't unnecesery load duplicate textures.
+            texture); // store it as texture loaded for entire model, to ensure
+                      // we won't unnecesery load duplicate textures.
       }
     }
     return textures;
   }
 };
 
-}  // namespace dym
+} // namespace dym

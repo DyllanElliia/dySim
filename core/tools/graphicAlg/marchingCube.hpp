@@ -7,7 +7,7 @@
  */
 
 #pragma once
-#include "../modelLoader.hpp"
+#include "../renderTools/modelLoader.hpp"
 
 #include <map>
 
@@ -315,32 +315,32 @@ _DYM_FORCE_INLINE_ std::size_t edgeId(std::size_t x, std::size_t y,
                                       std::size_t z, std::size_t edgeNumber,
                                       std::size_t xWidth, std::size_t yWidth) {
   switch (edgeNumber) {
-    case 0:
-      return vertexId(x, y, z, xWidth, yWidth) + 1;
-    case 1:
-      return vertexId(x, y + 1, z, xWidth, yWidth);
-    case 2:
-      return vertexId(x + 1, y, z, xWidth, yWidth) + 1;
-    case 3:
-      return vertexId(x, y, z, xWidth, yWidth);
-    case 4:
-      return vertexId(x, y, z + 1, xWidth, yWidth) + 1;
-    case 5:
-      return vertexId(x, y + 1, z + 1, xWidth, yWidth);
-    case 6:
-      return vertexId(x + 1, y, z + 1, xWidth, yWidth) + 1;
-    case 7:
-      return vertexId(x, y, z + 1, xWidth, yWidth);
-    case 8:
-      return vertexId(x, y, z, xWidth, yWidth) + 2;
-    case 9:
-      return vertexId(x, y + 1, z, xWidth, yWidth) + 2;
-    case 10:
-      return vertexId(x + 1, y + 1, z, xWidth, yWidth) + 2;
-    case 11:
-      return vertexId(x + 1, y, z, xWidth, yWidth) + 2;
-    default:
-      return -1;
+  case 0:
+    return vertexId(x, y, z, xWidth, yWidth) + 1;
+  case 1:
+    return vertexId(x, y + 1, z, xWidth, yWidth);
+  case 2:
+    return vertexId(x + 1, y, z, xWidth, yWidth) + 1;
+  case 3:
+    return vertexId(x, y, z, xWidth, yWidth);
+  case 4:
+    return vertexId(x, y, z + 1, xWidth, yWidth) + 1;
+  case 5:
+    return vertexId(x, y + 1, z + 1, xWidth, yWidth);
+  case 6:
+    return vertexId(x + 1, y, z + 1, xWidth, yWidth) + 1;
+  case 7:
+    return vertexId(x, y, z + 1, xWidth, yWidth);
+  case 8:
+    return vertexId(x, y, z, xWidth, yWidth) + 2;
+  case 9:
+    return vertexId(x, y + 1, z, xWidth, yWidth) + 2;
+  case 10:
+    return vertexId(x + 1, y + 1, z, xWidth, yWidth) + 2;
+  case 11:
+    return vertexId(x + 1, y, z, xWidth, yWidth) + 2;
+  default:
+    return -1;
   }
 }
 
@@ -355,42 +355,42 @@ _DYM_FORCE_INLINE_ IdPoint calculateIntersection(std::size_t x, std::size_t y,
   Real z2 = (Real)z;
 
   switch (edgeNumber) {
-    case 0:
-      y2 += 1;
-      break;
-    case 1:
-      y1 += 1, x2 += 1, y2 += 1;
-      break;
-    case 2:
-      x1 += 1, y1 += 1, x2 += 1;
-      break;
-    case 3:
-      x1 += 1;
-      break;
-    case 4:
-      z1 += 1, y2 += 1, z2 += 1;
-      break;
-    case 5:
-      y1 += 1, z1 += 1, x2 += 1, y2 += 1, z2 += 1;
-      break;
-    case 6:
-      x1 += 1, y1 += 1, z1 += 1, x2 += 1, z2 += 1;
-      break;
-    case 7:
-      x1 += 1, z1 += 1, z2 += 1;
-      break;
-    case 8:
-      z2 += 1;
-      break;
-    case 9:
-      y1 += 1, y2 += 1, z2 += 1;
-      break;
-    case 10:
-      x1 += 1, y1 += 1, x2 += 1, y2 += 1, z2 += 1;
-      break;
-    case 11:
-      x1 += 1, x2 += 1, z2 += 1;
-      break;
+  case 0:
+    y2 += 1;
+    break;
+  case 1:
+    y1 += 1, x2 += 1, y2 += 1;
+    break;
+  case 2:
+    x1 += 1, y1 += 1, x2 += 1;
+    break;
+  case 3:
+    x1 += 1;
+    break;
+  case 4:
+    z1 += 1, y2 += 1, z2 += 1;
+    break;
+  case 5:
+    y1 += 1, z1 += 1, x2 += 1, y2 += 1, z2 += 1;
+    break;
+  case 6:
+    x1 += 1, y1 += 1, z1 += 1, x2 += 1, z2 += 1;
+    break;
+  case 7:
+    x1 += 1, z1 += 1, z2 += 1;
+    break;
+  case 8:
+    z2 += 1;
+    break;
+  case 9:
+    y1 += 1, y2 += 1, z2 += 1;
+    break;
+  case 10:
+    x1 += 1, y1 += 1, x2 += 1, y2 += 1, z2 += 1;
+    break;
+  case 11:
+    x1 += 1, x2 += 1, z2 += 1;
+    break;
   }
 
   IdPoint intersection;
@@ -401,14 +401,14 @@ _DYM_FORCE_INLINE_ IdPoint calculateIntersection(std::size_t x, std::size_t y,
   return intersection;
 }
 
-Mesh reindex(PointIdMapping& vertexMapping, std::vector<Vector3ui>& triangles,
+Mesh reindex(PointIdMapping &vertexMapping, std::vector<Vector3ui> &triangles,
              Real xDim, Real yDim, Real zDim) {
   std::size_t nextId = 0;
 
-  for (auto& pair : vertexMapping) {
+  for (auto &pair : vertexMapping) {
     pair.second.id = nextId++;
   }
-  for (auto& triangle : triangles) {
+  for (auto &triangle : triangles) {
     triangle[0] = vertexMapping[triangle[0]].id;
     triangle[1] = vertexMapping[triangle[1]].id;
     triangle[2] = vertexMapping[triangle[2]].id;
@@ -417,7 +417,7 @@ Mesh reindex(PointIdMapping& vertexMapping, std::vector<Vector3ui>& triangles,
   std::size_t vertexCount = vertexMapping.size();
   std::vector<Vertex> vertices(vertexCount);
   std::size_t index = 0;
-  for (const auto& pair : vertexMapping) {
+  for (const auto &pair : vertexMapping) {
     vertices[index].Position[0] = pair.second.x / xDim - 0.5;
     vertices[index].Position[1] = pair.second.y / yDim - 0.5;
     vertices[index].Position[2] = pair.second.z / zDim - 0.5;
@@ -430,15 +430,15 @@ Mesh reindex(PointIdMapping& vertexMapping, std::vector<Vector3ui>& triangles,
   return mesh;
 }
 
-void calculateNormals(Mesh& mesh) {
+void calculateNormals(Mesh &mesh) {
   std::size_t vertexCount = mesh.vertices.size();
-  auto& vertices = mesh.vertices;
+  auto &vertices = mesh.vertices;
   std::size_t triangleCount = mesh.faces.size();
-  auto& triangles = mesh.faces;
+  auto &triangles = mesh.faces;
 
 #pragma omp parallel for
   for (std::size_t i = 0; i < triangleCount; ++i) {
-    Vector3 vec1, vec2, normal;
+    Vector<lReal, 3> vec1, vec2, normal;
     std::size_t id0, id1, id2;
     id0 = triangles[i][0];
     id1 = triangles[i][1];
@@ -459,9 +459,9 @@ void calculateNormals(Mesh& mesh) {
     vertices[i].Normal = vertices[i].Normal.normalize();
 }
 
-}  // namespace
+} // namespace
 
-Mesh marchingCubes(Tensor<Real>& volume, Real isoLevel) {
+Mesh marchingCubes(Tensor<Real> &volume, Real isoLevel) {
   auto vshape = volume.shape();
   std::size_t xDim = vshape[0], yDim = vshape[1], zDim = vshape[2];
   --xDim, --yDim, --zDim;
@@ -499,7 +499,7 @@ Mesh marchingCubes(Tensor<Real>& volume, Real isoLevel) {
         tableIndex = v[0] | v[1] << 1 | v[2] << 2 | v[3] << 3 | v[4] << 4 |
                      v[5] << 5 | v[6] << 6 | v[7] << 7;
 
-        const auto& edgeTableIndex = EDGE_TABLE[tableIndex];
+        const auto &edgeTableIndex = EDGE_TABLE[tableIndex];
 
         if (edgeTableIndex != 0) {
           if (edgeTableIndex & 8) {
@@ -573,7 +573,7 @@ Mesh marchingCubes(Tensor<Real>& volume, Real isoLevel) {
               vertexMapping.insert(PointIdMapping::value_type(id, pt));
             }
 
-          const auto& triangleTableIndex = TRIANGLE_TABLE[tableIndex];
+          const auto &triangleTableIndex = TRIANGLE_TABLE[tableIndex];
           for (std::size_t i = 0; triangleTableIndex[i] != -1; i += 3) {
             Vector3ui triangle;
             std::size_t pointId0, pointId1, pointId2;
@@ -604,4 +604,4 @@ Mesh marchingCubes(Tensor<Real>& volume, Real isoLevel) {
 
   return mesh;
 }
-}  // namespace dym
+} // namespace dym

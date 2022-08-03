@@ -7,6 +7,7 @@
  */
 #pragma once
 #include "./dual_num.hpp"
+#include <tuple>
 #include <type_traits>
 
 namespace dym {

@@ -17,6 +17,7 @@ public:
              const Vector3 &offset = 0)
       : ptr(ptr), mat(mat), offset(offset) {
     mat_inv = mat.inverse();
+    mat_norm_it = mat.inverse().transpose();
     hasbox = ptr->bounding_box(bbox);
 
     const auto infinity = std::numeric_limits<Real>::infinity();
@@ -43,7 +44,7 @@ public:
 
 public:
   shared_ptr<Hittable> ptr;
-  Matrix3 mat, mat_inv;
+  Matrix3 mat, mat_inv, mat_norm_it;
   Vector3 offset;
   bool hasbox;
   aabb bbox;
@@ -60,7 +61,7 @@ bool Transform3::hit(const Ray &r, Real t_min, Real t_max,
     return false;
 
   rec.p = mat * rec.p + offset;
-  auto normal = mat * rec.normal;
+  auto normal = mat_norm_it * rec.normal;
   rec.set_face_normal(r, normal.normalize());
 
   return true;

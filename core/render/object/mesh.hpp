@@ -11,7 +11,7 @@
 #include "triangle.hpp"
 
 // dym model loader
-#include "../../tools/modelLoader.hpp"
+#include "../../tools/renderTools/modelLoader.hpp"
 
 namespace dym {
 namespace rt {
@@ -103,7 +103,8 @@ Mesh::Mesh(dym::Mesh &mesh_, shared_ptr<Material> default_mat) {
 #pragma omp parallel for
   for (int i = 0; i < vertices.size(); ++i) {
     vertices[i] =
-        Vertex(mesh_vertices[i].Position, mesh_vertices[i].Normal,
+        Vertex(mesh_vertices[i].Position.cast<Real>(),
+               mesh_vertices[i].Normal.cast<Real>(),
                mesh_vertices[i].TexCoords[0], mesh_vertices[i].TexCoords[1]);
   }
   createMesh(mesh_.faces, default_mat);
@@ -115,7 +116,8 @@ void Mesh::reBuild(dym::Mesh &mesh_, shared_ptr<Material> default_mat) {
 #pragma omp parallel for
   for (int i = 0; i < vertices.size(); ++i) {
     vertices[i] =
-        Vertex(mesh_vertices[i].Position, mesh_vertices[i].Normal,
+        Vertex(mesh_vertices[i].Position.cast<Real>(),
+               mesh_vertices[i].Normal.cast<Real>(),
                mesh_vertices[i].TexCoords[0], mesh_vertices[i].TexCoords[1]);
   }
   createMesh(mesh_.faces, default_mat);

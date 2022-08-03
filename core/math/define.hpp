@@ -40,14 +40,14 @@
 #pragma nv_exec_check_disable
 #else
 #pragma hd_warning_disable
-#endif  // __clang__
+#endif // __clang__
 
 #else
 #define _DYM_GENERAL_
 #define _DYM_DEVICE_
 #define _DYM_GLOBAL_
 
-#endif  //_DYM_USE_CUDA_
+#endif //_DYM_USE_CUDA_
 
 #define _DYM_LAMBDA_ _DYM_GENERAL_
 
@@ -69,16 +69,18 @@ inline void __DYM_WARNING_CALL(std::string err, const char *file,
   qp_ctrl();
 }
 
-#define _DYM_ASSERT_(bool_opt, outstr) \
-  try {                                \
-    if (bool_opt) throw outstr;        \
-  } catch (const char *str) {          \
-    DYM_ERROR(str);                    \
-    exit(EXIT_FAILURE);                \
+#define _DYM_ASSERT_(bool_opt, outstr)                                         \
+  try {                                                                        \
+    if (bool_opt)                                                              \
+      throw outstr;                                                            \
+  } catch (const char *str) {                                                  \
+    DYM_ERROR(str);                                                            \
+    exit(EXIT_FAILURE);                                                        \
   }
 
 #define _DYM_FORCE_INLINE_ inline __attribute__((always_inline))
 
+typedef float lReal;
 typedef double Real;
 typedef int Reali;
 typedef unsigned int uReali;

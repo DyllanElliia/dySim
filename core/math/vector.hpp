@@ -56,6 +56,15 @@ public:
     std::memcpy(a.data(), v.a.data(), sizeof(Vector));
   }
 
+  template <typename glmmT = float, glm::qualifier glmtp = glm::defaultp>
+  Vector(const glm::vec<dim, glmmT, glmtp> &&v) {
+    Loop<int, dim>([&](auto i) { a[i] = v[i]; });
+  }
+  template <typename glmmT = float, glm::qualifier glmtp = glm::defaultp>
+  Vector(const glm::vec<dim, glmmT, glmtp> &v) {
+    Loop<int, dim>([&](auto i) { a[i] = v[i]; });
+  }
+
   void show() const { std::cout << *this << std::endl; }
   constexpr _DYM_FORCE_INLINE_ auto data() const { return a.data(); }
   _DYM_FORCE_INLINE_ void for_each(std::function<void(Type &)> func) {
@@ -93,6 +102,11 @@ public:
   }
   inline Vector operator=(const Vector &v) {
     memcpy(a.data(), v.a.data(), sizeof(Vector));
+    return *this;
+  }
+  template <typename glmmT = float, glm::qualifier glmtp = glm::defaultp>
+  inline Vector operator=(const glm::vec<dim, glmmT, glmtp> &v) {
+    Loop<int, dim>([&](auto i) { a[i] = v[i]; });
     return *this;
   }
   inline Vector operator=(const Type &num) {

@@ -21,6 +21,9 @@
 // scene
 #include <assimp/scene.h>
 
+// shader
+#include "./shaderLoader.hpp"
+
 namespace dym {
 
 typedef Vector<lReal, 2> Vector2l;
@@ -73,7 +76,7 @@ public:
   }
 
   // render the mesh
-  void Draw(Shader &shader) {
+  void Draw(Shader &shader, unsigned int instancedNum = 1) {
     // bind appropriate textures
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
@@ -103,7 +106,11 @@ public:
 
     // draw mesh
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, faces.size() * 3, GL_UNSIGNED_INT, 0);
+    if (instancedNum > 1)
+      glDrawElementsInstanced(GL_TRIANGLES, faces.size() * 3, GL_UNSIGNED_INT,
+                              0, instancedNum);
+    else
+      glDrawElements(GL_TRIANGLES, faces.size() * 3, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
     // always good practice to set everything back to defaults once configured.
@@ -226,9 +233,9 @@ public:
   }
 
   // draws the model, and thus all its meshes
-  void Draw(Shader &shader) {
+  void Draw(Shader &shader, unsigned int instancedNum = 1) {
     for (unsigned int i = 0; i < meshes.size(); i++)
-      meshes[i].Draw(shader);
+      meshes[i].Draw(shader, instancedNum);
   }
 
 private:

@@ -14,8 +14,8 @@
 
 // #include <GL/glut.h>
 
-#include <learnopengl/camera.h>
-#include <learnopengl/shader.h>
+// #include <learnopengl/camera.h>
+// #include <learnopengl/shader.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -33,6 +33,12 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
 #endif
+
+// tools
+#include "tools/renderTools/Camera.hpp"
+#include "tools/renderTools/modelLoader.hpp"
+#include "tools/renderTools/shaderLoader.hpp"
+
 
 namespace dym {
 bool *keys;

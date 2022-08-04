@@ -81,6 +81,17 @@ public:
   Matrix(const Matrix<Type, m, n> &&v) { std::memcpy(a, v.a, sizeof(Matrix)); }
   Matrix(const Matrix<Type, m, n> &v) { std::memcpy(a, v.a, sizeof(Matrix)); }
 
+  template <typename glmmT = float, glm::qualifier glmtp = glm::defaultp>
+  Matrix(const glm::mat<m, n, glmmT, glmtp> &&v) {
+    Loop<int, m>(
+        [&](auto i) { Loop<int, n>([&](auto j) { a[i][j] = v[i][j]; }); });
+  }
+  template <typename glmmT = float, glm::qualifier glmtp = glm::defaultp>
+  Matrix(const glm::mat<m, n, glmmT, glmtp> &v) {
+    Loop<int, m>(
+        [&](auto i) { Loop<int, n>([&](auto j) { a[i][j] = v[i][j]; }); });
+  }
+
   void show() const { std::cout << *this << std::endl; }
   _DYM_FORCE_INLINE_ Matrix &for_each(std::function<void(Type &)> func) {
     Loop<int, m>(
@@ -110,6 +121,12 @@ public:
   }
   inline Matrix operator=(const Matrix &v) {
     memcpy(a, v.a, sizeof(Matrix));
+    return *this;
+  }
+  template <typename glmmT = float, glm::qualifier glmtp = glm::defaultp>
+  inline Matrix operator=(const glm::mat<m, n, glmmT, glmtp> &v) {
+    Loop<int, m>(
+        [&](auto i) { Loop<int, n>([&](auto j) { a[i][j] = v[i][j]; }); });
     return *this;
   }
 

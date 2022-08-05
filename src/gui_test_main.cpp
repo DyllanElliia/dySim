@@ -6,6 +6,7 @@
  * @Description:
  */
 
+#include "dyMath.hpp"
 #include <dyGraphic.hpp>
 
 #include <iostream>
@@ -17,29 +18,51 @@ int main() {
   gui.init(SCR_WIDTH, SCR_HEIGHT);
   dym::Shader ourShader("./shader/model_loading.vs",
                         "./shader/model_loading.fs");
+  dym::Shader lightShader("./shader/lightbox.vs", "./shader/lightbox.fs");
 
   dym::Model ourModel("./assets/nanosuit/nanosuit.obj");
+  dym::rdo::cube lightCube;
 
   dym::Camera &camera = gui.camera;
-  camera.Position = {0, 5, 3};
+  camera.Position = {4, 10, 20};
+  dym::Vector3 lightPos{4, 0, 0}, lightColor(1.0);
+
+  auto setCameraMatrix = [&](dym::Shader &s, dym::Matrix4l &p, dym::Matrix4l &v,
+                             dym::Matrix4l &m) {
+    s.setMat4("projection", p);
+    s.setMat4("view", v);
+    s.setMat4("model", m);
+  };
+  glm::vec3 asdfasdf = lightColor;
+  qprint(asdfasdf[0], asdfasdf[1], asdfasdf[2]);
+  int i = 0;
   gui.update(
       [&]() {
-        ourShader.use();
-        dym::Matrix<lReal, 4, 4> projection = glm::perspective(
+        lightPos[1] = 10 + 10 * dym::sin((i) / 30.0);
+        lightPos[2] = 0. + 10 * dym::cos((i++) / 30.0);
+
+        dym::Matrix4l projection = glm::perspective(
             glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT,
             0.1f, 100.0f);
-        dym::Matrix<lReal, 4, 4> view = camera.GetViewMatrix();
-        // render the loaded model
-        dym::Matrix<lReal, 4, 4> model = glm::mat4(1.0f);
+        dym::Matrix4l view = camera.GetViewMatrix();
+        dym::Matrix4l model = glm::mat4(1.0f);
         model = glm::translate(model.to_glm_mat(), {0.0f, 0.0f, 0.0f});
         model = glm::scale(model.to_glm_mat(), {1.0f, 1.0f, 1.0f});
 
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", view);
-        ourShader.setMat4("model", model);
-        ourShader.setVec3("offsets[0]", {-5, 0, 0});
-        ourShader.setVec3("offsets[0]", {5, 0, 0});
+        ourShader.use();
+        setCameraMatrix(ourShader, projection, view, model);
+        ourShader.setVec3("offsets[0]", {-8, 0, 0});
+        ourShader.setVec3("offsets[0]", {8, 0, 0});
+        ourShader.setVec3("lightPos", lightPos);
+        ourShader.setVec3("lightColor", lightColor);
+        ourShader.setVec3("ambient", {0.0, 0.0, 0.0});
         ourModel.Draw(ourShader, 2);
+
+        lightShader.use();
+        setCameraMatrix(lightShader, projection, view, model);
+        lightShader.setVec3("lightPos", lightPos);
+        lightShader.setVec3("lightColor", lightColor);
+        lightCube.Draw(lightShader);
       },
       0.001);
 

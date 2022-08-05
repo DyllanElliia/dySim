@@ -27,11 +27,16 @@
 namespace dym {
 typedef Matrix<Real, 3, 3> Matrix3;
 typedef Matrix<Real, 4, 4> Matrix4;
+typedef Matrix<lReal, 3, 3> Matrix3l;
+typedef Matrix<lReal, 4, 4> Matrix4l;
 typedef Matrix<Reali, 3, 3> Matrix3i;
 typedef Matrix<Reali, 4, 4> Matrix4i;
 typedef Vector<Real, 2> Vector2;
 typedef Vector<Real, 3> Vector3;
 typedef Vector<Real, 4> Vector4;
+typedef Vector<lReal, 2> Vector2l;
+typedef Vector<lReal, 3> Vector3l;
+typedef Vector<lReal, 4> Vector4l;
 typedef Vector<Reali, 2> Vector2i;
 typedef Vector<Reali, 3> Vector3i;
 typedef Vector<Reali, 4> Vector4i;

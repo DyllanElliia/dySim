@@ -39,6 +39,9 @@
 #include "tools/renderTools/modelLoader.hpp"
 #include "tools/renderTools/shaderLoader.hpp"
 
+// tools objects
+#include  "tools/renderTools/object/object.hpp"
+
 
 namespace dym {
 bool *keys;

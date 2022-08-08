@@ -14,6 +14,71 @@
 #include <string>
 
 namespace dym {
+struct Material {
+  Vector3l ambient;
+  Vector3l diffuse;
+  Vector3l specular;
+  lReal shininess;
+  Material(const Vector3l &ambient, const Vector3l &diffuse,
+           const Vector3l &specular, const lReal shininess)
+      : ambient(ambient), diffuse(diffuse), specular(specular),
+        shininess(shininess) {}
+};
+
+struct LightMaterial {
+  Vector3 position;
+  Vector3l ambient;
+  Vector3l diffuse;
+  Vector3l specular;
+
+  LightMaterial(const Vector3l &ambient, const Vector3l &diffuse,
+                const Vector3l &specular)
+      : ambient(ambient), diffuse(diffuse), specular(specular) {}
+};
+
+struct PaLightMaterial {
+  Vector3 direction;
+  Vector3l ambient;
+  Vector3l diffuse;
+  Vector3l specular;
+
+  PaLightMaterial(const Vector3l &ambient, const Vector3l &diffuse,
+                  const Vector3l &specular)
+      : ambient(ambient), diffuse(diffuse), specular(specular) {}
+};
+
+struct PoLightMaterial {
+  Vector3 position;
+  Vector3l ambient;
+  Vector3l diffuse;
+  Vector3l specular;
+
+  lReal constant;
+  lReal linear;
+  lReal quadratic;
+  PoLightMaterial(const Vector3l &ambient, const Vector3l &diffuse,
+                  const Vector3l &specular, const lReal &constant = 1,
+                  const lReal &linear = 0.9, const lReal &quadratic = 0.032)
+      : ambient(ambient), diffuse(diffuse), specular(specular),
+        constant(constant), linear(linear), quadratic(quadratic) {}
+};
+
+struct SpotLightMaterial {
+  Vector3 position;
+  Vector3 direction;
+  lReal inCutOff, outCutOff;
+
+  Vector3l ambient;
+  Vector3l diffuse;
+  Vector3l specular;
+
+  SpotLightMaterial(const Vector3l &ambient, const Vector3l &diffuse,
+                    const Vector3l &specular, const lReal &inCutOff,
+                    const lReal &outCutOff)
+      : ambient(ambient), diffuse(diffuse), specular(specular),
+        inCutOff(inCutOff), outCutOff(outCutOff) {}
+};
+
 class Shader {
 public:
   unsigned int ID;
@@ -153,6 +218,43 @@ public:
   void setMat4(const std::string &name, glm::mat4 mat) const {
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE,
                        &mat[0][0]);
+  }
+  // ------------------------------------------------------------------------
+  void setMaterial(const std::string &name, const Material &mat) {
+    setVec3(name + ".ambient", mat.ambient);
+    setVec3(name + ".diffuse", mat.diffuse);
+    setVec3(name + ".specular", mat.specular);
+    setFloat(name + ".shininess", mat.shininess);
+  }
+  void setLightMaterial(const std::string &name, const LightMaterial &mat) {
+    setVec3(name + ".position", mat.position);
+    setVec3(name + ".ambient", mat.ambient);
+    setVec3(name + ".diffuse", mat.diffuse);
+    setVec3(name + ".specular", mat.specular);
+  }
+  void setLightMaterial(const std::string &name, const PaLightMaterial &mat) {
+    setVec3(name + ".direction", mat.direction);
+    setVec3(name + ".ambient", mat.ambient);
+    setVec3(name + ".diffuse", mat.diffuse);
+    setVec3(name + ".specular", mat.specular);
+  }
+  void setLightMaterial(const std::string &name, const PoLightMaterial &mat) {
+    setVec3(name + ".position", mat.position);
+    setVec3(name + ".ambient", mat.ambient);
+    setVec3(name + ".diffuse", mat.diffuse);
+    setVec3(name + ".specular", mat.specular);
+    setFloat(name + ".constant", mat.constant);
+    setFloat(name + ".linear", mat.linear);
+    setFloat(name + ".quadratic", mat.quadratic);
+  }
+  void setLightMaterial(const std::string &name, const SpotLightMaterial &mat) {
+    setVec3(name + ".position", mat.position);
+    setVec3(name + ".direction", mat.direction);
+    setFloat(name + ".inCutOff", mat.inCutOff);
+    setFloat(name + ".outCutOff", mat.outCutOff);
+    setVec3(name + ".ambient", mat.ambient);
+    setVec3(name + ".diffuse", mat.diffuse);
+    setVec3(name + ".specular", mat.specular);
   }
 
 private:

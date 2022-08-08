@@ -14,7 +14,7 @@
 int main() {
   const unsigned int SCR_WIDTH = 1000;
   const unsigned int SCR_HEIGHT = 1000;
-  dym::GUI gui("asdf", dym::gi(10, 50, 10), dym::ViewMode::VIEWER_3D);
+  dym::GUI gui("asdf", dym::gi(0, 0, 0), dym::ViewMode::VIEWER_3D);
   gui.init(SCR_WIDTH, SCR_HEIGHT);
   dym::Shader ourShader("./shader/model_loading.vs",
                         "./shader/model_loading.fs");
@@ -22,6 +22,9 @@ int main() {
 
   dym::Model ourModel("./assets/nanosuit/nanosuit.obj");
   dym::rdo::cube lightCube;
+  dym::Material mat({1.0, 0.5, 0.31}, {1.0, 0.5, 0.31}, {0.5, 0.5, 0.5}, 32.);
+  dym::PoLightMaterial lmat({0.2, 0.2, 0.2}, {0.5, 0.5, 0.5}, {1.0, 1.0, 1.0},
+                            1.0, 0.045, 0.0075);
 
   dym::Camera &camera = gui.camera;
   camera.Position = {4, 10, 20};
@@ -33,13 +36,12 @@ int main() {
     s.setMat4("view", v);
     s.setMat4("model", m);
   };
-  glm::vec3 asdfasdf = lightColor;
-  qprint(asdfasdf[0], asdfasdf[1], asdfasdf[2]);
   int i = 0;
   gui.update(
       [&]() {
         lightPos[1] = 10 + 10 * dym::sin((i) / 30.0);
         lightPos[2] = 0. + 10 * dym::cos((i++) / 30.0);
+        lmat.position = lightPos;
 
         dym::Matrix4l projection = glm::perspective(
             glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT,
@@ -53,9 +55,9 @@ int main() {
         setCameraMatrix(ourShader, projection, view, model);
         ourShader.setVec3("offsets[0]", {-8, 0, 0});
         ourShader.setVec3("offsets[0]", {8, 0, 0});
-        ourShader.setVec3("lightPos", lightPos);
-        ourShader.setVec3("lightColor", lightColor);
-        ourShader.setVec3("ambient", {0.0, 0.0, 0.0});
+        ourShader.setVec3("viewPos", camera.Position);
+        ourShader.setMaterial("material", mat);
+        ourShader.setLightMaterial("light", lmat);
         ourModel.Draw(ourShader, 2);
 
         lightShader.use();

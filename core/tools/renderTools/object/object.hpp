@@ -11,7 +11,7 @@ public:
 
   renderObject(const std::string &name = "renderObject") : name(name) {}
   ~renderObject(){};
-  virtual void Draw(Shader &shader, unsigned int instancedNum = 1) {}
+  virtual void Draw(rdt::Shader &shader, unsigned int instancedNum = 1) {}
 };
 } // namespace rdo
 } // namespace dym

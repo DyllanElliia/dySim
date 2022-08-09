@@ -39,9 +39,9 @@ public:
        shared_ptr<Material> m);
   Mesh(std::vector<Vertex> &vertices_, std::vector<Vector3ui> &faces,
        shared_ptr<Material> m);
-  Mesh(dym::Mesh &mesh_, shared_ptr<Material> default_mat);
+  Mesh(dym::rdt::Mesh &mesh_, shared_ptr<Material> default_mat);
 
-  void reBuild(dym::Mesh &mesh_, shared_ptr<Material> default_mat);
+  void reBuild(dym::rdt::Mesh &mesh_, shared_ptr<Material> default_mat);
 
   virtual bool hit(const Ray &r, Real t_min, Real t_max,
                    HitRecord &rec) const override;
@@ -97,7 +97,7 @@ Mesh::Mesh(std::vector<Vertex> &vertices_, std::vector<Vector3ui> &faces,
   createMesh(faces, m);
 }
 
-Mesh::Mesh(dym::Mesh &mesh_, shared_ptr<Material> default_mat) {
+Mesh::Mesh(dym::rdt::Mesh &mesh_, shared_ptr<Material> default_mat) {
   vertices.resize(mesh_.vertices.size());
   auto &mesh_vertices = mesh_.vertices;
 #pragma omp parallel for
@@ -110,7 +110,7 @@ Mesh::Mesh(dym::Mesh &mesh_, shared_ptr<Material> default_mat) {
   createMesh(mesh_.faces, default_mat);
 }
 
-void Mesh::reBuild(dym::Mesh &mesh_, shared_ptr<Material> default_mat) {
+void Mesh::reBuild(dym::rdt::Mesh &mesh_, shared_ptr<Material> default_mat) {
   vertices.resize(mesh_.vertices.size());
   auto &mesh_vertices = mesh_.vertices;
 #pragma omp parallel for

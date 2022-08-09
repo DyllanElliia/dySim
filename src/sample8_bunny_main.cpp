@@ -84,8 +84,15 @@ int main(int argc, char const *argv[]) {
       0, dym::gi(image_height, image_width));
   dym::Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> imageP(
       0, dym::gi(image_height, image_width));
-  // World
 
+  // GUI
+  dym::GUI gui("rt");
+  gui.init(image_width, image_height);
+  Real t = 0.4, t_inv = 1 - t;
+  dym::TimeLog time;
+  int ccc = 1;
+
+  // World
   dym::rt::HittableList world;
   dym::rt::HittableList lights;
   Real begin = 0.35, end = 0.65;
@@ -93,9 +100,7 @@ int main(int argc, char const *argv[]) {
       begin, end, begin, end, 0.998, std::shared_ptr<dym::rt::Material>()));
 
   world.add(std::make_shared<dym::rt::BvhNode>(cornell_box()));
-
-  dym::Model loader("./PLYFiles/ply/Bunny10K.ply");
-
+  dym::rdt::Model loader("./PLYFiles/ply/Bunny10K.ply");
   dym::Quaternion rotate = dym::getQuaternion<Real>(dym::Pi, {0, 1, 0});
   dym::Matrix3 scalem = dym::matrix::identity<Real, 3>(3.5);
   dym::Vector3 translation({0.4, 0, 0.55});
@@ -118,13 +123,6 @@ int main(int argc, char const *argv[]) {
 
   render.worlds.addObject<dym::rt::BvhNode>(world);
   render.lights = lights;
-
-  // GUI
-  dym::GUI gui("rt");
-  gui.init(image_width, image_height);
-  Real t = 0.4, t_inv = 1 - t;
-  dym::TimeLog time;
-  int ccc = 1;
 
   time.reStart();
   gui.update([&]() {

@@ -6,7 +6,6 @@
  * @Description:
  */
 
-#include "dyMath.hpp"
 #include <dyGraphic.hpp>
 
 #include <iostream>
@@ -16,22 +15,23 @@ int main() {
   const unsigned int SCR_HEIGHT = 1000;
   dym::GUI gui("asdf", dym::gi(0, 0, 0), dym::ViewMode::VIEWER_3D);
   gui.init(SCR_WIDTH, SCR_HEIGHT);
-  dym::Shader ourShader("./shader/model_loading.vs",
-                        "./shader/model_loading.fs");
-  dym::Shader lightShader("./shader/lightbox.vs", "./shader/lightbox.fs");
+  dym::rdt::Shader ourShader("./shader/model_loading.vs",
+                             "./shader/model_loading.fs");
+  dym::rdt::Shader lightShader("./shader/lightbox.vs", "./shader/lightbox.fs");
 
-  dym::Model ourModel("./assets/nanosuit/nanosuit.obj");
+  dym::rdt::Model ourModel("./assets/nanosuit/nanosuit.obj");
   dym::rdo::cube lightCube;
-  dym::Material mat({1.0, 0.5, 0.31}, {1.0, 0.5, 0.31}, {0.5, 0.5, 0.5}, 32.);
-  dym::PoLightMaterial lmat({0.2, 0.2, 0.2}, {0.5, 0.5, 0.5}, {1.0, 1.0, 1.0},
-                            1.0, 0.045, 0.0075);
+  dym::rdt::Material mat({1.0, 0.5, 0.31}, {1.0, 0.5, 0.31}, {0.5, 0.5, 0.5},
+                         32.);
+  dym::rdt::PoLightMaterial lmat({0.2, 0.2, 0.2}, {0.5, 0.5, 0.5},
+                                 {1.0, 1.0, 1.0}, 1.0, 0.045, 0.0075);
 
-  dym::Camera &camera = gui.camera;
+  dym::rdt::Camera &camera = gui.camera;
   camera.Position = {4, 10, 20};
   dym::Vector3 lightPos{4, 0, 0}, lightColor(1.0);
 
-  auto setCameraMatrix = [&](dym::Shader &s, dym::Matrix4l &p, dym::Matrix4l &v,
-                             dym::Matrix4l &m) {
+  auto setCameraMatrix = [&](dym::rdt::Shader &s, dym::Matrix4l &p,
+                             dym::Matrix4l &v, dym::Matrix4l &m) {
     s.setMat4("projection", p);
     s.setMat4("view", v);
     s.setMat4("model", m);

@@ -401,8 +401,9 @@ _DYM_FORCE_INLINE_ IdPoint calculateIntersection(std::size_t x, std::size_t y,
   return intersection;
 }
 
-Mesh reindex(PointIdMapping &vertexMapping, std::vector<Vector3ui> &triangles,
-             Real xDim, Real yDim, Real zDim) {
+rdt::Mesh reindex(PointIdMapping &vertexMapping,
+                  std::vector<Vector3ui> &triangles, Real xDim, Real yDim,
+                  Real zDim) {
   std::size_t nextId = 0;
 
   for (auto &pair : vertexMapping) {
@@ -415,7 +416,7 @@ Mesh reindex(PointIdMapping &vertexMapping, std::vector<Vector3ui> &triangles,
   }
 
   std::size_t vertexCount = vertexMapping.size();
-  std::vector<Vertex> vertices(vertexCount);
+  std::vector<rdt::Vertex> vertices(vertexCount);
   std::size_t index = 0;
   for (const auto &pair : vertexMapping) {
     vertices[index].Position[0] = pair.second.x / xDim - 0.5;
@@ -424,13 +425,13 @@ Mesh reindex(PointIdMapping &vertexMapping, std::vector<Vector3ui> &triangles,
     ++index;
   }
 
-  Mesh mesh;
+  rdt::Mesh mesh;
   mesh.vertices = vertices;
   mesh.faces = triangles;
   return mesh;
 }
 
-void calculateNormals(Mesh &mesh) {
+void calculateNormals(rdt::Mesh &mesh) {
   std::size_t vertexCount = mesh.vertices.size();
   auto &vertices = mesh.vertices;
   std::size_t triangleCount = mesh.faces.size();
@@ -461,7 +462,7 @@ void calculateNormals(Mesh &mesh) {
 
 } // namespace
 
-Mesh marchingCubes(Tensor<Real> &volume, Real isoLevel) {
+rdt::Mesh marchingCubes(Tensor<Real> &volume, Real isoLevel) {
   auto vshape = volume.shape();
   std::size_t xDim = vshape[0], yDim = vshape[1], zDim = vshape[2];
   --xDim, --yDim, --zDim;
@@ -598,7 +599,8 @@ Mesh marchingCubes(Tensor<Real> &volume, Real isoLevel) {
     //       vertexMapping.insert(vertexm);
     //     }
   }
-  Mesh mesh = reindex(vertexMapping, triangles, xDim + 1, yDim + 1, zDim + 1);
+  rdt::Mesh mesh =
+      reindex(vertexMapping, triangles, xDim + 1, yDim + 1, zDim + 1);
 
   calculateNormals(mesh);
 

@@ -25,10 +25,10 @@
 #include "./shaderLoader.hpp"
 
 namespace dym {
-
 typedef Vector<lReal, 2> Vector2l;
 typedef Vector<lReal, 3> Vector3l;
 typedef Vector<unsigned int, 3> Vector3ui;
+namespace rdt {
 #define MAX_BONE_INFLUENCE 4
 
 struct Vertex {
@@ -127,7 +127,6 @@ private:
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
-
     glBindVertexArray(VAO);
     // load data into vertex buffers
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -137,11 +136,9 @@ private:
     // translates to 3/2 floats which translates to a byte array.
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex),
                  &vertices[0], GL_STATIC_DRAW);
-
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size() * sizeof(Vector3ui),
                  &faces[0], GL_STATIC_DRAW);
-
     // set the vertex attribute pointers
     // vertex Positions
     glEnableVertexAttribArray(0);
@@ -166,7 +163,6 @@ private:
     glEnableVertexAttribArray(5);
     glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex),
                            (void *)offsetof(Vertex, m_BoneIDs));
-
     // weights
     glEnableVertexAttribArray(6);
     glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
@@ -228,8 +224,9 @@ public:
   bool gammaCorrection;
 
   // constructor, expects a filepath to a 3D model.
-  Model(std::string const &path, bool gamma = false) : gammaCorrection(gamma) {
-    loadModel(path);
+  Model(std::string const &path, bool gamma = false, bool flipTexture = true)
+      : gammaCorrection(gamma) {
+    loadModel(path, flipTexture);
   }
 
   // draws the model, and thus all its meshes
@@ -241,8 +238,9 @@ public:
 private:
   // loads a model with supported ASSIMP extensions from file and stores the
   // resulting meshes in the meshes vector.
-  void loadModel(std::string const &path, unsigned short assimpLoadArg = 0) {
-    stbi_set_flip_vertically_on_load(true);
+  void loadModel(std::string const &path, unsigned short assimpLoadArg = 0,
+                 bool flipTexture = true) {
+    stbi_set_flip_vertically_on_load(flipTexture);
     // read file via ASSIMP
     Assimp::Importer importer;
     const aiScene *scene = importer.ReadFile(
@@ -270,7 +268,6 @@ private:
   // located at the node and repeats this process on its children nodes (if
   // any).
   void processNode(aiNode *node, const aiScene *scene) {
-    // qprint("in processNode");
     // process each mesh located at the current node
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
       // the node object only contains faces to index the actual objects in
@@ -413,5 +410,5 @@ private:
     return textures;
   }
 };
-
+} // namespace rdt
 } // namespace dym

@@ -61,7 +61,7 @@ public:
     glDeleteBuffers(1, &VBO);
   }
 
-  virtual void Draw(Shader &shader, unsigned int instancedNum = 1) {
+  virtual void Draw(rdt::Shader &shader, unsigned int instancedNum = 1) {
     glBindVertexArray(VAO);
     if (instancedNum > 1)
       glDrawArraysInstanced(GL_TRIANGLES, 0, 36, instancedNum);

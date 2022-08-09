@@ -168,7 +168,7 @@ int main(int argc, char const *argv[]) {
   //     std::make_shared<dym::rt::Mesh>(positions, faces, whiteSur()),
   //     scalem * rotate2.to_matrix() * rotate.to_matrix(), 0.5));
 
-  dym::Model loader("./PLYFiles/ply/Bunny10K.ply");
+  dym::rdt::Model loader("./PLYFiles/ply/Bunny10K.ply");
 
   dym::TimeLog ttt;
 

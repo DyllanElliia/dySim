@@ -10,6 +10,7 @@
 
 #include "./Launch.hpp"
 #include "./vector.hpp"
+#include <type_traits>
 namespace dym {
 template <typename t>
 Index<t> addIndex(const Index<t> &i1, const Index<t> &i2, int i2begin = 0) {

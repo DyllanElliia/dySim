@@ -40,8 +40,7 @@
 #include "tools/renderTools/shaderLoader.hpp"
 
 // tools objects
-#include  "tools/renderTools/object/object.hpp"
-
+#include "tools/renderTools/object/object.hpp"
 
 namespace dym {
 bool *keys;
@@ -146,8 +145,8 @@ public:
   GLFWwindow *window;
   std::string windowName;
   Index<float> background_color;
-  std::vector<Shader> shaderList;
-  Camera camera;
+  std::vector<rdt::Shader> shaderList;
+  rdt::Camera camera;
   unsigned int src_height, src_width;
 
   GUI(std::string windowName_ = "dyMath",
@@ -223,15 +222,15 @@ public:
     switch (viewMode) {
     case VIEWER_2D:
       shaderList.push_back(
-          Shader("../shader/default2D.vs", "../shader/default2D.frag"));
-      shaderList.push_back(
-          Shader("../shader/default2Dpic.vs", "../shader/default2Dpic.frag"));
+          rdt::Shader("../shader/default2D.vs", "../shader/default2D.frag"));
+      shaderList.push_back(rdt::Shader("../shader/default2Dpic.vs",
+                                       "../shader/default2Dpic.frag"));
       break;
     case VIEWER_3D:
       shaderList.push_back(
-          Shader("../shader/default3D.vs", "../shader/default3D.frag"));
-      shaderList.push_back(
-          Shader("../shader/default2Dpic.vs", "../shader/default2Dpic.frag"));
+          rdt::Shader("../shader/default3D.vs", "../shader/default3D.frag"));
+      shaderList.push_back(rdt::Shader("../shader/default2Dpic.vs",
+                                       "../shader/default2Dpic.frag"));
       break;
     default:
       qp_ctrl(tType::BOLD, tType::UNDERLINE, tColor::RED);
@@ -442,13 +441,13 @@ public:
           camera.ProcessMouseScroll(s_yoffset);
           // Camera controls
           if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            camera.ProcessKeyboard(FORWARD, deltaTime);
+            camera.ProcessKeyboard(rdt::FORWARD, deltaTime);
           if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            camera.ProcessKeyboard(BACKWARD, deltaTime);
+            camera.ProcessKeyboard(rdt::BACKWARD, deltaTime);
           if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            camera.ProcessKeyboard(LEFT, deltaTime);
+            camera.ProcessKeyboard(rdt::LEFT, deltaTime);
           if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            camera.ProcessKeyboard(RIGHT, deltaTime);
+            camera.ProcessKeyboard(rdt::RIGHT, deltaTime);
         };
         do_move();
         // Create camera transformation

@@ -7,6 +7,7 @@
 #include "math/define.hpp"
 
 namespace dym {
+namespace rdt {
 namespace {
 // Defines several possible options for camera movement. Used as
 // abstraction to
@@ -133,4 +134,5 @@ private:
     Up = glm::normalize(glm::cross(Right, Front));
   }
 };
+} // namespace rdt
 } // namespace dym

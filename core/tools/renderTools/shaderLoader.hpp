@@ -14,7 +14,10 @@
 #include <string>
 
 namespace dym {
-struct Material {
+namespace rdt {
+struct BaseMaterial {};
+
+struct Material : public BaseMaterial {
   Vector3l ambient;
   Vector3l diffuse;
   Vector3l specular;
@@ -25,7 +28,7 @@ struct Material {
         shininess(shininess) {}
 };
 
-struct LightMaterial {
+struct LightMaterial : public BaseMaterial {
   Vector3 position;
   Vector3l ambient;
   Vector3l diffuse;
@@ -36,7 +39,7 @@ struct LightMaterial {
       : ambient(ambient), diffuse(diffuse), specular(specular) {}
 };
 
-struct PaLightMaterial {
+struct PaLightMaterial : public BaseMaterial {
   Vector3 direction;
   Vector3l ambient;
   Vector3l diffuse;
@@ -47,7 +50,7 @@ struct PaLightMaterial {
       : ambient(ambient), diffuse(diffuse), specular(specular) {}
 };
 
-struct PoLightMaterial {
+struct PoLightMaterial : public BaseMaterial {
   Vector3 position;
   Vector3l ambient;
   Vector3l diffuse;
@@ -63,7 +66,7 @@ struct PoLightMaterial {
         constant(constant), linear(linear), quadratic(quadratic) {}
 };
 
-struct SpotLightMaterial {
+struct SpotLightMaterial : public BaseMaterial {
   Vector3 position;
   Vector3 direction;
   lReal inCutOff, outCutOff;
@@ -267,17 +270,20 @@ private:
       glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
       if (!success) {
         glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-        DYM_ERROR("Shader Error: SHADER_COMPILATION_ERROR of type: " + type +
-                  "\n" + std::string(infoLog));
+        DYM_ERROR_cs(std::string("Shader"),
+                     "SHADER_COMPILATION_ERROR of type: " + type + "\n" +
+                         std::string(infoLog));
       }
     } else {
       glGetProgramiv(shader, GL_LINK_STATUS, &success);
       if (!success) {
         glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-        DYM_ERROR("Shader Error: PROGRAM_LINKING_ERROR of type: " + type +
-                  "\n" + std::string(infoLog));
+        DYM_ERROR_cs(std::string("Shader"),
+                     "PROGRAM_LINKING_ERROR of type: " + type + "\n" +
+                         std::string(infoLog));
       }
     }
   }
 };
+} // namespace rdt
 } // namespace dym

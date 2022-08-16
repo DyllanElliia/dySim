@@ -40,7 +40,9 @@
 #include "tools/renderTools/shaderLoader.hpp"
 
 // tools objects
+#include "tools/renderTools/object/frameBuffer.hpp"
 #include "tools/renderTools/object/object.hpp"
+#include "tools/renderTools/object/skyBox.hpp"
 
 namespace dym {
 bool *keys;

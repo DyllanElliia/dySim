@@ -18,16 +18,29 @@ int main() {
   dym::rdt::Shader ourShader("./shader/model_loading.vs",
                              "./shader/model_loading.fs");
   dym::rdt::Shader lightShader("./shader/lightbox.vs", "./shader/lightbox.fs");
+  dym::rdt::Shader skyboxShader("./shader/skybox.vs", "./shader/skybox.fs");
 
   dym::rdt::Model ourModel("./assets/nanosuit/nanosuit.obj");
-  dym::rdo::cube lightCube;
+  dym::rdo::Cube lightCube;
   dym::rdt::Material mat({1.0, 0.5, 0.31}, {1.0, 0.5, 0.31}, {0.5, 0.5, 0.5},
                          32.);
   dym::rdt::PoLightMaterial lmat({0.2, 0.2, 0.2}, {0.5, 0.5, 0.5},
                                  {1.0, 1.0, 1.0}, 1.0, 0.045, 0.0075);
 
+  // SkyBox Texture
+  std::vector<std::string> faces{"right.jpg",  "left.jpg",  "top.jpg",
+                                 "bottom.jpg", "front.jpg", "back.jpg"};
+  for (auto &face : faces)
+    face = "./assets/skybox/" + face;
+  dym::rdo::SkyBox skybox;
+  skybox.loadCubeTexture(faces);
+  skyboxShader.use();
+  skyboxShader.setTexture("skybox", 0, skybox.texture);
+  ourShader.use();
+
   dym::rdt::Camera &camera = gui.camera;
   camera.Position = {4, 10, 20};
+  // camera.Position = {0, 0, 0};
   dym::Vector3 lightPos{4, 0, 0}, lightColor(1.0);
 
   auto setCameraMatrix = [&](dym::rdt::Shader &s, dym::Matrix4l &p,
@@ -58,13 +71,20 @@ int main() {
         ourShader.setVec3("viewPos", camera.Position);
         ourShader.setMaterial("material", mat);
         ourShader.setLightMaterial("light", lmat);
-        ourModel.Draw(ourShader, 2);
+        ourShader.setTexture("skybox", 0, skybox.texture);
+        ourModel.Draw(ourShader, 2, 1);
 
         lightShader.use();
         setCameraMatrix(lightShader, projection, view, model);
         lightShader.setVec3("lightPos", lightPos);
         lightShader.setVec3("lightColor", lightColor);
         lightCube.Draw(lightShader);
+
+        skyboxShader.use();
+        skyboxShader.setMat4("projection", projection);
+        skyboxShader.setMat4("view", view);
+        skyboxShader.setVec3("offset", camera.Position);
+        skybox.Draw(skyboxShader);
       },
       0.001);
 

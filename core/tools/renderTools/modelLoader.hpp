@@ -76,7 +76,8 @@ public:
   }
 
   // render the mesh
-  void Draw(Shader &shader, unsigned int instancedNum = 1) {
+  void Draw(Shader &shader, unsigned int instancedNum = 1,
+            const int textureSizeOffset = 0) {
     // bind appropriate textures
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
@@ -99,7 +100,8 @@ public:
         number = std::to_string(heightNr++); // transfer unsigned int to stream
 
       // now set the sampler to the correct texture unit
-      glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
+      glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()),
+                  i + textureSizeOffset);
       // and finally bind the texture
       glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }
@@ -230,9 +232,10 @@ public:
   }
 
   // draws the model, and thus all its meshes
-  void Draw(Shader &shader, unsigned int instancedNum = 1) {
+  void Draw(Shader &shader, unsigned int instancedNum = 1,
+            const int textureSizeOffset = 0) {
     for (unsigned int i = 0; i < meshes.size(); i++)
-      meshes[i].Draw(shader, instancedNum);
+      meshes[i].Draw(shader, instancedNum, textureSizeOffset);
   }
 
 private:

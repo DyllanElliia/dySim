@@ -41,6 +41,8 @@ struct Material{
 
 uniform Material material;
 
+uniform samplerCube skybox;
+
 void main()
 {
   vec3 objColor=vec3(texture(texture_diffuse1,TexCoords));
@@ -66,10 +68,11 @@ void main()
   float attenuation=1./(light.constant+light.linear*distance+
     light.quadratic*(distance*distance));
     
-    // ambient*=attenuation;
-    // diffuse*=attenuation;
-    // specular*=attenuation;
+    // SkyBox
+    vec3 R=reflect(-viewDir,norm);
+    vec3 sky=vec3(texture(skybox,R));
+    // vec3 sky=vec3(1.,1.,1.);
     
-    vec3 result=(ambient+diffuse+specular)*objColor*attenuation;
+    vec3 result=(ambient+diffuse+specular)*objColor*attenuation+sky;
     FragColor=vec4(result,1.);
   }

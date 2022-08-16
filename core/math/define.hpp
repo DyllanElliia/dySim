@@ -54,7 +54,8 @@
 #define DYM_ERROR(errorString) __DYM_ERROR_CALL(errorString, __FILE__, __LINE__)
 
 #define DYM_ERROR_cs(className, errorString)                                   \
-  __DYM_ERROR_CALL(className + " Error: " + errorString, __FILE__, __LINE__)
+  __DYM_ERROR_CALL(std::string(className) + " Error: " + errorString,          \
+                   __FILE__, __LINE__)
 
 inline void __DYM_ERROR_CALL(std::string err, const char *file,
                              const int line) {
@@ -65,7 +66,8 @@ inline void __DYM_ERROR_CALL(std::string err, const char *file,
 
 #define DYM_WARNING(str) __DYM_WARNING_CALL(str, __FILE__, __LINE__)
 #define DYM_WARNING_cs(className, wString)                                     \
-  __DYM_WARNING_CALL(className + " Warning: " + wString, __FILE__, __LINE__)
+  __DYM_WARNING_CALL(std::string(className) + " Warning: " + wString,          \
+                     __FILE__, __LINE__)
 
 inline void __DYM_WARNING_CALL(std::string err, const char *file,
                                const int line) {

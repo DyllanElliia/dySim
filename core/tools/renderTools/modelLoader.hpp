@@ -20,6 +20,7 @@
 #include <assimp/postprocess.h>
 // scene
 #include <assimp/scene.h>
+#include <functional>
 
 // shader
 #include "./shaderLoader.hpp"
@@ -78,14 +79,13 @@ public:
   // render the mesh
   void Draw(Shader &shader, unsigned int instancedNum = 1,
             const int textureSizeOffset = 0) {
+    shader.use();
     // bind appropriate textures
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
     unsigned int normalNr = 1;
     unsigned int heightNr = 1;
     for (unsigned int i = 0; i < textures.size(); i++) {
-      glActiveTexture(GL_TEXTURE0 +
-                      i); // active proper texture unit before binding
       // retrieve texture number (the N in diffuse_textureN)
       std::string number;
       std::string name = textures[i].type;
@@ -98,12 +98,16 @@ public:
         number = std::to_string(normalNr++); // transfer unsigned int to stream
       else if (name == "texture_height")
         number = std::to_string(heightNr++); // transfer unsigned int to stream
-
-      // now set the sampler to the correct texture unit
-      glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()),
-                  i + textureSizeOffset);
-      // and finally bind the texture
-      glBindTexture(GL_TEXTURE_2D, textures[i].id);
+      shader.setTexture(name + number, textures[i].id);
+      // auto index = i;
+      // glActiveTexture(GL_TEXTURE0 +
+      //                 index); // active proper texture unit before binding
+      // qprint(name + number, textures[i].path);
+      // // now set the sampler to the correct texture unit
+      // glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()),
+      //             index);
+      // // and finally bind the texture
+      // glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }
 
     // draw mesh
@@ -226,7 +230,7 @@ public:
   bool gammaCorrection;
 
   // constructor, expects a filepath to a 3D model.
-  Model(std::string const &path, bool gamma = false, bool flipTexture = true)
+  Model(std::string const &path, bool gamma = false, bool flipTexture = false)
       : gammaCorrection(gamma) {
     loadModel(path, flipTexture);
   }
@@ -238,11 +242,18 @@ public:
       meshes[i].Draw(shader, instancedNum, textureSizeOffset);
   }
 
+  // draws the model, and thus all its meshes
+  void Draw(std::function<Shader &(Mesh &)> whichShader,
+            unsigned int instancedNum = 1, const int textureSizeOffset = 0) {
+    for (unsigned int i = 0; i < meshes.size(); i++)
+      meshes[i].Draw(whichShader(meshes[i]), instancedNum, textureSizeOffset);
+  }
+
 private:
   // loads a model with supported ASSIMP extensions from file and stores the
   // resulting meshes in the meshes vector.
   void loadModel(std::string const &path, unsigned short assimpLoadArg = 0,
-                 bool flipTexture = true) {
+                 bool flipTexture = false) {
     stbi_set_flip_vertically_on_load(flipTexture);
     // read file via ASSIMP
     Assimp::Importer importer;
@@ -408,6 +419,7 @@ private:
         textures_loaded.push_back(
             texture); // store it as texture loaded for entire model, to ensure
                       // we won't unnecesery load duplicate textures.
+        // qprint(typeName, str.C_Str());
       }
     }
     return textures;

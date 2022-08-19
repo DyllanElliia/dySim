@@ -36,6 +36,7 @@ public:
                            texture, 0);
 
     // gen rbo
+    glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH,
                           SCR_HEIGHT);
@@ -69,7 +70,7 @@ public:
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
+    // glEnable(GL_DEPTH_TEST);
   }
   void close() {
     // check framebuffer

@@ -5,12 +5,9 @@ in vec2 TexCoords;
 in vec3 Normal;
 in vec3 FragPos;
 
-uniform samplerCube skybox;
-
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
 uniform sampler2D texture_normal1;
-uniform sampler2D texture_height1;
 
 // light
 struct Light{
@@ -43,12 +40,13 @@ struct Material{
 
 uniform Material material;
 
+uniform samplerCube skybox;
+
 void main()
 {
   vec3 objColor=vec3(texture(texture_diffuse1,TexCoords));
   vec3 objSpec=vec3(texture(texture_specular1,TexCoords));
   vec3 objNorm=vec3(texture(texture_normal1,TexCoords));
-  vec3 objheig=vec3(texture(texture_height1,TexCoords));
   vec3 ambient=light.ambient*material.ambient;
   vec3 norm=normalize(Normal);
   vec3 lightPos=light.position;
@@ -71,10 +69,11 @@ void main()
     
     // SkyBox
     vec3 R=reflect(-viewDir,norm);
-    vec3 sky=vec3(texture(skybox,R))*objheig;
+    vec3 sky=vec3(texture(skybox,R));
     // vec3 sky=vec3(1.,1.,1.);
     
-    vec3 result=(ambient+diffuse+specular)*objColor*attenuation+sky;
-    // vec3 result=objheig;
+    vec3 result=(ambient+diffuse+specular)*objColor*attenuation;
+    // vec3 result=sky;
+    // result=sky;
     FragColor=vec4(result,1.);
   }

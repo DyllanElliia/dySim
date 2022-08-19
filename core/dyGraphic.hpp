@@ -55,6 +55,7 @@ enum ViewMode { VIEWER_2D, VIEWER_3D };
 #define _dym_pixel_typedef_
 typedef unsigned char Pixel;
 #endif
+
 class GUI {
 private:
   ViewMode viewMode;

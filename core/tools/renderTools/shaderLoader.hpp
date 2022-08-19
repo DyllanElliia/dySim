@@ -13,6 +13,9 @@
 #include <sstream>
 #include <string>
 
+// textureRegister
+#include "./textureRegister.hpp"
+
 namespace dym {
 namespace rdt {
 struct BaseMaterial {};
@@ -182,6 +185,12 @@ public:
   // ------------------------------------------------------------------------
   void setTexture(const std::string &name, int index,
                   unsigned int textureID) const {
+    glActiveTexture(GL_TEXTURE0 + index);
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), index);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+  }
+  void setTexture(const std::string &name, unsigned int textureID) const {
+    auto index = texRegFind(ID, name);
     glActiveTexture(GL_TEXTURE0 + index);
     glUniform1i(glGetUniformLocation(ID, name.c_str()), index);
     glBindTexture(GL_TEXTURE_2D, textureID);

@@ -17,14 +17,16 @@ int main() {
   gui.init(SCR_WIDTH, SCR_HEIGHT);
   dym::rdt::Shader ourShader("./shader/model_loading.vs",
                              "./shader/model_loading.fs");
+  dym::rdt::Shader ourShader3t("./shader/model_loading.vs",
+                               "./shader/model_loading3tex.fs");
   dym::rdt::Shader lightShader("./shader/lightbox.vs", "./shader/lightbox.fs");
   dym::rdt::Shader skyboxShader("./shader/skybox.vs", "./shader/skybox.fs");
 
-  dym::rdt::Model ourModel("./assets/nanosuit/nanosuit.obj");
+  dym::rdt::Model ourModel("./assets/nanosuit_reflection/nanosuit.obj");
   dym::rdo::Cube lightCube;
-  dym::rdt::Material mat({1.0, 0.5, 0.31}, {1.0, 0.5, 0.31}, {0.5, 0.5, 0.5},
+  dym::rdt::Material mat({1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}, {0.5, 0.5, 0.5},
                          32.);
-  dym::rdt::PoLightMaterial lmat({0.2, 0.2, 0.2}, {0.5, 0.5, 0.5},
+  dym::rdt::PoLightMaterial lmat({1.0, 1.0, 1.0}, {1.0, 1.0, 1.0},
                                  {1.0, 1.0, 1.0}, 1.0, 0.045, 0.0075);
 
   // SkyBox Texture
@@ -35,13 +37,12 @@ int main() {
   dym::rdo::SkyBox skybox;
   skybox.loadCubeTexture(faces);
   skyboxShader.use();
-  skyboxShader.setTexture("skybox", 0, skybox.texture);
-  ourShader.use();
+  skyboxShader.setTexture("skybox", skybox.texture);
 
   dym::rdt::Camera &camera = gui.camera;
-  camera.Position = {4, 10, 20};
+  camera.Position = {0, 10, 20};
   // camera.Position = {0, 0, 0};
-  dym::Vector3 lightPos{4, 0, 0}, lightColor(1.0);
+  dym::Vector3 lightPos{0, 0, 0}, lightColor(1.0);
 
   auto setCameraMatrix = [&](dym::rdt::Shader &s, dym::Matrix4l &p,
                              dym::Matrix4l &v, dym::Matrix4l &m) {
@@ -64,15 +65,25 @@ int main() {
         model = glm::translate(model.to_glm_mat(), {0.0f, 0.0f, 0.0f});
         model = glm::scale(model.to_glm_mat(), {1.0f, 1.0f, 1.0f});
 
-        ourShader.use();
-        setCameraMatrix(ourShader, projection, view, model);
-        ourShader.setVec3("offsets[0]", {-8, 0, 0});
-        ourShader.setVec3("offsets[0]", {8, 0, 0});
-        ourShader.setVec3("viewPos", camera.Position);
-        ourShader.setMaterial("material", mat);
-        ourShader.setLightMaterial("light", lmat);
-        ourShader.setTexture("skybox", 0, skybox.texture);
-        ourModel.Draw(ourShader, 2, 1);
+        auto setOurShader = [&](dym::rdt::Shader &s) {
+          s.use();
+          setCameraMatrix(s, projection, view, model);
+          s.setVec3("offsets[0]", {-4, 0, 0});
+          s.setVec3("offsets[1]", {4, 0, 0});
+          s.setVec3("viewPos", camera.Position);
+          s.setMaterial("material", mat);
+          s.setLightMaterial("light", lmat);
+          s.setTexture("skybox", skybox.texture);
+        };
+        setOurShader(ourShader);
+        setOurShader(ourShader3t);
+
+        ourModel.Draw(
+            [&](dym::rdt::Mesh &m) -> dym::rdt::Shader & {
+              return m.textures.size() == 4 ? ourShader : ourShader3t;
+            },
+            2, 1);
+        // ourModel.Draw(ourShader, 2, 1);
 
         lightShader.use();
         setCameraMatrix(lightShader, projection, view, model);

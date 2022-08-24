@@ -5,7 +5,7 @@ in vec2 TexCoords;
 in vec3 Normal;
 in vec3 FragPos;
 
-uniform samplerCube skybox;
+// layout(std140,binding=0)uniform Object{samplerCube skybox;};
 
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
@@ -42,6 +42,8 @@ struct Material{
 };
 
 uniform Material material;
+
+uniform samplerCube skybox;
 
 void main()
 {

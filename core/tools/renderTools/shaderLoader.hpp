@@ -88,6 +88,7 @@ struct SpotLightMaterial : public BaseMaterial {
 class Shader {
 public:
   unsigned int ID;
+  std::string name="Shader";
   // constructor generates the shader on the fly
   // ------------------------------------------------------------------------
   Shader(const char *vertexPath, const char *fragmentPath,
@@ -279,7 +280,7 @@ private:
       glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
       if (!success) {
         glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-        DYM_ERROR_cs(std::string("Shader"),
+        DYM_ERROR_cs(name,
                      "SHADER_COMPILATION_ERROR of type: " + type + "\n" +
                          std::string(infoLog));
       }
@@ -287,7 +288,7 @@ private:
       glGetProgramiv(shader, GL_LINK_STATUS, &success);
       if (!success) {
         glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-        DYM_ERROR_cs(std::string("Shader"),
+        DYM_ERROR_cs(name,
                      "PROGRAM_LINKING_ERROR of type: " + type + "\n" +
                          std::string(infoLog));
       }

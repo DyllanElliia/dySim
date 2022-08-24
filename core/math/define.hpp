@@ -60,7 +60,7 @@
 inline void __DYM_ERROR_CALL(std::string err, const char *file,
                              const int line) {
   qp_ctrl(tColor::RED, tType::BOLD, tType::UNDERLINE);
-  qprint(err, "\n--- error in file <", file, ">, line", line, ".");
+  qprint(err, "\n--- error in file <", file, ">, line", line, ".\n");
   qp_ctrl();
 }
 
@@ -72,7 +72,7 @@ inline void __DYM_ERROR_CALL(std::string err, const char *file,
 inline void __DYM_WARNING_CALL(std::string err, const char *file,
                                const int line) {
   qp_ctrl(tColor::YELLOW, tType::BOLD, tType::UNDERLINE);
-  qprint(err, "\n--- warning in file <", file, ">, line", line, ".");
+  qprint(err, "\n--- warning in file <", file, ">, line", line, ".\n");
   qp_ctrl();
 }
 

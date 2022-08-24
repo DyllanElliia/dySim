@@ -38,6 +38,7 @@
 #include "tools/renderTools/Camera.hpp"
 #include "tools/renderTools/modelLoader.hpp"
 #include "tools/renderTools/shaderLoader.hpp"
+#include "tools/renderTools/uniformBuffer.hpp"
 
 // tools objects
 #include "tools/renderTools/object/frameBuffer.hpp"
@@ -151,6 +152,7 @@ public:
   std::vector<rdt::Shader> shaderList;
   rdt::Camera camera;
   unsigned int src_height, src_width;
+  const float glVertion = 4.5, dymVertion = 0.9;
 
   GUI(std::string windowName_ = "dyMath",
       Index<int> background_color_ = Index<int>(3, 0),
@@ -163,8 +165,8 @@ public:
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, (int)dym::floor(glVertion));
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, int(glVertion * 10) % 10);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -254,8 +256,8 @@ public:
     qprint("-------------------------------------------------");
     qprint("************* Welcome to use dySim! *************");
     qprint("-------------------------------------------------");
-    qprint("OpenGL  version:  4.5");
-    qprint("dySim   version:  0.8 (Unreleased)");
+    qprint("OpenGL  version: ", glVertion);
+    qprint("dySim   version: ", dymVertion);
     qprint("Author: DyllanElliia");
     qprint("Github: https://github.com/DyllanElliia/dySim\n");
 

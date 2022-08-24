@@ -6,6 +6,7 @@
  * @Description:
  */
 
+#include "tools/renderTools/uniformBuffer.hpp"
 #include <dyGraphic.hpp>
 
 #include <iostream>
@@ -45,11 +46,15 @@ int main() {
   dym::Vector3 lightPos{0, 0, 0}, lightColor(1.0);
 
   auto setCameraMatrix = [&](dym::rdt::Shader &s, dym::Matrix4l &p,
-                             dym::Matrix4l &v, dym::Matrix4l &m) {
-    s.setMat4("projection", p);
-    s.setMat4("view", v);
-    s.setMat4("model", m);
-  };
+                             dym::Matrix4l &v,
+                             dym::Matrix4l &m) { s.setMat4("model", m); };
+
+  dym::rdt::UniformBuffer ubuffer(sizeof(glm::mat4) * 2, 0);
+  ubuffer.bindShader(ourShader, "Object");
+  ubuffer.bindShader(ourShader3t, "Object");
+  ubuffer.bindShader(skyboxShader, "Object");
+  ubuffer.bindShader(lightShader, "Object");
+
   int i = 0;
   gui.update(
       [&]() {
@@ -65,9 +70,14 @@ int main() {
         model = glm::translate(model.to_glm_mat(), {0.0f, 0.0f, 0.0f});
         model = glm::scale(model.to_glm_mat(), {1.0f, 1.0f, 1.0f});
 
+        ubuffer.use();
+        ubuffer.setMat4(0, projection);
+        ubuffer.setMat4(1, view);
+        ubuffer.close();
+
         auto setOurShader = [&](dym::rdt::Shader &s) {
           s.use();
-          setCameraMatrix(s, projection, view, model);
+          s.setMat4("model", model);
           s.setVec3("offsets[0]", {-4, 0, 0});
           s.setVec3("offsets[1]", {4, 0, 0});
           s.setVec3("viewPos", camera.Position);
@@ -83,17 +93,14 @@ int main() {
               return m.textures.size() == 4 ? ourShader : ourShader3t;
             },
             2, 1);
-        // ourModel.Draw(ourShader, 2, 1);
 
         lightShader.use();
-        setCameraMatrix(lightShader, projection, view, model);
+        lightShader.setMat4("model", model);
         lightShader.setVec3("lightPos", lightPos);
         lightShader.setVec3("lightColor", lightColor);
         lightCube.Draw(lightShader);
 
         skyboxShader.use();
-        skyboxShader.setMat4("projection", projection);
-        skyboxShader.setMat4("view", view);
         skyboxShader.setVec3("offset", camera.Position);
         skybox.Draw(skyboxShader);
       },

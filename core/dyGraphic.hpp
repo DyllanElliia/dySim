@@ -42,6 +42,7 @@
 
 // tools objects
 #include "tools/renderTools/object/frameBuffer.hpp"
+#include "tools/renderTools/object/gbuffer.hpp"
 #include "tools/renderTools/object/object.hpp"
 #include "tools/renderTools/object/skyBox.hpp"
 

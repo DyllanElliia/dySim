@@ -10,12 +10,8 @@ out vec2 TexCoords;
 out vec3 FragPos;
 out mat3 TBN;
 
-layout(std140)uniform Object
-{
-  mat4 projection;
-  mat4 view;
-};
-
+uniform mat4 projection;
+uniform mat4 view;
 uniform mat4 model;
 // uniform mat4 view;
 // uniform mat4 projection;

@@ -88,7 +88,7 @@ struct SpotLightMaterial : public BaseMaterial {
 class Shader {
 public:
   unsigned int ID;
-  std::string name="Shader";
+  std::string name = "Shader";
   // constructor generates the shader on the fly
   // ------------------------------------------------------------------------
   Shader(const char *vertexPath, const char *fragmentPath,
@@ -127,7 +127,7 @@ public:
         geometryCode = gShaderStream.str();
       }
     } catch (std::ifstream::failure &e) {
-      std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+      DYM_ERROR_cs(name, "Failure to read file.");
     }
     const char *vShaderCode = vertexCode.c_str();
     const char *fShaderCode = fragmentCode.c_str();
@@ -280,17 +280,15 @@ private:
       glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
       if (!success) {
         glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-        DYM_ERROR_cs(name,
-                     "SHADER_COMPILATION_ERROR of type: " + type + "\n" +
-                         std::string(infoLog));
+        DYM_ERROR_cs(name, "Compilation Error of type: " + type + "\n" +
+                               std::string(infoLog) + "\n");
       }
     } else {
       glGetProgramiv(shader, GL_LINK_STATUS, &success);
       if (!success) {
         glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-        DYM_ERROR_cs(name,
-                     "PROGRAM_LINKING_ERROR of type: " + type + "\n" +
-                         std::string(infoLog));
+        DYM_ERROR_cs(name, "Linging Error of type: " + type + "\n" +
+                               std::string(infoLog) + "\n");
       }
     }
   }

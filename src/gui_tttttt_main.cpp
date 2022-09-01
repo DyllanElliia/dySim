@@ -14,32 +14,14 @@ int main() {
   const unsigned int SCR_HEIGHT = 1000;
   dym::GUI gui("asdf", dym::gi(0, 0, 0), dym::ViewMode::VIEWER_3D);
   gui.init(SCR_WIDTH, SCR_HEIGHT);
-  dym::rdt::Shader ourShader("./shader/model_loading.vs",
-                             "./shader/model_loading.fs");
-  dym::rdt::Shader ourShader3t("./shader/model_loading.vs",
-                               "./shader/model_loading3tex.fs");
+  dym::rdt::Shader ourShader("./shader/gbuffer.vs", "./shader/gbuffer.fs");
   dym::rdt::Shader lightShader("./shader/lightbox.vs", "./shader/lightbox.fs");
-  dym::rdt::Shader skyboxShader("./shader/skybox.vs", "./shader/skybox.fs");
   dym::rdt::Shader screenShader("./shader/screenbf.vs", "./shader/screenbf.fs");
 
   dym::rdt::Model ourModel("./assets/nanosuit_reflection/nanosuit.obj");
   dym::rdo::Cube lightCube;
-  dym::rdt::Material mat({1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}, {0.5, 0.5, 0.5},
-                         32.);
-  dym::rdt::PoLightMaterial lmat({1.0, 1.0, 1.0}, {1.0, 1.0, 1.0},
-                                 {1.0, 1.0, 1.0}, 1.0, 0.045, 0.0075);
 
-  // SkyBox Texture
-  std::vector<std::string> faces{"right.jpg",  "left.jpg",  "top.jpg",
-                                 "bottom.jpg", "front.jpg", "back.jpg"};
-  for (auto &face : faces)
-    face = "./assets/skybox/" + face;
-  dym::rdo::SkyBox skybox;
-  skybox.loadCubeTexture(faces);
-  skyboxShader.use();
-  skyboxShader.setTexture("skybox", skybox.texture);
-
-  dym::rdo::FrameBuffer<true> framebuf;
+  dym::rdo::GBuffer<true> gbuffer;
 
   dym::rdt::Camera &camera = gui.camera;
   camera.Position = {0, 10, 20};
@@ -55,10 +37,6 @@ int main() {
   int i = 0;
   gui.update(
       [&]() {
-        lightPos[1] = 10 + 10 * dym::sin((i) / 30.0);
-        lightPos[2] = 0. + 10 * dym::cos((i++) / 30.0);
-        lmat.position = lightPos;
-
         dym::Matrix4l projection = glm::perspective(
             glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT,
             0.1f, 100.0f);
@@ -67,7 +45,7 @@ int main() {
         model = glm::translate(model.to_glm_mat(), {0.0f, 0.0f, 0.0f});
         model = glm::scale(model.to_glm_mat(), {1.0f, 1.0f, 1.0f});
 
-        framebuf.use();
+        gbuffer.use();
 
         auto setOurShader = [&](dym::rdt::Shader &s) {
           s.use();
@@ -75,36 +53,17 @@ int main() {
           s.setVec3("offsets[0]", {-4, 0, 0});
           s.setVec3("offsets[1]", {4, 0, 0});
           s.setVec3("viewPos", camera.Position);
-          s.setMaterial("material", mat);
-          s.setLightMaterial("light", lmat);
-          s.setTexture("skybox", skybox.texture);
         };
         setOurShader(ourShader);
-        setOurShader(ourShader3t);
+        ourModel.Draw(ourShader, 2);
 
-        ourModel.Draw(
-            [&](dym::rdt::Mesh &m) -> dym::rdt::Shader & {
-              return m.textures.size() == 4 ? ourShader : ourShader3t;
-            },
-            2, 1);
-
-        lightShader.use();
-        setCameraMatrix(lightShader, projection, view, model);
-        lightShader.setVec3("lightPos", lightPos);
-        lightShader.setVec3("lightColor", lightColor);
-        lightCube.Draw(lightShader);
-
-        skyboxShader.use();
-        skyboxShader.setMat4("projection", projection);
-        skyboxShader.setMat4("view", view);
-        skyboxShader.setVec3("offset", camera.Position);
-        skybox.Draw(skyboxShader);
-
-        framebuf.close();
+        gbuffer.close();
 
         screenShader.use();
-        screenShader.setTexture("screenTexture", framebuf.texture);
-        framebuf.Draw(screenShader);
+        screenShader.setTexture("gNormal", gbuffer.gNormal);
+        screenShader.setTexture("gPos", gbuffer.gPosition);
+        screenShader.setTexture("gApSp", gbuffer.gAlbedoSpec);
+        gbuffer.Draw(screenShader);
       },
       0.001);
 

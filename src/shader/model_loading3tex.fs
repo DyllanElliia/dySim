@@ -2,8 +2,9 @@
 out vec4 FragColor;
 
 in vec2 TexCoords;
-in vec3 Normal;
+// in vec3 Normal;
 in vec3 FragPos;
+in mat3 TBN;
 
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
@@ -48,7 +49,7 @@ void main()
   vec3 objSpec=vec3(texture(texture_specular1,TexCoords));
   vec3 objNorm=vec3(texture(texture_normal1,TexCoords));
   vec3 ambient=light.ambient*material.ambient;
-  vec3 norm=normalize(Normal);
+  vec3 norm=normalize(TBN*normalize(objNorm*2.-1.));
   vec3 lightPos=light.position;
   vec3 lightDir=normalize(lightPos-FragPos);
   

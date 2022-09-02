@@ -25,7 +25,8 @@ void main()
     tc.x=TexCoords.x*2;
     if(TexCoords.y>.5){
       tc.y=TexCoords.y*2-1;
-      result=vec4(texture(gPos,tc).rgb,1.);
+      // result=vec4(texture(gPos,tc).rgb,1.);
+      result=vec4(vec3(pow(texture(gPos,tc).a,50.)),1.);
     }else{
       tc.y=TexCoords.y*2;
       result=vec4(texture(gApSp,tc).rgb,1.);

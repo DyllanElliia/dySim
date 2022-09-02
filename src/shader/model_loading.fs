@@ -86,4 +86,5 @@ void main()
     // gamma
     float gamma=1.2;
     FragColor.rgb=pow(FragColor.rgb,vec3(1./gamma));
+    // FragColor.rgb=vec3(pow(gl_FragCoord.z,15.));
   }

@@ -7,18 +7,20 @@
  */
 #pragma once
 #include "../baseClass.hpp"
+#include "render/pdf/pdf.hpp"
+#include <cstddef>
 namespace dym {
 namespace rt {
 class Metal : public Material {
- public:
-  Metal(const ColorRGB& color, const Real& fuzz = -1.f)
-      : albedo(make_shared<SolidColor>(color)),
-        fuzz(fuzz <= 1.f ? fuzz : 1.f) {}
-  Metal(const shared_ptr<Texture>& tex, const Real& fuzz = -1.f)
-      : albedo(tex), fuzz(fuzz <= 1.f ? fuzz : 1.f) {}
+public:
+  Metal(const ColorRGB &color, const Real &fuzz = -1.f)
+      : albedo(make_shared<SolidColor>(color)), fuzz(fuzz <= 1.f ? fuzz : 1.f) {
+  }
+  Metal(const shared_ptr<Texture> &tex, const Real &fuzz = 0.)
+      : albedo(tex), fuzz(fuzz <= 1. && fuzz >= 0.01 ? fuzz : 0.) {}
 
-  virtual bool scatter(const Ray& r_in, const HitRecord& rec,
-                       ScatterRecord& srec) const override {
+  virtual bool scatter(const Ray &r_in, const HitRecord &rec,
+                       ScatterRecord &srec) const override {
     // Vector3 nor = rec.normal;
     // if (fuzz > 0) nor += random_unit_vector() * fuzz;
 
@@ -31,18 +33,19 @@ class Metal : public Material {
     // return (scattered.direction().dot(rec.normal) > 0);
 
     Vector3 reflected = r_in.direction().normalize().reflect(rec.normal);
-    srec.specular_ray =
-        Ray(rec.p,
-            fuzz > 0 ? reflected + fuzz * random_in_unit_sphere() : reflected);
+    srec.specular_ray = Ray(rec.p, reflected);
     srec.attenuation = albedo->value(rec.u, rec.v, rec.p);
     srec.is_specular = true;
-    srec.pdf_ptr = nullptr;
+    srec.pdf_ptr =
+        fuzz != 0 ? make_shared<GTR2_pdf>(rec.normal, fuzz, r_in.direction())
+                  : nullptr;
+
     return true;
   }
 
- public:
+public:
   shared_ptr<Texture> albedo;
   Real fuzz;
 };
-}  // namespace rt
-}  // namespace dym
+} // namespace rt
+} // namespace dym

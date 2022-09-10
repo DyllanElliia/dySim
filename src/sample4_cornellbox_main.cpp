@@ -76,7 +76,7 @@ auto cornell_box() {
 
 int main(int argc, char const *argv[]) {
   const auto aspect_ratio = 1.f;
-  const int image_width = 1000;
+  const int image_width = 800;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
   const int samples_per_pixel = 3;
   const int max_depth = 20;
@@ -127,7 +127,7 @@ int main(int argc, char const *argv[]) {
                                               0.1, earthSur()));
 
   world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.2, 0.2, 0.2}),
-                                              0.1, whiteMetalSur(0.8)));
+                                              0.1, whiteMetalSur(0.01)));
   world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.8, 0.2, 0.2}),
                                               0.1, whiteGalssSur()));
 
@@ -135,7 +135,7 @@ int main(int argc, char const *argv[]) {
                                               0.1, whiteMetalSur()));
 
   auto mat = earthSur();
-  auto mat2 = whiteMetalSur(0.8);
+  auto mat2 = whiteMetalSur(0.2);
   dym::Vector3 tnormal({0, 0, -1});
   dym::rt::Vertex v0(dym::rt::Point3({0, 0, 0.999}), tnormal, 0, 0),
       v1(dym::rt::Point3({0, 1, 0.999}), tnormal, 0, 1),
@@ -172,12 +172,20 @@ int main(int argc, char const *argv[]) {
   dym::TimeLog time;
   int ccc = 1;
 
+  // for (int i = 0; i < 5; ++i) {
+  //   auto test =
+  //       std::make_shared<dym::rt::cosine_dir_pdf>(dym::Vector3{0, 1, 0},
+  //       0.1);
+  //   auto v = test->generate();
+  //   qprint(v, test->value(v));
+  // }
+
   time.reStart();
   gui.update([&]() {
-    lookfrom = dym::rt::Point3(
-        {0.5 + dym::cos(ccc * 0.02 / 3.1415926585), 0.5, -1.35});
-    render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
-                         dist_to_focus);
+    // lookfrom = dym::rt::Point3(
+    //     {0.5 + dym::cos(ccc * 0.02 / 3.1415926585), 0.5, -1.35});
+    // render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
+    //                      dist_to_focus);
     dym::TimeLog partTime;
     render.render(samples_per_pixel, max_depth);
 

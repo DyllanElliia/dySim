@@ -9,6 +9,7 @@
 #include <random>
 
 #include "../dyMath.hpp"
+#include "math/define.hpp"
 
 namespace dym {
 namespace rt {
@@ -24,22 +25,22 @@ const Real pi = 3.1415926535897932385;
 
 // Utility Functions
 
-_DYM_FORCE_INLINE_ Real degrees_to_radians(const Real& degrees) {
+_DYM_FORCE_INLINE_ Real degrees_to_radians(const Real &degrees) {
   return degrees * pi / 180.0;
 }
 
-namespace {}  // namespace
+namespace {} // namespace
 
-_DYM_FORCE_INLINE_ Real random_real(const Real& min = 0.0,
-                                    const Real& max = 1.0) {
+_DYM_FORCE_INLINE_ Real random_real(const Real &min = 0.0,
+                                    const Real &max = 1.0) {
   std::uniform_real_distribution<Real> distribution(min, max);
   static std::mt19937 generator;
   // return (distribution(generator) * (max - min)) - min;
   return distribution(generator);
 }
 
-_DYM_FORCE_INLINE_ Vector3 vec_random(const Real& min = 0.0,
-                                      const Real& max = 1.0) {
+_DYM_FORCE_INLINE_ Vector3 vec_random(const Real &min = 0.0,
+                                      const Real &max = 1.0) {
   return Vector3(
       {random_real(min, max), random_real(min, max), random_real(min, max)});
 }
@@ -47,7 +48,8 @@ _DYM_FORCE_INLINE_ Vector3 vec_random(const Real& min = 0.0,
 Vector3 random_in_unit_sphere() {
   while (true) {
     auto p = vec_random(-1, 1);
-    if (p.length_sqr() < 1) return p;
+    if (p.length_sqr() < 1)
+      return p;
   }
 }
 
@@ -55,10 +57,10 @@ _DYM_FORCE_INLINE_ Vector3 random_unit_vector() {
   return random_in_unit_sphere().normalize();
 }
 
-_DYM_FORCE_INLINE_ Vector3 random_in_hemisphere(const Vector3& normal) {
+_DYM_FORCE_INLINE_ Vector3 random_in_hemisphere(const Vector3 &normal) {
   Vector3 in_unit_sphere = random_in_unit_sphere();
   if (vector::dot(in_unit_sphere, normal) >
-      0.f)  // In the same hemisphere as the normal
+      0.f) // In the same hemisphere as the normal
     return in_unit_sphere;
   else
     return -in_unit_sphere;
@@ -67,21 +69,11 @@ _DYM_FORCE_INLINE_ Vector3 random_in_hemisphere(const Vector3& normal) {
 Vector3 random_in_unit_disk() {
   while (true) {
     auto p = Vector3({random_real(-1, 1), random_real(-1, 1), 0});
-    if (p.length_sqr() >= 1) continue;
+    if (p.length_sqr() >= 1)
+      continue;
     return p;
   }
 }
 
-_DYM_FORCE_INLINE_ Vector3 random_cosine_direction() {
-  auto r1 = random_real();
-  auto r2 = random_real();
-  auto z = sqrt(1 - r2);
-
-  auto phi = 2 * pi * r1;
-  auto x = cos(phi) * sqrt(r2);
-  auto y = sin(phi) * sqrt(r2);
-
-  return Vector3({x, y, z});
-}
-}  // namespace rt
-}  // namespace dym
+} // namespace rt
+} // namespace dym

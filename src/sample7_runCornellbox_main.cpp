@@ -5,6 +5,7 @@
  * @LastEditTime: 2022-05-06 15:04:41
  * @Description:
  */
+#include "render/pdf/pdf.hpp"
 #include <dyGraphic.hpp>
 #include <dyPicture.hpp>
 #include <dyRender.hpp>
@@ -76,9 +77,9 @@ auto cornell_box() {
 
 int main(int argc, char const *argv[]) {
   const auto aspect_ratio = 1.f;
-  const int image_width = 600;
+  const int image_width = 400;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
-  int samples_per_pixel = 1;
+  int samples_per_pixel = 4;
   const int max_depth = 50;
   dym::Tensor<dym::Vector<Real, dym::PIC_RGB>> image(
       0, dym::gi(image_height, image_width));
@@ -89,8 +90,8 @@ int main(int argc, char const *argv[]) {
   dym::rt::HittableList world;
   dym::rt::HittableList lights;
   Real begin = 0.35, end = 0.65;
-  // lights.add(std::make_shared<dym::rt::xz_rect>(
-  //     begin, end, begin, end, 0.998, std::shared_ptr<dym::rt::Material>()));
+  lights.add(std::make_shared<dym::rt::xz_rect>(
+      begin, end, begin, end, 0.998, std::shared_ptr<dym::rt::Material>()));
 
   world.add(std::make_shared<dym::rt::BvhNode>(cornell_box()));
 
@@ -172,27 +173,45 @@ int main(int argc, char const *argv[]) {
   dym::TimeLog time;
   int ccc = 1;
 
+  for (int i = 0; i < 5; ++i) {
+    auto test = std::make_shared<dym::rt::GTR2_pdf>(
+        dym::Vector3{0, 1, 0}, 0.1, dym::Vector3{1, -1, 0}.normalize());
+    auto v = test->generate();
+    qprint(v, test->value(v));
+  }
+
+  for (int i = 0; i < 5; ++i) {
+    auto test = std::make_shared<dym::rt::cosine_pdf>(dym::Vector3{0, 1, 0});
+    auto v = test->generate();
+    qprint(v, test->value(v));
+  }
+
   time.reStart();
   gui.update([&]() {
     dym::TimeLog partTime;
-    qprint(1);
+    // qprint(1);
     render.render(samples_per_pixel, max_depth);
     // if (samples_per_pixel == 1000) {
     //   qprint("fin all");
     //   getchar();
     // }
-    qprint(2);
+    // qprint(2);
 
-    if (samples_per_pixel == 200) samples_per_pixel = 1, getchar();
-    if (samples_per_pixel == 100) samples_per_pixel = 200;
-    if (samples_per_pixel == 25) samples_per_pixel = 100;
-    if (samples_per_pixel == 5) samples_per_pixel = 25;
-    if (samples_per_pixel == 1) samples_per_pixel = 5;
+    if (samples_per_pixel == 200)
+      samples_per_pixel = 1, getchar();
+    if (samples_per_pixel == 100)
+      samples_per_pixel = 200;
+    if (samples_per_pixel == 25)
+      samples_per_pixel = 100;
+    if (samples_per_pixel == 5)
+      samples_per_pixel = 25;
+    if (samples_per_pixel == 1)
+      samples_per_pixel = 5;
 
     qprint("fin render part time:", partTime.getRecord());
     partTime.reStart();
 
-    // render.denoise();
+    render.denoise();
 
     // qprint("fin denoise part time:", partTime.getRecord());
     // partTime.reStart();

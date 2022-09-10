@@ -7,31 +7,32 @@
  */
 #pragma once
 #include "../baseClass.hpp"
+#include "render/pdf/pdf.hpp"
 namespace dym {
 namespace rt {
 namespace {
-_DYM_FORCE_INLINE_ Vector3 refract(const Vector3& uv, const Vector3& n,
-                                   const Real& etai_over_etat) {
+_DYM_FORCE_INLINE_ Vector3 refract(const Vector3 &uv, const Vector3 &n,
+                                   const Real &etai_over_etat) {
   auto cos_theta = fmin(dym::vector::dot(-uv, n), 1.f);
   Vector3 r_out_perp = etai_over_etat * (uv + cos_theta * n);
   Vector3 r_out_parallel =
       Real(-dym::sqrt(dym::abs(1.0 - r_out_perp.length_sqr()))) * n;
   return r_out_perp + r_out_parallel;
 }
-}  // namespace
+} // namespace
 
 class Dielectric : public Material {
- public:
-  Dielectric(const Real& index_of_refraction)
+public:
+  Dielectric(const Real &index_of_refraction)
       : ir(index_of_refraction),
         albedo(make_shared<SolidColor>(ColorRGB(1.f))) {}
-  Dielectric(const ColorRGB& color, const Real& index_of_refraction)
+  Dielectric(const ColorRGB &color, const Real &index_of_refraction)
       : ir(index_of_refraction), albedo(make_shared<SolidColor>(color)) {}
-  Dielectric(const shared_ptr<Texture>& tex, const Real& index_of_refraction)
+  Dielectric(const shared_ptr<Texture> &tex, const Real &index_of_refraction)
       : ir(index_of_refraction), albedo(tex) {}
 
-  virtual bool scatter(const Ray& r_in, const HitRecord& rec,
-                       ScatterRecord& srec) const override {
+  virtual bool scatter(const Ray &r_in, const HitRecord &rec,
+                       ScatterRecord &srec) const override {
     // attenuation = albedo->value(rec.u, rec.v, rec.p);
     // Real refraction_ratio = rec.front_face ? (1.f / ir) : ir;
 
@@ -56,7 +57,6 @@ class Dielectric : public Material {
     // return true;
 
     srec.is_specular = true;
-    srec.pdf_ptr = nullptr;
     srec.attenuation = albedo->value(rec.u, rec.v, rec.p);
     Real refraction_ratio = rec.front_face ? (1.0 / ir) : ir;
 
@@ -74,21 +74,23 @@ class Dielectric : public Material {
       direction = refract(unit_direction, rec.normal, refraction_ratio);
 
     srec.specular_ray = Ray(rec.p, direction, r_in.time());
+    srec.pdf_ptr = nullptr;
+    ;
     return true;
   }
 
- public:
-  Real ir;  // Index of Refraction
+public:
+  Real ir; // Index of Refraction
   shared_ptr<Texture> albedo;
 
- private:
-  static _DYM_FORCE_INLINE_ Real reflectance(const Real& cosine,
-                                             const Real& ref_idx) {
+private:
+  static _DYM_FORCE_INLINE_ Real reflectance(const Real &cosine,
+                                             const Real &ref_idx) {
     // Use Schlick's approximation for reflectance.
     auto r0 = (1 - ref_idx) / (1 + ref_idx);
     r0 = r0 * r0;
     return r0 + (1 - r0) * pow((1 - cosine), 5);
   }
 };
-}  // namespace rt
-}  // namespace dym
+} // namespace rt
+} // namespace dym

@@ -113,7 +113,6 @@ auto cornell_box2() {
 }
 
 int main(int argc, char const *argv[]) {
-  qprint(dym::rt::random_cosine_direction());
   qprint(std::exp(800),
          exp(800) == exp(800) ? "inf is same" : "inf is not same");
   // const auto aspect_ratio = 16.0 / 9.0;

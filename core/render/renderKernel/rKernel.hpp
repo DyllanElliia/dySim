@@ -49,22 +49,14 @@ public:
     if (!rec.mat_ptr->scatter(r, rec, srec))
       return emitted;
 
-    if (srec.is_specular) {
-      Real pdf_val_ = 1.;
+    if (srec.is_specular && !srec.pdf_ptr) {
       Ray scattered_ = srec.specular_ray;
-      if (srec.pdf_ptr) {
-        Vector3 dir_ = srec.pdf_ptr->generate();
-        pdf_val_ = srec.pdf_ptr->value(dir_);
-        scattered_.dir = dir_.normalize();
-      }
-      return emitted +
-             srec.attenuation *
-                 render(scattered_, world, lights, depth - 1, background) /
-                 pdf_val_;
+      return emitted + srec.attenuation * render(scattered_, world, lights,
+                                                 depth - 1, background);
     }
 
     shared_ptr<pdf> p;
-    if (lights && lights->objects.size() > 0) {
+    if (!srec.is_specular && lights && lights->objects.size() > 0) {
       auto light_ptr = make_shared<hittable_pdf>(lights, rec.p);
       p = make_shared<mixture_pdf>(light_ptr, srec.pdf_ptr);
     } else

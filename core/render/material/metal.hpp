@@ -8,6 +8,7 @@
 #pragma once
 #include "../baseClass.hpp"
 #include "render/pdf/pdf.hpp"
+#include "render/randomFun.hpp"
 #include <cstddef>
 namespace dym {
 namespace rt {
@@ -41,6 +42,39 @@ public:
                   : nullptr;
 
     return true;
+  }
+
+  virtual Real scattering_pdf(const Ray &r_in, const HitRecord &rec,
+                              const Ray &scattered) const {
+    if (fuzz == 0)
+      return 1.;
+    Vector3 L = scattered.direction(), V = -r_in.direction();
+    Vector3 N = rec.normal;
+    Vector3 H = (scattered.direction() - r_in.direction()).normalize();
+    auto NdotH = N.dot(H);
+    auto LdotH = L.dot(H);
+    auto NdotL = N.dot(L);
+    auto NdotV = N.dot(V);
+    auto Ds = solve_GTR2_pdf(NdotH, sqr(fuzz));
+    auto Fs = SchlickFresnel(LdotH);
+    auto Gs = smithG_GGX(NdotV, fuzz) * smithG_GGX(NdotL, fuzz);
+    // return Gs * Fs * Ds;
+    return Gs * Ds;
+    // return 1;
+  }
+
+private:
+  _DYM_FORCE_INLINE_ Real SchlickFresnel(const Real &u) const {
+    Real m = clamp(1 - u, 0, 1);
+    Real m2 = m * m;
+    return m2 * m2 * m; // pow(m,5)
+  }
+
+  _DYM_FORCE_INLINE_ Real smithG_GGX(const Real &NdotV,
+                                     const Real &alphaG) const {
+    Real a = alphaG * alphaG;
+    Real b = NdotV * NdotV;
+    return 1 / (NdotV + sqrt(a + b - a * b));
   }
 
 public:

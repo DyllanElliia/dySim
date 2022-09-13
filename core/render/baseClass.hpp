@@ -42,8 +42,9 @@ public:
 
   virtual Real scattering_pdf(const Ray &r_in, const HitRecord &rec,
                               const Ray &scattered) const {
-    return 1;
+    return 1.;
   }
+
   virtual ColorRGB emitted(const Ray &r_in, const HitRecord &rec, Real u,
                            Real v, const Point3 &p) const {
     return ColorRGB(0.f);

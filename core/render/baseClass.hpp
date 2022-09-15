@@ -40,8 +40,9 @@ public:
     return false;
   }
 
-  virtual Real scattering_pdf(const Ray &r_in, const HitRecord &rec,
-                              const Ray &scattered) const {
+  virtual Vector3 BRDF_Evaluate(const Ray &r_in, const Ray &scattered,
+                                const HitRecord &rec,
+                                const ScatterRecord &srec) const {
     return 1.;
   }
 

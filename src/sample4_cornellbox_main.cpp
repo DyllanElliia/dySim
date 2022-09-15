@@ -25,7 +25,7 @@ _DYM_FORCE_INLINE_ auto whiteSur() {
 }
 _DYM_FORCE_INLINE_ auto whiteMetalSur(Real fuzz = 0) {
   auto white_surface =
-      std::make_shared<dym::rt::Metal>(dym::rt::ColorRGB(0.8f), fuzz);
+      std::make_shared<dym::rt::Metal>(dym::rt::ColorRGB(1.0f), fuzz);
 
   return white_surface;
 }
@@ -127,7 +127,7 @@ int main(int argc, char const *argv[]) {
                                               0.1, earthSur()));
 
   world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.2, 0.2, 0.2}),
-                                              0.1, whiteMetalSur(0.01)));
+                                              0.1, whiteMetalSur(0.1)));
   world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.8, 0.2, 0.2}),
                                               0.1, whiteGalssSur()));
 
@@ -187,7 +187,12 @@ int main(int argc, char const *argv[]) {
     // render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
     //                      dist_to_focus);
     dym::TimeLog partTime;
-    render.render(samples_per_pixel, max_depth);
+    render.render(samples_per_pixel, max_depth, [](const dym::rt::Ray &r) {
+      dym::Vector3 unit_direction = r.direction().normalize();
+      Real t = 0.5f * (unit_direction.y() + 1.f);
+      return (1.f - t) * dym::rt::ColorRGB(1.f) +
+             t * dym::rt::ColorRGB({0.5f, 0.7f, 1.0f});
+    });
 
     qprint("fin render part time:", partTime.getRecord());
     partTime.reStart();

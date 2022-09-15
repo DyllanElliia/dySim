@@ -97,7 +97,7 @@ ColorRGB ray_color_pdf(
   auto pdf_val = p->value(scattered.direction());
 
   return emitted +
-         srec.attenuation * rec.mat_ptr->scattering_pdf(r, rec, scattered) *
+         rec.mat_ptr->BRDF_Evaluate(r, scattered, rec, srec) *
              ray_color_pdf(scattered, world, lights, depth - 1, background) /
              pdf_val;
 }

@@ -95,8 +95,9 @@ int main(int argc, char const *argv[]) {
 
   for (Real x = 0.15; x < 0.99; x += 0.15)
     for (Real y = 0.15; y < 0.99; y += 0.15) {
-      world.addObject<dym::rt::Sphere>(dym::rt::Point3({x, 0.15, y}), 0.05,
-                                       whiteMetalSur(y, x - 0.1));
+      world.addObject<dym::rt::Sphere>(
+          dym::rt::Point3({x, 0.15, y}), 0.05,
+          whiteMetalSur(1 - y, lerp(0.0, 0.05, (x - 0.15))));
     }
 
   // Camera

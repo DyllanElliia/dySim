@@ -73,9 +73,9 @@ dym::rt::BvhNode random_scene() {
   return dym::rt::BvhNode(world);
 }
 
-int main(int argc, char const* argv[]) {
+int main(int argc, char const *argv[]) {
   const auto aspect_ratio = 16.0 / 9.0;
-  const int image_width = 1200;
+  const int image_width = 1800;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
   const int samples_per_pixel = 1;
   const int max_depth = 50;
@@ -104,7 +104,7 @@ int main(int argc, char const* argv[]) {
   dym::TimeLog time;
   int ccc = 1;
   gui.update([&]() {
-    image.for_each_i([&](dym::Vector<Real, dym::PIC_RGB>& color, int i, int j) {
+    image.for_each_i([&](dym::Vector<Real, dym::PIC_RGB> &color, int i, int j) {
       auto oldColor = color / 255.f * Real((ccc - 1) * samples_per_pixel);
 
       color = 0.f;
@@ -113,7 +113,7 @@ int main(int argc, char const* argv[]) {
         auto v = (j + dym::rt::random_real()) / (image_height - 1);
         dym::rt::Ray r = cam.get_ray(u, v);
         color += ray_color_pdf(
-            r, world, nullptr, max_depth, [](const dym::rt::Ray& r) {
+            r, world, nullptr, max_depth, [](const dym::rt::Ray &r) {
               dym::Vector3 unit_direction = r.direction().normalize();
               Real t = 0.5f * (unit_direction.y() + 1.f);
               return (1.f - t) * dym::rt::ColorRGB(1.f) +
@@ -135,7 +135,7 @@ int main(int argc, char const* argv[]) {
     time.record();
     time.reStart();
     // image = dym::filter2D(image, dym::Matrix3(1.f / 9.f));
-    imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB>& e, int i) {
+    imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB> &e, int i) {
       e = image[i].cast<dym::Pixel>();
     });
     gui.imshow(imageP);

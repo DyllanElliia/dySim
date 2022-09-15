@@ -44,31 +44,34 @@ public:
       return background(r);
 
     ScatterRecord srec;
-    ColorRGB emitted = rec.mat_ptr->emitted(r, rec, rec.u, rec.v, rec.p);
+    ColorRGB Le = rec.mat_ptr->emitted(r, rec, rec.u, rec.v, rec.p);
 
     if (!rec.mat_ptr->scatter(r, rec, srec))
-      return emitted;
+      return Le;
 
     if (srec.is_specular && !srec.pdf_ptr) {
       Ray scattered_ = srec.specular_ray;
-      return emitted + srec.attenuation * render(scattered_, world, lights,
-                                                 depth - 1, background);
+      return Le + rec.mat_ptr->BRDF_Evaluate(r, scattered_, rec, srec) *
+                      render(scattered_, world, lights, depth - 1, background);
     }
 
-    shared_ptr<pdf> p;
+    shared_ptr<pdf> matPdf;
     if (!srec.is_specular && lights && lights->objects.size() > 0) {
       auto light_ptr = make_shared<hittable_pdf>(lights, rec.p);
-      p = make_shared<mixture_pdf>(light_ptr, srec.pdf_ptr);
+      matPdf = make_shared<mixture_pdf>(light_ptr, srec.pdf_ptr);
     } else
-      p = srec.pdf_ptr;
+      matPdf = srec.pdf_ptr;
 
-    Ray scattered = Ray(rec.p, p->generate(), r.time());
-    auto pdf_val = p->value(scattered.direction());
+    Ray scattered = Ray(rec.p, matPdf->generate(), r.time());
+    auto Fr = rec.mat_ptr->BRDF_Evaluate(r, scattered, rec, srec);
+    auto pdf_val = matPdf->value(scattered.direction());
+    if (!(Fr > 1e-5)) {
+      // qprint("in", Fr, scattered.direction(), pdf_val);
+      return Le;
+    }
+    ColorRGB Li = render(scattered, world, lights, depth - 1, background);
 
-    return emitted +
-           srec.attenuation * rec.mat_ptr->scattering_pdf(r, rec, scattered) *
-               render(scattered, world, lights, depth - 1, background) /
-               pdf_val;
+    return Le + Fr * Li / pdf_val;
   }
 };
 

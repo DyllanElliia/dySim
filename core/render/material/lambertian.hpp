@@ -13,12 +13,12 @@
 namespace dym {
 namespace rt {
 class Lambertian : public Material {
- public:
-  Lambertian(const ColorRGB& a) : albedo(make_shared<SolidColor>(a)) {}
-  Lambertian(const shared_ptr<Texture>& a) : albedo(a) {}
+public:
+  Lambertian(const ColorRGB &a) : albedo(make_shared<SolidColor>(a)) {}
+  Lambertian(const shared_ptr<Texture> &a) : albedo(a) {}
 
-  virtual bool scatter(const Ray& r_in, const HitRecord& rec,
-                       ScatterRecord& srec) const override {
+  virtual bool scatter(const Ray &r_in, const HitRecord &rec,
+                       ScatterRecord &srec) const override {
     // auto scatter_direction = rec.normal + random_unit_vector();
 
     // // Catch degenerate scatter direction
@@ -38,14 +38,15 @@ class Lambertian : public Material {
     return true;
   }
 
-  virtual Real scattering_pdf(const Ray& r_in, const HitRecord& rec,
-                              const Ray& scattered) const {
+  virtual Vector3 BRDF_Evaluate(const Ray &r_in, const Ray &scattered,
+                                const HitRecord &rec,
+                                const ScatterRecord &srec) const {
     auto cosine = rec.normal.dot(scattered.direction().normalize());
-    return cosine < 0 ? 0 : cosine / pi;
+    return cosine < 0 ? 0 : srec.attenuation * cosine / pi;
   }
 
- public:
+public:
   shared_ptr<Texture> albedo;
 };
-}  // namespace rt
-}  // namespace dym
+} // namespace rt
+} // namespace dym

@@ -49,8 +49,8 @@ class MIS_RR_PT : public RKernel {
 
     auto Li = render(scattered, world, lights, RR, background);
     return (emitted + srec.attenuation *
-                          rec.mat_ptr->scattering_pdf(r, rec, scattered) * Li /
-                          pdf_val) /
+                          rec.mat_ptr->BRDF_Evaluate(r, scattered, rec, srec) *
+                          Li / pdf_val) /
            RR;
   }
 };

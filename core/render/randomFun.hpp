@@ -94,11 +94,12 @@ _DYM_FORCE_INLINE_ Real solve_cosine_pdf(const Real &NdotL) {
 _DYM_FORCE_INLINE_ Vector3 random_GTR1_direction(const Real &xi_1,
                                                  const Real &xi_2,
                                                  const Real &alpha) {
-  Real phi_h = phi_h = 2.0 * pi * xi_1;
+  Real phi_h = 2.0 * pi * xi_1;
   Real sin_phi_h = sin(phi_h);
   Real cos_phi_h = cos(phi_h);
 
-  Real cos_theta_h = sqrt((1.0 - xi_2) / (1.0 + (alpha * alpha - 1.0) * xi_2));
+  Real cos_theta_h =
+      sqrt((1.0 - pow(alpha * alpha, 1.0 - xi_2)) / (1 - alpha * alpha));
   Real sin_theta_h = sqrt(max(0.0, 1.0 - cos_theta_h * cos_theta_h));
   return Vector3(
       {sin_theta_h * cos_phi_h, sin_theta_h * sin_phi_h, cos_theta_h});
@@ -129,6 +130,18 @@ _DYM_FORCE_INLINE_ Real solve_GTR2_pdf(const Real &NdotH, const Real &alpha) {
   Real a2 = alpha * alpha;
   Real t = 1.0 + (a2 - 1.0) * NdotH * NdotH;
   return a2 / (pi * t * t);
+}
+
+_DYM_FORCE_INLINE_ Real SchlickFresnel(const Real &u) {
+  Real m = clamp(1 - u, 0, 1);
+  Real m2 = m * m;
+  return m2 * m2 * m; // pow(m,5)
+}
+
+_DYM_FORCE_INLINE_ Real smithG_GGX(const Real &NdotV, const Real &alphaG) {
+  Real a = alphaG * alphaG;
+  Real b = NdotV * NdotV;
+  return NdotV / (NdotV + sqrt(a + b - a * b));
 }
 
 } // namespace rt

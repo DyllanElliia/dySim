@@ -40,7 +40,7 @@ public:
 class GTR2_pdf : public pdf {
 public:
   GTR2_pdf(const Vector3 &w, const Real &fuzz, const Vector3 &dir_in)
-      : alpha((fuzz)), alpha_i(sqr(1 - fuzz)), dir_in(dir_in) {
+      : alpha((fuzz)), dir_in(dir_in) {
     uvw.build_from_w(w);
   }
 
@@ -49,8 +49,6 @@ public:
     Real NdotH = uvw.w().dot(H);
     Real Ds = solve_GTR2_pdf(NdotH, alpha);
     auto res = Ds * NdotH / (4.0 * direction.dot(H));
-    // return Ds * NdotH / (4.0 * direction.dot(H));
-    // return Ds * NdotH / (direction.dot(H));
     return res <= 1 ? res : 1;
   }
 
@@ -61,7 +59,7 @@ public:
 
 public:
   onb uvw;
-  Real alpha, alpha_i;
+  Real alpha;
   Vector3 dir_in;
 };
 

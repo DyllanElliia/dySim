@@ -10,12 +10,12 @@
 namespace dym {
 namespace rt {
 class isotropic : public Material {
- public:
+public:
   isotropic(ColorRGB c) : albedo(make_shared<SolidColor>(c)) {}
   isotropic(shared_ptr<Texture> a) : albedo(a) {}
 
-  virtual bool scatter(const Ray& r_in, const HitRecord& rec,
-                       ScatterRecord& srec) const override {
+  virtual bool scatter(const Ray &r_in, const HitRecord &rec,
+                       ScatterRecord &srec) const override {
     // scattered = Ray(rec.p, random_in_unit_sphere(), r_in.time());
     // attenuation = albedo->value(rec.u, rec.v, rec.p);
 
@@ -30,8 +30,14 @@ class isotropic : public Material {
     return true;
   }
 
- public:
+  virtual Vector3 BRDF_Evaluate(const Ray &r_in, const Ray &scattered,
+                                const HitRecord &rec,
+                                const ScatterRecord &srec) const {
+    return srec.attenuation;
+  }
+
+public:
   shared_ptr<Texture> albedo;
 };
-}  // namespace rt
-}  // namespace dym
+} // namespace rt
+} // namespace dym

@@ -40,7 +40,7 @@ class MIS_RR_PT : public RKernel {
     shared_ptr<pdf> p;
     if (lights && lights->objects.size() > 0) {
       auto light_ptr = make_shared<hittable_pdf>(lights, rec.p);
-      p = make_shared<mixture_pdf>(light_ptr, srec.pdf_ptr);
+      p = make_shared<mixture_pdf>(light_ptr, srec.pdf_ptr, 0.5);
     } else
       p = srec.pdf_ptr;
 

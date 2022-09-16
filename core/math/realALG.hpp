@@ -19,7 +19,7 @@ template <typename Type> _DYM_FORCE_INLINE_ Type sqr(const Type &v) {
   return v * v;
 }
 template <typename Type>
-_DYM_FORCE_INLINE_ Type pow(const Type &v, const Type &s) {
+_DYM_FORCE_INLINE_ Type pow(const Type &v, const Real &s) {
   return std::pow(v, s);
 }
 

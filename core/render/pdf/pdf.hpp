@@ -81,17 +81,18 @@ public:
 
 class mixture_pdf : public pdf {
 public:
-  mixture_pdf(shared_ptr<pdf> p0, shared_ptr<pdf> p1) {
+  mixture_pdf(shared_ptr<pdf> p0, shared_ptr<pdf> p1, Real t)
+      : t(lerp(0.5, 1.0, t)) {
     p[0] = p0;
     p[1] = p1;
   }
 
   virtual Real value(const Vector3 &direction) const override {
-    return 0.5 * p[0]->value(direction) + 0.5 * p[1]->value(direction);
+    return (1 - t) * p[0]->value(direction) + t * p[1]->value(direction);
   }
 
   virtual Vector3 generate() const override {
-    if (random_real() < 0.5)
+    if (random_real() > t)
       return p[0]->generate();
     else
       return p[1]->generate();
@@ -99,6 +100,7 @@ public:
 
 public:
   shared_ptr<pdf> p[2];
+  Real t;
 };
 } // namespace rt
 } // namespace dym

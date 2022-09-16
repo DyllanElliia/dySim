@@ -8,12 +8,14 @@
 #pragma once
 #include "randomFun.hpp"
 
+#include <any>
+
 namespace dym {
 namespace rt {
 class Ray {
- public:
+public:
   Ray() {}
-  Ray(const Point3& origin, const Vector3& direction, const Real& time = 0.f)
+  Ray(const Point3 &origin, const Vector3 &direction, const Real &time = 0.f)
       : orig(origin), dir(direction), tm(time) {}
 
   Point3 origin() const { return orig; }
@@ -22,9 +24,9 @@ class Ray {
 
   Point3 at(Real t) const { return orig + t * dir; }
 
- public:
-  Point3 orig;  // original point
-  Vector3 dir;  // direction vector
+public:
+  Point3 orig; // original point
+  Vector3 dir; // direction vector
   Real tm;
 };
 
@@ -39,7 +41,7 @@ struct HitRecord {
   shared_ptr<Material> mat_ptr;
   int obj_id;
 
-  inline void set_face_normal(const Ray& r, const Vector3& outward_normal) {
+  inline void set_face_normal(const Ray &r, const Vector3 &outward_normal) {
     front_face = vector::dot(r.direction(), outward_normal) < 0;
     normal = front_face ? outward_normal : -outward_normal;
   }
@@ -47,10 +49,11 @@ struct HitRecord {
 
 struct ScatterRecord {
   Ray specular_ray;
-  bool is_specular;
+  Real is_specular;
   ColorRGB attenuation;
   shared_ptr<pdf> pdf_ptr;
+  std::any otherData;
 };
 
-}  // namespace rt
-}  // namespace dym
+} // namespace rt
+} // namespace dym

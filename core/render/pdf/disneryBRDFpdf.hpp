@@ -7,14 +7,14 @@ namespace dym {
 namespace rt {
 struct disBrdfMatPix {
   ColorRGB baseColor;
-  Vector3 subSurface;
+  Real subSurface;
   Real metallic;
-  Real specualr;
-  Vector3 specualrTint;
+  Real specular;
+  Real specularTint;
   Real roughness;
-  Vector3 anisotropic;
-  Vector3 sheen;
-  Vector3 sheenTint;
+  Real anisotropic;
+  Real sheen;
+  Real sheenTint;
   Real clearcoat;
   Real clearcoatGloss;
 };
@@ -40,7 +40,7 @@ public:
 
     // specualr
     Real alpha_GTR1 = lerp(0.1, 0.001, mat.clearcoatGloss);
-    Real alpha_GTR2 = max(0.001, sqr(mat.roughness));
+    Real alpha_GTR2 = max(0.001, sqr(0.5 + mat.roughness / 2.0));
     Real Ds = solve_GTR2_pdf(NdotH, alpha_GTR2);
     Real Dr = solve_GTR1_pdf(NdotH, alpha_GTR1);
 
@@ -62,7 +62,7 @@ public:
 
     Real pdf = p_diff * pdf_diff + p_spec * pdf_spec + p_clco * pdf_clco;
 
-    return max(1e-10, pdf);
+    return clamp(pdf, 1e-4, 1.0);
   }
 
   virtual Vector3 generate() const override {

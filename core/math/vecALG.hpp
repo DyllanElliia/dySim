@@ -18,7 +18,7 @@ _DYM_FORCE_INLINE_ Vector<Type, dim> clamp(const Vector<Type, dim> &v,
 }
 template <typename Type, std::size_t dim>
 _DYM_FORCE_INLINE_ Vector<Type, dim> pow(const Vector<Type, dim> &v,
-                                         const Type &s) {
+                                         const Real &s) {
   return Vector<Type, dim>([&](Type &e, int i) { e = pow(v[i], s); });
 }
 template <typename Type, std::size_t dim>

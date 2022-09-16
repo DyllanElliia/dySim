@@ -25,6 +25,7 @@
 // material
 #include "material/dielectric.hpp"
 #include "material/diffuseLight.hpp"
+#include "material/disneryBRDF.hpp"
 #include "material/lambertian.hpp"
 #include "material/metal.hpp"
 
@@ -89,7 +90,7 @@ ColorRGB ray_color_pdf(
   shared_ptr<pdf> p;
   if (lights && lights->objects.size() > 0) {
     auto light_ptr = make_shared<hittable_pdf>(lights, rec.p);
-    p = make_shared<mixture_pdf>(light_ptr, srec.pdf_ptr);
+    p = make_shared<mixture_pdf>(light_ptr, srec.pdf_ptr, 0.5);
   } else
     p = srec.pdf_ptr;
 
@@ -121,7 +122,7 @@ public:
       int samples_per_pixel, Real endValue,
       const std::function<ColorRGB(const Ray &r)> &background =
           [](const Ray &r) { return ColorRGB(0.f); },
-      const Real &max_color = 257.0) {
+      const Real &max_color = 255.0) {
     // auto viewMatrix = cam.getViewMatrix4_transform();
     // Matrix3 viewMatrix3 = viewMatrix;
     // viewMatrix = cam.getViewMatrix4_Perspective() * viewMatrix;

@@ -56,22 +56,29 @@ public:
     }
 
     shared_ptr<pdf> matPdf;
-    if (!srec.is_specular && lights && lights->objects.size() > 0) {
+    if (lights && lights->objects.size() > 0) {
       auto light_ptr = make_shared<hittable_pdf>(lights, rec.p);
-      matPdf = make_shared<mixture_pdf>(light_ptr, srec.pdf_ptr);
+      matPdf =
+          make_shared<mixture_pdf>(light_ptr, srec.pdf_ptr, srec.is_specular);
     } else
       matPdf = srec.pdf_ptr;
 
     Ray scattered = Ray(rec.p, matPdf->generate(), r.time());
     auto Fr = rec.mat_ptr->BRDF_Evaluate(r, scattered, rec, srec);
     auto pdf_val = matPdf->value(scattered.direction());
-    if (!(Fr > 1e-5)) {
-      // qprint("in", Fr, scattered.direction(), pdf_val);
-      return Le;
-    }
-    ColorRGB Li = render(scattered, world, lights, depth - 1, background);
+    // if (!(Fr > 1e-5)) {
+    //   // qprint("in", Fr, scattered.direction(), pdf_val);
+    //   return Le;
+    // }
 
-    return Le + Fr * Li / pdf_val;
+    ColorRGB Li = render(scattered, world, lights, depth - 1, background);
+    // Li = min(Li, Vector3(10.0));
+    auto res = Le + Fr * Li / pdf_val;
+    // if (Li > 19.5&&res<) {
+    //   qprint(Li, Fr, pdf_val);
+    // }
+
+    return res;
   }
 };
 

@@ -220,9 +220,10 @@ public:
 
     // add Input call_back
     processInput.push_back([](GLFWwindow *window) {
-      if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        // glfwSetWindowShouldClose(window, true);
+      if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, true);
         qprint("-> Exit GUI run");
+      }
     });
     // add default shader
     switch (viewMode) {

@@ -71,12 +71,10 @@ public:
     auto Cdlin = mon2lin(pdfmat.baseColor);
     Real Cdlum = 0.3 * Cdlin[0] + 0.6 * Cdlin[1] + 0.1 * Cdlin[2];
     Vector3 Ctint = Cdlum > 0. ? Cdlin / Cdlum : 1.;
-    // auto Cdlin = pdfmat.baseColor;
-    // Real Cdlum = 0.3 * Cdlin[0] + 0.6 * Cdlin[1] + 0.1 * Cdlin[2];
-    // Vector3 Ctint = Cdlum > 0. ? Cdlin : 1.;
     Vector3 Cspec =
-        pdfmat.specular * lerp(Vector3(1.), Ctint, pdfmat.specularTint);
-    Vector3 Cspec0 = lerp(.08 * Cspec, Cdlin, pdfmat.metallic);
+        pdfmat.specular * .08 * lerp(Vector3(1.), Ctint, pdfmat.specularTint);
+    Vector3 Cspec0 = lerp(Cspec, Cdlin, pdfmat.metallic);
+    // Vector3 Cspec0 = 0.0;
     Vector3 Csheen = lerp(Vector3(1.), Ctint, pdfmat.sheenTint);
 
     // cal global value
@@ -116,7 +114,7 @@ public:
     // auto clearcoat = 0.0;
 
     return diffuse * (1. - pdfmat.metallic) + specular + clearcoat;
-    // return;
+    // return Cspec0;
   }
 
 private:

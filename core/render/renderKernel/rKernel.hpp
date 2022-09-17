@@ -66,19 +66,8 @@ public:
     Ray scattered = Ray(rec.p, matPdf->generate(), r.time());
     auto Fr = rec.mat_ptr->BRDF_Evaluate(r, scattered, rec, srec);
     auto pdf_val = matPdf->value(scattered.direction());
-    // if (!(Fr > 1e-5)) {
-    //   // qprint("in", Fr, scattered.direction(), pdf_val);
-    //   return Le;
-    // }
-
     ColorRGB Li = render(scattered, world, lights, depth - 1, background);
-    // Li = min(Li, Vector3(10.0));
-    auto res = Le + Fr * Li / pdf_val;
-    // if (Li > 19.5&&res<) {
-    //   qprint(Li, Fr, pdf_val);
-    // }
-
-    return res;
+    return Le + Fr * Li / pdf_val;
   }
 };
 

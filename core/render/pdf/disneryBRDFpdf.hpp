@@ -51,7 +51,7 @@ public:
 
     // Sum Radiancy degree
     Real r_diff = (1 - mat.metallic);
-    Real r_spec = 1.0;
+    Real r_spec = mat.specular;
     Real r_clco = 0.25 * mat.clearcoat;
     Real r_sum = r_diff + r_spec + r_clco;
 
@@ -71,7 +71,7 @@ public:
 
     // Sum Radiancy degree
     Real r_diff = (1 - mat.metallic);
-    Real r_spec = 1.0;
+    Real r_spec = mat.specular;
     Real r_clco = 0.25 * mat.clearcoat;
     Real r_sum = r_diff + r_spec + r_clco;
 
@@ -89,7 +89,7 @@ public:
           random_GTR2_direction(random_real(), random_real(), alpha_GTR2));
     // p_dirr + p_spec < rd
     return uvw.local(
-        random_GTR1_direction(random_real(), random_real(), alpha_GTR2));
+        random_GTR1_direction(random_real(), random_real(), alpha_GTR1));
   }
 
 public:

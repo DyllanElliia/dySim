@@ -43,6 +43,7 @@ public:
     Real alpha_GTR2 = max(0.001, sqr(0.5 + mat.roughness / 2.0));
     Real Ds = solve_GTR2_pdf(NdotH, alpha_GTR2);
     Real Dr = solve_GTR1_pdf(NdotH, alpha_GTR1);
+    // auto Gs = smithG_GGX(NdotV, alpha_GTR2) * smithG_GGX(NdotL, alpha_GTR2);
 
     // cal pdf
     Real pdf_diff = NdotL / Pi;

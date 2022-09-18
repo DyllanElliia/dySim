@@ -132,16 +132,39 @@ _DYM_FORCE_INLINE_ Real solve_GTR2_pdf(const Real &NdotH, const Real &alpha) {
   return a2 / (pi * t * t);
 }
 
+_DYM_FORCE_INLINE_ Real solve_GTR2_aniso_pdf(const Real &dotHX,
+                                             const Real &dotHY,
+                                             const Real &dotNH, const Real &ax,
+                                             const Real &ay) {
+  Real deno =
+      dotHX * dotHX / (ax * ax) + dotHY * dotHY / (ay * ay) + dotNH * dotNH;
+  return 1.0 / (pi * ax * ay * deno * deno);
+}
+
 _DYM_FORCE_INLINE_ Real SchlickFresnel(const Real &u) {
   Real m = clamp(1 - u, 0, 1);
   Real m2 = m * m;
   return m2 * m2 * m; // pow(m,5)
 }
 
+// _DYM_FORCE_INLINE_ Real smithG_GGX(const Real &NdotV, const Real &alphaG) {
+//   Real a = alphaG * alphaG;
+//   Real b = NdotV * NdotV;
+//   return NdotV / (NdotV + sqrt(a + b - a * b));
+// }
+
 _DYM_FORCE_INLINE_ Real smithG_GGX(const Real &NdotV, const Real &alphaG) {
   Real a = alphaG * alphaG;
   Real b = NdotV * NdotV;
   return NdotV / (NdotV + sqrt(a + b - a * b));
+}
+
+_DYM_FORCE_INLINE_ Real smithG_GGX_aniso(const Real &NdotV, const Real &dotVX,
+                                         const Real &dotVY, const Real &ax,
+                                         const Real &ay) {
+  return 2 * NdotV /
+         (NdotV +
+          sqrt(pow(dotVX * ax, 2.0) + pow(dotVY * ay, 2.0) + pow(NdotV, 2.0)));
 }
 
 } // namespace rt

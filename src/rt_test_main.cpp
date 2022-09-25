@@ -18,7 +18,7 @@ _DYM_FORCE_INLINE_ auto whiteMetalSur(Real objcolor, Real fuzz = 0) {
 }
 
 using SolidColor = dym::rt::SolidColor;
-using ImageTexture = dym::rt::ImageTexture;
+using ImageTexture = dym::rt::ImageTexture<3>;
 _DYM_FORCE_INLINE_ auto disneryBRDF_subsurface(Real x) {
   dym::rt::DisneryMat dmat;
 

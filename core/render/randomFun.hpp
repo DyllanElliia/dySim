@@ -15,6 +15,7 @@ namespace dym {
 namespace rt {
 typedef Vector3 Point3;
 typedef Vector3 ColorRGB;
+typedef Vector4 ColorRGBA;
 using std::make_shared;
 using std::shared_ptr;
 

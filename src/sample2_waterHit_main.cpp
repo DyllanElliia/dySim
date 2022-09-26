@@ -13,7 +13,7 @@
 #include <dySimulator.hpp>
 _DYM_FORCE_INLINE_ auto earthSur() {
   auto earth_texture =
-      std::make_shared<dym::rt::ImageTexture>("image/earthmap.jpg");
+      std::make_shared<dym::rt::ImageTexture<3>>("image/earthmap.jpg");
   auto earth_surface = std::make_shared<dym::rt::Lambertian>(earth_texture);
 
   return earth_surface;
@@ -54,7 +54,7 @@ _DYM_FORCE_INLINE_ auto blueConSur() {
 
 _DYM_FORCE_INLINE_ auto lightEarthSur() {
   auto earth_texture =
-      std::make_shared<dym::rt::ImageTexture>("image/earthmap.jpg", 3);
+      std::make_shared<dym::rt::ImageTexture<3>>("image/earthmap.jpg", 3);
   auto earth_surface = std::make_shared<dym::rt::DiffuseLight>(earth_texture);
 
   return earth_surface;
@@ -119,7 +119,8 @@ int main(int argc, char const *argv[]) {
         dym::Loop<int, 2>([&](auto jj) {
           dym::Loop<int, 2>([&](auto kk) {
             auto pos_ijk = pos_i + dym::Vector3i({ii, jj, kk});
-            if (pos_ijk >= 0; pos_ijk < volume_n) volume[pos_ijk] += 0.5;
+            if (pos_ijk >= 0; pos_ijk < volume_n)
+              volume[pos_ijk] += 0.5;
           });
         });
       });
@@ -207,7 +208,8 @@ int main(int argc, char const *argv[]) {
       sim.advance(dt, [&](const dym::Vector3 &pos, dym::Vector3 vul) {
         dym::rt::HitRecord rec;
         dym::rt::Ray r(pos, vul.normalize());
-        if (!hitObject.hit(r, 1e-7, 10000, rec)) return vul;
+        if (!hitObject.hit(r, 1e-7, 10000, rec))
+          return vul;
         // if (dym::rt::random_real() < 0.0001)
         //   qprint(pos, vul.normalize(), rec.t);
         minT = dym::min(rec.t, minT);

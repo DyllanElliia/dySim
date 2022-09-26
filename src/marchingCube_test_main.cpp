@@ -12,7 +12,7 @@
 #include <dySimulator.hpp>
 _DYM_FORCE_INLINE_ auto earthSur() {
   auto earth_texture =
-      std::make_shared<dym::rt::ImageTexture>("image/earthmap.jpg");
+      std::make_shared<dym::rt::ImageTexture<3>>("image/earthmap.jpg");
   auto earth_surface = std::make_shared<dym::rt::Lambertian>(earth_texture);
 
   return earth_surface;
@@ -44,7 +44,7 @@ _DYM_FORCE_INLINE_ auto blueConSur() {
 
 _DYM_FORCE_INLINE_ auto lightEarthSur() {
   auto earth_texture =
-      std::make_shared<dym::rt::ImageTexture>("image/earthmap.jpg", 3);
+      std::make_shared<dym::rt::ImageTexture<3>>("image/earthmap.jpg", 3);
   auto earth_surface = std::make_shared<dym::rt::DiffuseLight>(earth_texture);
 
   return earth_surface;
@@ -103,7 +103,8 @@ int main(int argc, char const *argv[]) {
         dym::Loop<int, 2>([&](auto jj) {
           dym::Loop<int, 2>([&](auto kk) {
             auto pos_ijk = pos_i + dym::Vector3i({ii, jj, kk});
-            if (pos_ijk >= 0; pos_ijk < volume_n) volume[pos_ijk] += 0.5;
+            if (pos_ijk >= 0; pos_ijk < volume_n)
+              volume[pos_ijk] += 0.5;
           });
         });
       });
@@ -163,7 +164,8 @@ int main(int argc, char const *argv[]) {
                          dist_to_focus);
     dym::TimeLog partTime;
     Tp(sim.getPos());
-    for (int i = 0; i < steps; ++i) sim.advance(dt);
+    for (int i = 0; i < steps; ++i)
+      sim.advance(dt);
     qprint("fin sim part time:", partTime.getRecord());
     partTime.reStart();
     auto mesh = dym::marchingCubes(volume, 0.5);

@@ -49,6 +49,9 @@ public:
     if (!rec.mat_ptr->scatter(r, rec, srec))
       return Le;
 
+    if (srec.is_light)
+      return render(srec.specular_ray, world, lights, depth - 1, background);
+
     if (srec.is_specular && !srec.pdf_ptr) {
       Ray scattered_ = srec.specular_ray;
       return Le + rec.mat_ptr->BRDF_Evaluate(r, scattered_, rec, srec) *

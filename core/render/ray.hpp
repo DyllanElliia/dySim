@@ -49,6 +49,7 @@ struct HitRecord {
 
 struct ScatterRecord {
   Ray specular_ray;
+  bool is_light = false;
   Real is_specular;
   ColorRGB attenuation;
   shared_ptr<pdf> pdf_ptr;

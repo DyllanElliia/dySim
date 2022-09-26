@@ -127,9 +127,12 @@ namespace rt {
 class magicLight : public Material {
 public:
   magicLight(std::string &path, Real lightIntensity) {
-    mask = std::make_shared<ImageTexRGBA>(path, 1., [](dym::rt::ColorRGBA &c) {
-      return dym::rt::ColorRGB(c[3]);
-    });
+    auto tex =
+        std::make_shared<ImageTexRGBA>(path, 1., [](dym::rt::ColorRGBA &c) {
+          return dym::rt::ColorRGB(c[3]);
+        });
+    mask = tex;
+    tex->overSampling = false;
     emit = std::make_shared<SolidColor>(dym::rt::ColorRGB(1.));
   }
 
@@ -147,8 +150,7 @@ public:
   }
   virtual ColorRGB emitted(const Ray &r_in, const HitRecord &rec, Real u,
                            Real v, const Point3 &p) const override {
-    // return emit->value(u, v, p);
-    return emit->value(u, v, p) * mask->value(rec.u, rec.v, rec.p)[0];
+    return emit->value(u, v, p) * mask->value(u, v, p);
   }
 
 public:
@@ -158,7 +160,7 @@ public:
 
 class Mask : public Hittable {
 public:
-  Mask(const std::string &path, shared_ptr<Hittable> &obj) : obj(obj) {
+  Mask(const std::string &path, shared_ptr<Hittable> obj) : obj(obj) {
     auto texptr =
         std::make_shared<ImageTexRGBA>(path, 1., [](dym::rt::ColorRGBA &c) {
           return dym::rt::ColorRGB(c[3]);
@@ -172,13 +174,20 @@ public:
       for (int j = 0; j < height; ++j)
         cnt += texptr->value(i / Real(width), j / Real(height), p)[0];
     area = cnt / Real(width * height);
+    texptr->overSampling = true;
+    qprint(area);
   }
 
   virtual bool hit(const Ray &r, Real t_min, Real t_max,
                    HitRecord &rec) const override {
-    if (obj->hit(r, t_min, t_max, rec))
-      return random_real() > mask->value(rec.u, rec.v, rec.p)[0];
-    else
+    HitRecord rec_;
+    if (obj->hit(r, t_min, t_max, rec_)) {
+      if (mask->value(rec_.u, rec_.v, rec_.p)[0] > 0) {
+        rec = rec_;
+        return true;
+      } else
+        return false;
+    } else
       return false;
   }
 
@@ -189,9 +198,19 @@ public:
 
   virtual Real pdf_value(const Point3 &origin,
                          const Vector3 &v) const override {
-    return obj->pdf_value(origin, v) / area;
+    return obj->pdf_value(origin, v);
   }
-  virtual Vector3 random(const Point3 &origin) const override;
+  virtual Vector3 random(const Point3 &origin) const override {
+    while (true) {
+      auto v = obj->random(origin);
+      Ray r(origin, v);
+      HitRecord rec;
+      if (obj->hit(r, 1e-7, 1e7, rec)) {
+        if (random_real() > mask->value(rec.u, rec.v, rec.p)[0])
+          return v;
+      }
+    }
+  }
 
 public:
   shared_ptr<Texture> mask;

@@ -25,21 +25,21 @@ int main(int argc, char const *argv[]) {
   //   lights.add(std::make_shared<dym::rt::xz_rect>(
   //       begin, end, begin, end, 0.998,
   //       std::shared_ptr<dym::rt::Material>()));
-  // std::vector<std::string> paths{
-  //     "./image/magic/arrorBody.png",    "./image/magic/arrorDot.png",
-  //     "./image/magic/arrorPattern.png", "./image/magic/cirLevel1.png",
-  //     "./image/magic/cirLevel2.png",    "./image/magic/patternIn.png",
-  //     "./image/magic/patternOut.png",   "./image/magic/prayer.png"};
-  std::vector<std::string> paths{"./image/magic/arrorBody.png"};
+  std::vector<std::string> paths{
+      "./image/magic/arrorBody.png",    "./image/magic/arrorDot.png",
+      "./image/magic/arrorPattern.png", "./image/magic/cirLevel1.png",
+      "./image/magic/cirLevel2.png",    "./image/magic/patternIn.png",
+      "./image/magic/patternOut.png",   "./image/magic/prayer.png"};
+  // std::vector<std::string> paths{"./image/magic/arrorBody.png"};
   std::vector<int> le{1, 1, 1, 3, 3, 5, 4, 2};
   for (int i = 0; i < paths.size(); ++i) {
     auto &p = paths[i];
     Real hei = 0.05 - le[i] * 0.0025;
     auto mat = std::make_shared<dym::rt::magicLight>(p, 1.);
-    auto obj = std::make_shared<dym::rt::xz_rect>(0.1, 1 - 0.1, 0.1, 1 - 0.1,
-                                                  hei, mat);
-    world.add(obj);
-    lights.add(obj);
+    auto obj = std::make_shared<dym::rt::xz_rect>(0, 1, 0, 1, hei, mat);
+    auto mobj = std::make_shared<dym::rt::Mask>(p, obj);
+    world.add(mobj);
+    lights.add(mobj);
   }
   //   Real begin = 0.15, end = 0.85;
   //   lights.add(std::make_shared<dym::rt::xz_rect>(

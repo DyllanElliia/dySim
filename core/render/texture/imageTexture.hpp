@@ -73,17 +73,16 @@ public:
 
     if (overSampling) {
       Real a2_i = Real(width) * Real(height);
-      Real posu = u * width - Real(i), posv = v * height - Real(j);
+      Real posu = u * width, posv = v * height;
       Loop<int, 2>([&](auto x) {
         Loop<int, 2>([&](auto y) {
           auto offset = pixel + x * bytes_per_scanline + y * bytes_per_pixel;
           if (offset >= data + height * bytes_per_scanline)
             offset = pixel;
           res = 0.;
-          Loop<int, bytes_per_pixel>([&](auto ii) {
-            Real u = abs(Real(x - posu) * Real(y - posv)) * a2_i;
-            res[ii] += u * Real(offset[ii]) / 255.;
-          });
+          Real u = abs(Real(i + x - posu) * Real(j + y - posv));
+          Loop<int, bytes_per_pixel>(
+              [&](auto ii) { res[ii] += u * Real(offset[ii]) / 255.; });
         });
       });
     } else

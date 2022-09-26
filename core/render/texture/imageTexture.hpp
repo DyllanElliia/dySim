@@ -94,10 +94,12 @@ public:
 
 private:
   unsigned char *data;
-  int width, height;
   int bytes_per_scanline;
   Real lightIntensity;
   std::function<ColorRGB(ColorRGBA &)> colorProcess;
+
+public:
+  int width, height;
   bool overSampling = true;
   ;
 };

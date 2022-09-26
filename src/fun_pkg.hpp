@@ -155,5 +155,48 @@ public:
   shared_ptr<Texture> emit;
   shared_ptr<Texture> mask;
 };
+
+class Mask : public Hittable {
+public:
+  Mask(const std::string &path, shared_ptr<Hittable> &obj) : obj(obj) {
+    auto texptr =
+        std::make_shared<ImageTexRGBA>(path, 1., [](dym::rt::ColorRGBA &c) {
+          return dym::rt::ColorRGB(c[3]);
+        });
+    mask = texptr;
+    texptr->overSampling = false;
+    Real cnt = 0;
+    auto &width = texptr->width, height = texptr->height;
+    Vector3 p;
+    for (int i = 0; i < width; ++i)
+      for (int j = 0; j < height; ++j)
+        cnt += texptr->value(i / Real(width), j / Real(height), p)[0];
+    area = cnt / Real(width * height);
+  }
+
+  virtual bool hit(const Ray &r, Real t_min, Real t_max,
+                   HitRecord &rec) const override {
+    if (obj->hit(r, t_min, t_max, rec))
+      return random_real() > mask->value(rec.u, rec.v, rec.p)[0];
+    else
+      return false;
+  }
+
+  virtual bool bounding_box(aabb &output_box) const override {
+
+    return obj->bounding_box(output_box);
+  }
+
+  virtual Real pdf_value(const Point3 &origin,
+                         const Vector3 &v) const override {
+    return obj->pdf_value(origin, v) / area;
+  }
+  virtual Vector3 random(const Point3 &origin) const override;
+
+public:
+  shared_ptr<Texture> mask;
+  shared_ptr<Hittable> obj;
+  Real area;
+};
 } // namespace rt
 } // namespace dym

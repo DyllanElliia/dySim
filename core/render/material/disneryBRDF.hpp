@@ -19,6 +19,8 @@ struct DisneryMat {
   shared_ptr<Texture> sheenTint;
   shared_ptr<Texture> clearcoat;
   shared_ptr<Texture> clearcoatGloss;
+  shared_ptr<Texture> lightEmit;
+  DisneryMat() { lightEmit = std::make_shared<SolidColor>(0.); }
 };
 
 class DisneryBRDF : public Material {
@@ -115,6 +117,11 @@ public:
 
     return diffuse * (1. - pdfmat.metallic) + specular + clearcoat;
     // return Cspec0;
+  }
+
+  virtual ColorRGB emitted(const Ray &r_in, const HitRecord &rec, Real u,
+                           Real v, const Point3 &p) const {
+    return mat.lightEmit->value(rec.u, rec.v, rec.p);
   }
 
 private:

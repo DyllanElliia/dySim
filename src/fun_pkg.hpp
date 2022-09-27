@@ -1,4 +1,5 @@
 #include "dyMath.hpp"
+#include "render/material/dielectric.hpp"
 #include "render/randomFun.hpp"
 #include <dyGraphic.hpp>
 #include <dyPicture.hpp>
@@ -39,14 +40,20 @@ _DYM_FORCE_INLINE_ auto metalSur(dym::rt::ColorRGB color, Real fuzz) {
   dmat.specularTint = std::make_shared<SolidColor>(.4);
   dmat.roughness = std::make_shared<SolidColor>(fuzz);
   dmat.anisotropic = std::make_shared<SolidColor>(.0);
-  dmat.sheen = std::make_shared<SolidColor>(0.);
+  dmat.sheen = std::make_shared<SolidColor>(0.8);
   dmat.sheenTint = std::make_shared<SolidColor>(0.);
-  dmat.clearcoat = std::make_shared<SolidColor>(0.);
+  dmat.clearcoat = std::make_shared<SolidColor>(0.8);
   dmat.clearcoatGloss = std::make_shared<SolidColor>(.6);
 
   auto brdf_surface = std::make_shared<dym::rt::DisneryBRDF>(dmat);
 
   return brdf_surface;
+}
+
+_DYM_FORCE_INLINE_ auto glassSur(dym::rt::ColorRGB color, Real ref) {
+  auto die_surface = std::make_shared<dym::rt::Dielectric>(color, ref);
+
+  return die_surface;
 }
 
 _DYM_FORCE_INLINE_ auto jadeSur(dym::rt::ColorRGB color, Real fuzz) {
@@ -69,20 +76,22 @@ _DYM_FORCE_INLINE_ auto jadeSur(dym::rt::ColorRGB color, Real fuzz) {
   return brdf_surface;
 }
 
-_DYM_FORCE_INLINE_ auto magicSur(std::shared_ptr<dym::rt::Texture> color) {
+_DYM_FORCE_INLINE_ auto magicSur(dym::rt::ColorRGB color,
+                                 dym::rt::ColorRGB light, Real fuzz) {
   dym::rt::DisneryMat dmat;
 
-  dmat.baseColor = color;
-  dmat.subSurface = std::make_shared<SolidColor>(0.5);
-  dmat.metallic = std::make_shared<SolidColor>(0.0);
-  dmat.specular = std::make_shared<SolidColor>(.1);
-  dmat.specularTint = std::make_shared<SolidColor>(.2);
-  dmat.roughness = std::make_shared<SolidColor>(.5);
+  dmat.baseColor = std::make_shared<SolidColor>(color);
+  dmat.subSurface = std::make_shared<SolidColor>(.0);
+  dmat.metallic = std::make_shared<SolidColor>(.8);
+  dmat.specular = std::make_shared<SolidColor>(.9);
+  dmat.specularTint = std::make_shared<SolidColor>(.4);
+  dmat.roughness = std::make_shared<SolidColor>(fuzz);
   dmat.anisotropic = std::make_shared<SolidColor>(.0);
-  dmat.sheen = std::make_shared<SolidColor>(0.);
+  dmat.sheen = std::make_shared<SolidColor>(0.8);
   dmat.sheenTint = std::make_shared<SolidColor>(0.);
-  dmat.clearcoat = std::make_shared<SolidColor>(0.);
+  dmat.clearcoat = std::make_shared<SolidColor>(0.8);
   dmat.clearcoatGloss = std::make_shared<SolidColor>(.6);
+  dmat.lightEmit = std::make_shared<SolidColor>(light);
 
   auto brdf_surface = std::make_shared<dym::rt::DisneryBRDF>(dmat);
 
@@ -120,66 +129,38 @@ auto cornell_box3() {
   auto white = lambertianSur(dym::rt::ColorRGB({.73, .73, .73}));
   auto green = lambertianSur(dym::rt::ColorRGB({.12, .45, .15}));
   auto light = std::make_shared<dym::rt::DiffuseLight>(
-      20. * dym::rt::ColorRGB{0.8, 0.6, 0.5});
+      40. * dym::rt::ColorRGB{0.8, 0.6, 0.5});
 
-  Real begin = 0.48, end = 0.52;
+  Real begin = 0.49, end = 0.51;
+  Real greenHeiOff = -0.4;
   // objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 1, green));
   // objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 0, red));
   objects.addObject<dym::rt::Box>(dym::Vector3{-0.3, 0, 0},
-                                  dym::Vector3{0, 1, begin}, red);
+                                  dym::Vector3{0, 1, begin}, white);
   objects.addObject<dym::rt::Box>(dym::Vector3{-0.3, 0, end},
-                                  dym::Vector3{0, 1, 1.0}, red);
-  objects.addObject<dym::rt::Box>(dym::Vector3{1, 0, 0},
-                                  dym::Vector3{1.3, begin, 1}, green);
-  objects.addObject<dym::rt::Box>(dym::Vector3{1, end, 0},
-                                  dym::Vector3{1.3, 1, 1}, green);
+                                  dym::Vector3{0, 1, 1.0}, white);
+  objects.addObject<dym::rt::Box>(dym::Vector3{1.0, 0, 0},
+                                  dym::Vector3{1.5, begin + greenHeiOff, 1},
+                                  white);
+  objects.addObject<dym::rt::Box>(dym::Vector3{1.0, end + greenHeiOff, 0},
+                                  dym::Vector3{1.5, 1, 1}, white);
 
-  objects.add(std::make_shared<dym::rt::xz_rect>(-.1, 1.1, -.1, 1.1, 0, white));
-  objects.add(std::make_shared<dym::rt::xz_rect>(-.1, 1.1, -.1, 1.1, 1, white));
-  objects.add(std::make_shared<dym::rt::xy_rect>(-.1, 1.1, -.1, 1.1, 1, white));
+  objects.add(std::make_shared<dym::rt::xz_rect>(-.1, 2.1, -.1, 1.1, 0, white));
+  objects.add(std::make_shared<dym::rt::xz_rect>(-.1, 2.1, -.1, 1.1, 1, white));
+  objects.add(std::make_shared<dym::rt::xy_rect>(-.1, 2.1, -.1, 1.1, 1, white));
 
   auto lightobj =
-      std::make_shared<dym::rt::yz_rect>(0, 1, begin, end, -.1, light);
+      std::make_shared<dym::rt::yz_rect>(0, 1, begin, end, -.2, light);
   objects.add(lightobj);
   lights.add(lightobj);
-  lightobj = std::make_shared<dym::rt::yz_rect>(begin, end, 0, 1, 1.1, light);
+  lightobj = std::make_shared<dym::rt::yz_rect>(
+      begin + greenHeiOff, end + greenHeiOff, 0, 1, 1.1, light);
   objects.add(lightobj);
   lights.add(lightobj);
 
   return std::make_tuple(dym::rt::BvhNode(objects), lights);
 }
 
-auto cornell_box_magic() {
-  dym::rt::HittableList objects;
-  Real fuzz = 0.2;
-  auto red = magicSur(std::make_shared<ImageTexRGBA>(
-      "./image/magic/cirLevel2.png", 1., [](dym::rt::ColorRGBA &c) {
-        return dym::lerp(dym::Vector3{.65, .05, .05}, dym::Vector3(c), c[3]);
-        // return dym::rt::ColorRGB(c[3]);
-      }));
-  auto white = magicSur(std::make_shared<ImageTexRGBA>(
-      "./image/magic/cirLevel2.png", 1., [](dym::rt::ColorRGBA &c) {
-        return dym::lerp(dym::Vector3{.73, .73, .73}, dym::Vector3(c), c[3]);
-      }));
-  auto green = magicSur(std::make_shared<ImageTexRGBA>(
-      "./image/magic/cirLevel2.png", 1., [](dym::rt::ColorRGBA &c) {
-        return dym::lerp(dym::Vector3{.12, .45, .15}, dym::Vector3(c), c[3]);
-      }));
-  auto light = std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB(20));
-
-  objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 1, green));
-  objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 0, red));
-
-  objects.add(std::make_shared<dym::rt::xz_rect>(0, 1, 0, 1, 0, white));
-  objects.add(std::make_shared<dym::rt::xz_rect>(0, 1, 0, 1, 1, white));
-  objects.add(std::make_shared<dym::rt::xy_rect>(0, 1, 0, 1, 1, white));
-
-  Real begin = 0.35, end = 0.65;
-  objects.add(
-      std::make_shared<dym::rt::xz_rect>(begin, end, begin, end, 0.998, light));
-
-  return dym::rt::BvhNode(objects);
-}
 namespace dym {
 namespace rt {
 class magicLight : public Material {
@@ -224,16 +205,16 @@ public:
           return dym::rt::ColorRGB(c[3]);
         });
     mask = texptr;
-    texptr->overSampling = false;
-    Real cnt = 0;
-    auto &width = texptr->width, height = texptr->height;
-    Vector3 p;
-    for (int i = 0; i < width; ++i)
-      for (int j = 0; j < height; ++j)
-        cnt += texptr->value(i / Real(width), j / Real(height), p)[0];
-    area = cnt / Real(width * height);
-    texptr->overSampling = true;
-    qprint(area);
+    // texptr->overSampling = false;
+    // Real cnt = 0;
+    // auto &width = texptr->width, height = texptr->height;
+    // Vector3 p;
+    // for (int i = 0; i < width; ++i)
+    //   for (int j = 0; j < height; ++j)
+    //     cnt += texptr->value(i / Real(width), j / Real(height), p)[0];
+    // area = cnt / Real(width * height);
+    // texptr->overSampling = true;
+    // qprint(area);
   }
 
   virtual bool hit(const Ray &r, Real t_min, Real t_max,

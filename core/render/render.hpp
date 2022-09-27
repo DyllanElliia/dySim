@@ -151,7 +151,7 @@ public:
       // gbuffer.normal = viewMatrix3 * gbuffer.normal;
       image_GBuffer[image.getIndexInt(gi(i, j))] = gbuffer;
       color = color * (1.f / Real(samples_per_pixel));
-      color = dym::sqrt(color) * 255.0;
+      color = dym::sqrt(color) * max_color;
       dym::Loop<int, 3>([&](auto pi) {
         if (dym::isnan(color[pi]))
           color[pi] = 0;
@@ -163,9 +163,10 @@ public:
     });
   }
 
-  Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> &getFrame() {
+  Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> &
+  getFrame(Real PixelScale = 1.) {
     imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB> &e, int i) {
-      auto color = dym::clamp(image[i], 0.0, 255.99);
+      auto color = dym::clamp(image[i] * PixelScale, 0.0, 255.99);
       e = color.cast<dym::Pixel>();
     });
     return imageP;

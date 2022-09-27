@@ -4,6 +4,7 @@
 #include <dyPicture.hpp>
 #include <dyRender.hpp>
 #include <memory>
+#include <tuple>
 
 using SolidColor = dym::rt::SolidColor;
 using ImageTexture = dym::rt::ImageTexture<3>;
@@ -17,6 +18,26 @@ _DYM_FORCE_INLINE_ auto lambertianSur(dym::rt::ColorRGB color) {
   dmat.specular = std::make_shared<SolidColor>(.1);
   dmat.specularTint = std::make_shared<SolidColor>(.2);
   dmat.roughness = std::make_shared<SolidColor>(.5);
+  dmat.anisotropic = std::make_shared<SolidColor>(.0);
+  dmat.sheen = std::make_shared<SolidColor>(0.);
+  dmat.sheenTint = std::make_shared<SolidColor>(0.);
+  dmat.clearcoat = std::make_shared<SolidColor>(0.);
+  dmat.clearcoatGloss = std::make_shared<SolidColor>(.6);
+
+  auto brdf_surface = std::make_shared<dym::rt::DisneryBRDF>(dmat);
+
+  return brdf_surface;
+}
+
+_DYM_FORCE_INLINE_ auto metalSur(dym::rt::ColorRGB color, Real fuzz) {
+  dym::rt::DisneryMat dmat;
+
+  dmat.baseColor = std::make_shared<SolidColor>(color);
+  dmat.subSurface = std::make_shared<SolidColor>(.0);
+  dmat.metallic = std::make_shared<SolidColor>(.8);
+  dmat.specular = std::make_shared<SolidColor>(.9);
+  dmat.specularTint = std::make_shared<SolidColor>(.4);
+  dmat.roughness = std::make_shared<SolidColor>(fuzz);
   dmat.anisotropic = std::make_shared<SolidColor>(.0);
   dmat.sheen = std::make_shared<SolidColor>(0.);
   dmat.sheenTint = std::make_shared<SolidColor>(0.);
@@ -89,6 +110,43 @@ auto cornell_box() {
   //       light));
 
   return dym::rt::BvhNode(objects);
+}
+
+auto cornell_box3() {
+  dym::rt::HittableList objects;
+  dym::rt::HittableList lights;
+  Real fuzz = 0.2;
+  auto red = lambertianSur(dym::rt::ColorRGB({.65, .05, .05}));
+  auto white = lambertianSur(dym::rt::ColorRGB({.73, .73, .73}));
+  auto green = lambertianSur(dym::rt::ColorRGB({.12, .45, .15}));
+  auto light = std::make_shared<dym::rt::DiffuseLight>(
+      20. * dym::rt::ColorRGB{0.8, 0.6, 0.5});
+
+  Real begin = 0.48, end = 0.52;
+  // objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 1, green));
+  // objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 0, red));
+  objects.addObject<dym::rt::Box>(dym::Vector3{-0.3, 0, 0},
+                                  dym::Vector3{0, 1, begin}, red);
+  objects.addObject<dym::rt::Box>(dym::Vector3{-0.3, 0, end},
+                                  dym::Vector3{0, 1, 1.0}, red);
+  objects.addObject<dym::rt::Box>(dym::Vector3{1, 0, 0},
+                                  dym::Vector3{1.3, begin, 1}, green);
+  objects.addObject<dym::rt::Box>(dym::Vector3{1, end, 0},
+                                  dym::Vector3{1.3, 1, 1}, green);
+
+  objects.add(std::make_shared<dym::rt::xz_rect>(-.1, 1.1, -.1, 1.1, 0, white));
+  objects.add(std::make_shared<dym::rt::xz_rect>(-.1, 1.1, -.1, 1.1, 1, white));
+  objects.add(std::make_shared<dym::rt::xy_rect>(-.1, 1.1, -.1, 1.1, 1, white));
+
+  auto lightobj =
+      std::make_shared<dym::rt::yz_rect>(0, 1, begin, end, -.1, light);
+  objects.add(lightobj);
+  lights.add(lightobj);
+  lightobj = std::make_shared<dym::rt::yz_rect>(begin, end, 0, 1, 1.1, light);
+  objects.add(lightobj);
+  lights.add(lightobj);
+
+  return std::make_tuple(dym::rt::BvhNode(objects), lights);
 }
 
 auto cornell_box_magic() {

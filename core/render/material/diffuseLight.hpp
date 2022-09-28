@@ -10,21 +10,21 @@
 namespace dym {
 namespace rt {
 class DiffuseLight : public Material {
- public:
+public:
   DiffuseLight(shared_ptr<Texture> a) : emit(a) {}
-  DiffuseLight(const ColorRGB& c) : emit(make_shared<SolidColor>(c)) {}
+  DiffuseLight(const ColorRGB &c) : emit(make_shared<SolidColor>(c)) {}
 
-  virtual bool scatter(const Ray& r_in, const HitRecord& rec,
-                       ScatterRecord& srec) const override {
+  virtual bool scatter(const Ray &r_in, const HitRecord &rec,
+                       ScatterRecord &srec) const override {
     return false;
   }
-  virtual ColorRGB emitted(const Ray& r_in, const HitRecord& rec, Real u,
-                           Real v, const Point3& p) const override {
-    return emit->value(u, v, p);
+  virtual ColorRGB emitted(const Ray &r_in,
+                           const HitRecord &rec) const override {
+    return emit->value(rec.u, rec.v, rec.p);
   }
 
- public:
+public:
   shared_ptr<Texture> emit;
 };
-}  // namespace rt
-}  // namespace dym
+} // namespace rt
+} // namespace dym

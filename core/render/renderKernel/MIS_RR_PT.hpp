@@ -7,6 +7,7 @@
 namespace dym {
 namespace rt {
 class MIS_RR_PT : public RKernel {
+public:
   virtual bool endCondition(Real &value) { return random_real() > value; }
 
   virtual ColorRGB render(
@@ -15,7 +16,7 @@ class MIS_RR_PT : public RKernel {
       const std::function<ColorRGB(const Ray &r)> &background =
           [](const Ray &r) { return ColorRGB(0.f); }) {
     if (RR > 1)
-      RR = 0.1;
+      RR = 0.9;
     HitRecord rec;
     // If we've exceeded the ray bounce limit, no more light is gathered.
     if (endCondition(RR))
@@ -26,32 +27,31 @@ class MIS_RR_PT : public RKernel {
       return background(r) / RR;
 
     ScatterRecord srec;
-    ColorRGB emitted = rec.mat_ptr->emitted(r, rec, rec.u, rec.v, rec.p);
+    ColorRGB Le = rec.mat_ptr->emitted(r, rec);
 
     if (!rec.mat_ptr->scatter(r, rec, srec))
-      return emitted / RR;
+      return Le / RR;
 
-    if (srec.is_specular) {
-      return (emitted + srec.attenuation * render(srec.specular_ray, world,
-                                                  lights, RR, background)) /
+    if (srec.is_specular && !srec.pdf_ptr) {
+      Ray scattered_ = srec.specular_ray;
+      return (Le + rec.mat_ptr->BRDF_Evaluate(r, scattered_, rec, srec) *
+                       render(scattered_, world, lights, RR, background)) /
              RR;
     }
 
-    shared_ptr<pdf> p;
+    shared_ptr<pdf> matPdf;
     if (lights && lights->objects.size() > 0) {
       auto light_ptr = make_shared<hittable_pdf>(lights, rec.p);
-      p = make_shared<mixture_pdf>(light_ptr, srec.pdf_ptr, 0.5);
+      matPdf =
+          make_shared<mixture_pdf>(light_ptr, srec.pdf_ptr, srec.is_specular);
     } else
-      p = srec.pdf_ptr;
+      matPdf = srec.pdf_ptr;
 
-    Ray scattered = Ray(rec.p, p->generate(), r.time());
-    auto pdf_val = p->value(scattered.direction());
-
-    auto Li = render(scattered, world, lights, RR, background);
-    return (emitted + srec.attenuation *
-                          rec.mat_ptr->BRDF_Evaluate(r, scattered, rec, srec) *
-                          Li / pdf_val) /
-           RR;
+    Ray scattered = Ray(rec.p, matPdf->generate(), r.time());
+    auto Fr = rec.mat_ptr->BRDF_Evaluate(r, scattered, rec, srec);
+    auto pdf_val = matPdf->value(scattered.direction());
+    ColorRGB Li = render(scattered, world, lights, RR, background);
+    return (Le + Fr * Li / pdf_val) / RR;
   }
 };
 } // namespace rt

@@ -40,6 +40,7 @@
 #include "denoise/svgf.hpp"
 
 // RenderKernel
+#include "renderKernel/MIS_RR_PT.hpp"
 #include "renderKernel/rKernel.hpp"
 
 namespace dym {
@@ -66,7 +67,7 @@ ColorRGB ray_color_pdf(
     return background(r);
 
   ScatterRecord srec;
-  ColorRGB emitted = rec.mat_ptr->emitted(r, rec, rec.u, rec.v, rec.p);
+  ColorRGB emitted = rec.mat_ptr->emitted(r, rec);
 
   if constexpr (recordHitRecord) {
     out_gbuffer.normal = rec.normal;
@@ -122,7 +123,7 @@ public:
       int samples_per_pixel, Real endValue,
       const std::function<ColorRGB(const Ray &r)> &background =
           [](const Ray &r) { return ColorRGB(0.f); },
-      const Real &max_color = 255.0) {
+      const Real &max_color = 1.0) {
     // auto viewMatrix = cam.getViewMatrix4_transform();
     // Matrix3 viewMatrix3 = viewMatrix;
     // viewMatrix = cam.getViewMatrix4_Perspective() * viewMatrix;
@@ -164,9 +165,9 @@ public:
   }
 
   Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> &
-  getFrame(Real PixelScale = 1.) {
+  getFrame(Real PixelScale = 255.) {
     imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB> &e, int i) {
-      auto color = dym::clamp(image[i] * PixelScale, 0.0, 255.99);
+      auto color = dym::clamp(image[i] * PixelScale, 0.0, 255.);
       e = color.cast<dym::Pixel>();
     });
     return imageP;

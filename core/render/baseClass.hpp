@@ -46,8 +46,7 @@ public:
     return 1.;
   }
 
-  virtual ColorRGB emitted(const Ray &r_in, const HitRecord &rec, Real u,
-                           Real v, const Point3 &p) const {
+  virtual ColorRGB emitted(const Ray &r_in, const HitRecord &rec) const {
     return ColorRGB(0.f);
   }
 };

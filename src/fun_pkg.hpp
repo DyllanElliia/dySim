@@ -183,13 +183,12 @@ public:
     srec.is_specular = true;
     srec.pdf_ptr = nullptr;
     srec.specular_ray = Ray(rec.p, r_in.direction().normalize(), r_in.time());
-    srec.is_light = true;
     // return true;
     return random_real() > mask->value(rec.u, rec.v, rec.p)[0];
   }
-  virtual ColorRGB emitted(const Ray &r_in, const HitRecord &rec, Real u,
-                           Real v, const Point3 &p) const override {
-    return emit->value(u, v, p) * mask->value(u, v, p);
+  virtual ColorRGB emitted(const Ray &r_in,
+                           const HitRecord &rec) const override {
+    return emit->value(rec.u, rec.v, rec.p) * mask->value(rec.u, rec.v, rec.p);
   }
 
 public:

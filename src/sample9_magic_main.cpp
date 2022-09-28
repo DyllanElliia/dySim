@@ -1,10 +1,11 @@
 #include "fun_pkg.hpp"
+#include "render/renderKernel/MIS_RR_PT.hpp"
 
 int main(int argc, char const *argv[]) {
   const auto aspect_ratio = 5.f / 3.f;
   const int image_width = 1500;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
-  int samples_per_pixel = 30;
+  int samples_per_pixel = 5;
   const int max_depth = 20;
   dym::Tensor<dym::Vector<Real, dym::PIC_RGB>> image(
       0, dym::gi(image_height, image_width));
@@ -128,8 +129,8 @@ int main(int argc, char const *argv[]) {
   time.reStart();
   gui.update([&]() {
     dym::TimeLog partTime;
-    render.render(
-        samples_per_pixel, max_depth,
+    render.render<dym::rt::MIS_RR_PT>(
+        samples_per_pixel, 0.85,
         [](const dym::rt::Ray &r) {
           auto nd = -dym::Vector3{-.5, -1, 1}.normalize();
           return dym::lerp(dym::Vector3{13, 15, 15} / 255.,
@@ -137,6 +138,7 @@ int main(int argc, char const *argv[]) {
                            dym::pow(dym::max(nd.dot(r.direction()), 0.), 2));
         },
         1.);
+    samples_per_pixel = 50;
 
     qprint("fin render part time:", partTime.getRecord());
     partTime.reStart();

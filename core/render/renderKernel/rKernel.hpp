@@ -17,13 +17,14 @@ public:
     if (!world.hit(r, 0.001, infinity, rec))
       return out_gbuffer;
     ScatterRecord srec;
-    ColorRGB emitted = rec.mat_ptr->emitted(r, rec, rec.u, rec.v, rec.p);
+    ColorRGB emitted = rec.mat_ptr->emitted(r, rec);
     out_gbuffer.normal = rec.normal;
     out_gbuffer.position = rec.p;
     out_gbuffer.albedo = emitted;
     out_gbuffer.obj_id = rec.obj_id;
     if (rec.mat_ptr->scatter(r, rec, srec))
       out_gbuffer.albedo += srec.attenuation;
+    out_gbuffer.albedo = min(out_gbuffer.albedo, Vector3(1.));
     return out_gbuffer;
   }
 
@@ -44,13 +45,10 @@ public:
       return background(r);
 
     ScatterRecord srec;
-    ColorRGB Le = rec.mat_ptr->emitted(r, rec, rec.u, rec.v, rec.p);
+    ColorRGB Le = rec.mat_ptr->emitted(r, rec);
 
     if (!rec.mat_ptr->scatter(r, rec, srec))
       return Le;
-
-    if (srec.is_light)
-      return render(srec.specular_ray, world, lights, depth - 1, background);
 
     if (srec.is_specular && !srec.pdf_ptr) {
       Ray scattered_ = srec.specular_ray;

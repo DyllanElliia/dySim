@@ -119,8 +119,7 @@ public:
     // return Cspec0;
   }
 
-  virtual ColorRGB emitted(const Ray &r_in, const HitRecord &rec, Real u,
-                           Real v, const Point3 &p) const {
+  virtual ColorRGB emitted(const Ray &r_in, const HitRecord &rec) const {
     return mat.lightEmit->value(rec.u, rec.v, rec.p);
   }
 

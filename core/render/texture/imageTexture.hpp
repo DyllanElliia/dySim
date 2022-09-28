@@ -69,17 +69,17 @@ public:
     if (j < 0 || j >= height || i < 0 || i >= width)
       // qprint("it4", ou, ov, u, v, i, j);
       return ColorRGB(0.f);
-    ColorRGBA res(1.0);
+    ColorRGBA res({0, 0, 0, 1});
 
     if (overSampling) {
       Real a2_i = Real(width) * Real(height);
       Real posu = u * width, posv = v * height;
+      res = 0.;
       Loop<int, 2>([&](auto x) {
         Loop<int, 2>([&](auto y) {
           auto offset = pixel + x * bytes_per_scanline + y * bytes_per_pixel;
           if (offset >= data + height * bytes_per_scanline)
             offset = pixel;
-          res = 0.;
           Real u = abs(Real(i + x - posu) * Real(j + y - posv));
           Loop<int, bytes_per_pixel>(
               [&](auto ii) { res[ii] += u * Real(offset[ii]) / 255.; });

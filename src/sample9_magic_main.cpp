@@ -1,12 +1,16 @@
 #include "fun_pkg.hpp"
-#include "render/renderKernel/MIS_RR_PT.hpp"
+#include "render/object/transform.hpp"
 
 int main(int argc, char const *argv[]) {
   const auto aspect_ratio = 5.f / 3.f;
-  const int image_width = 1500;
+  const int image_width = 2000;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
-  int samples_per_pixel = 5;
+  int samples_per_pixel = 1;
   const int max_depth = 20;
+  dym::rt::svgf_op_color_alpha = 0.05;
+  dym::rt::svgf_op_moment_alpha = 0.05;
+  dym::rt::svgf_op_sepcolor = true;
+  dym::rt::svgf_op_addcolor = true;
   dym::Tensor<dym::Vector<Real, dym::PIC_RGB>> image(
       0, dym::gi(image_height, image_width));
   dym::Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> imageP(
@@ -48,6 +52,7 @@ int main(int argc, char const *argv[]) {
     magic.add(mobj);
     // lights.add(mobj);
   }
+
   dym::Quaternion magGloR = dym::getQuaternion<Real>(dym::Pi / 6., {0, 1, 0}) *
                             dym::getQuaternion<Real>(dym::Pi / 12., {0, 0, 1});
   dym::Quaternion rotate =
@@ -58,6 +63,14 @@ int main(int argc, char const *argv[]) {
   world.add(std::make_shared<dym::rt::Transform3>(
       std::make_shared<dym::rt::BvhNode>(magic), scalem * rotate.to_matrix(),
       translation));
+
+  //   // bunny
+  //   dym::rdt::Model bunny("./assets/bunny.ply");
+  //   world.addObject<dym::rt::Transform3>(
+  //       std::make_shared<dym::rt::Mesh>(bunny.meshes[0], metalSur(0.8, 0.2)),
+  //       dym::matrix::identity<Real, 3>(0.5) *
+  //           dym::getQuaternion<Real>(dym::Pi, {0, 1, 0}).to_matrix(),
+  //       dym::Vector3{0.5, 0, 0.5});
 
   // ring
   dym::rdt::Model loader("./assets/singel-chain-ring/ring.obj");
@@ -113,6 +126,7 @@ int main(int argc, char const *argv[]) {
 
   // Camera
   dym::rt::Point3 lookfrom({0.6, 0.1, 0.25});
+  //   dym::rt::Point3 lookfrom({0.5, 0.1, 0.25});
   dym::rt::Point3 lookat({0.5, 0.097, 0.5});
   dym::Vector3 vup({0, 1, 0});
   auto dist_to_focus = (lookfrom - lookat).length();
@@ -138,7 +152,7 @@ int main(int argc, char const *argv[]) {
                            dym::pow(dym::max(nd.dot(r.direction()), 0.), 2));
         },
         1.);
-    samples_per_pixel = 50;
+    // samples_per_pixel = 50;
 
     qprint("fin render part time:", partTime.getRecord());
     partTime.reStart();

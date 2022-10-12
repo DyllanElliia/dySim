@@ -152,27 +152,25 @@ operator*(const Matrix<Type, m, n> &ma, const Dual<Vector<Type, n>> &ve) {
   }
 
 _dym_dual_oneArg_(sqr, d *d);
-_dym_dual_twoArg_(pow, const int &s,
-                  {dym::pow(d.A, s), s *d.B *dym::pow(d.A, s - 1)});
-_dym_dual_oneArg_(sqrt, {dym::sqrt(d.A), d.B / (2 * dym::sqrt(d.A))});
-_dym_dual_oneArg_(cos, {dym::cos(d.A), -d.B *dym::sin(d.A)});
-_dym_dual_oneArg_(cosh, {dym::cosh(d.A), d.B *dym::sinh(d.A)});
-_dym_dual_oneArg_(acos, {dym::acos(d.A), -d.B / dym::sqrt(1 - dym::sqr(d.A))});
-_dym_dual_oneArg_(acosh, {dym::acosh(d.A), d.B / dym::sqrt(dym::sqr(d.A) - 1)});
-_dym_dual_oneArg_(sin, {dym::sin(d.A), d.B *dym::cos(d.A)});
-_dym_dual_oneArg_(sinh, {dym::sinh(d.A), d.B *dym::cosh(d.A)});
-_dym_dual_oneArg_(asin, {dym::asin(d.A), d.B / dym::sqrt(1 - dym::sqr(d.A))});
-_dym_dual_oneArg_(asinh, {dym::asinh(d.A), d.B / dym::sqrt(dym::sqr(d.A) + 1)});
-_dym_dual_oneArg_(tan, {dym::tan(d.A), d.B / dym::sqr(dym::cos(d.A))});
-_dym_dual_oneArg_(tanh, {dym::tanh(d.A), d.B / dym::sqr(dym::cosh(d.A))});
-_dym_dual_oneArg_(atan, {dym::atan(d.A), d.B / (1 + dym::sqr(d.A))});
-_dym_dual_oneArg_(atanh, {dym::atanh(d.A), d.B / (1 - dym::sqr(d.A))});
-_dym_dual_oneArg_(exp, {dym::exp(d.A), d.B *dym::exp(d.A)});
-_dym_dual_oneArg_(exp2,
-                  {dym::exp2(d.A), d.B *dym::exp2(d.A) * dym::exp((Type_)2)});
-_dym_dual_oneArg_(expm1, {dym::expm1(d.A), d.B *dym::exp(d.A)});
-_dym_dual_oneArg_(log, {dym::log(d.A), d.B / d.A});
-_dym_dual_oneArg_(log2, {dym::log2(d.A), d.B / (d.A * dym::log((Type_)2))});
-_dym_dual_oneArg_(log10, {dym::log10(d.A), d.B / (d.A * dym::log((Type_)10))});
-_dym_dual_oneArg_(log1p, {dym::log1p(d.A), d.B / (d.A + 1)});
+_dym_dual_twoArg_(pow, const int &s, {pow(d.A, s), s *d.B *pow(d.A, s - 1)});
+_dym_dual_oneArg_(sqrt, {sqrt(d.A), d.B / (2 * sqrt(d.A))});
+_dym_dual_oneArg_(cos, {cos(d.A), -d.B *sin(d.A)});
+_dym_dual_oneArg_(cosh, {cosh(d.A), d.B *sinh(d.A)});
+_dym_dual_oneArg_(acos, {acos(d.A), -d.B / sqrt(1 - sqr(d.A))});
+_dym_dual_oneArg_(acosh, {acosh(d.A), d.B / sqrt(sqr(d.A) - 1)});
+_dym_dual_oneArg_(sin, {sin(d.A), d.B *cos(d.A)});
+_dym_dual_oneArg_(sinh, {sinh(d.A), d.B *cosh(d.A)});
+_dym_dual_oneArg_(asin, {asin(d.A), d.B / sqrt(1 - sqr(d.A))});
+_dym_dual_oneArg_(asinh, {asinh(d.A), d.B / sqrt(sqr(d.A) + 1)});
+_dym_dual_oneArg_(tan, {tan(d.A), d.B / sqr(cos(d.A))});
+_dym_dual_oneArg_(tanh, {tanh(d.A), d.B / sqr(cosh(d.A))});
+_dym_dual_oneArg_(atan, {atan(d.A), d.B / (1 + sqr(d.A))});
+_dym_dual_oneArg_(atanh, {atanh(d.A), d.B / (1 - sqr(d.A))});
+_dym_dual_oneArg_(exp, {exp(d.A), d.B *exp(d.A)});
+_dym_dual_oneArg_(exp2, {exp2(d.A), d.B *exp2(d.A) * exp((Type_)2)});
+_dym_dual_oneArg_(expm1, {expm1(d.A), d.B *exp(d.A)});
+_dym_dual_oneArg_(log, {log(d.A), d.B / d.A});
+_dym_dual_oneArg_(log2, {log2(d.A), d.B / (d.A * log((Type_)2))});
+_dym_dual_oneArg_(log10, {log10(d.A), d.B / (d.A * log((Type_)10))});
+_dym_dual_oneArg_(log1p, {log1p(d.A), d.B / (d.A + 1)});
 } // namespace dym

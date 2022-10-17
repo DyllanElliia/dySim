@@ -19,8 +19,8 @@
 #include "math/matALG.hpp"
 #include "math/matrix.hpp"
 // dual
-#include "math/dual_alg.hpp"
-#include "math/dual_num.hpp"
+#include "math/dual/dual_alg.hpp"
+// #include "math/dual/dual_num.hpp"
 // tensor
 #include "math/tensor.hpp"
 

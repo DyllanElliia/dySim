@@ -7,7 +7,7 @@
  */
 #pragma once
 
-#include "./matrix.hpp"
+#include "../matrix.hpp"
 #include <cstddef>
 #include <cstdlib>
 #include <initializer_list>

@@ -19,5 +19,7 @@ int main(int argc, char const *argv[]) {
   dym::Vector3 v({1.f, 0.f, 1.f});
   (matR * v).show();
   ((q * q2).to_matrix() * v).show();
+  (q.to_matrix() * v).show();
+  (q2.to_matrix() * v).show();
   return 0;
 }

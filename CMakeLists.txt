@@ -15,7 +15,7 @@ if(CUDA_ENABLE)
   set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -w")
   find_package(CUDA REQUIRED)
   message(STATUS "-> CUDA included at ${CUDA_INCLUDE_DIRS}")
-  file(GLOB CUDA_SOURCE "core/src/cuda/*")
+  file(GLOB CUDA_SOURCE "core/math/cuda/*")
   message(STATUS "-> CUDA_SOURCE ${CUDA_SOURCE}")
   add_library(dyMath_cuda STATIC ${CUDA_SOURCE})
   target_compile_features(dyMath_cuda PRIVATE cuda_std_17)
@@ -102,13 +102,16 @@ else()
   set(LIBS)
 endif(WIN32)
 
+message(STATUS "-> [Fin] Gernate LIBS")
 configure_file(configuration/root_directory.h.in configuration/root_directory.h)
 include_directories(${CMAKE_BINARY_DIR}/configuration)
+message(STATUS "-> [Fin] Gernate configuration")
 
 # first create relevant static libraries requried for other projects
 # add_library(STB_IMAGE "src/stb_image.cpp")
 # set(LIBS ${LIBS} STB_IMAGE)
 add_library(GLAD "core/glad.c")
+message(STATUS "-> [Fin] Add library glad")
 
 # target_compile_features(GLAD PRIVATE cxx_std_17)
 set(LIBS ${LIBS} GLAD)
@@ -129,6 +132,8 @@ set(dyMath_include_dirs ${dyMath_include_dirs}
   ${OpenMP_C_INCLUDE_DIRS}
 )
 
+message(STATUS "-> [Fin] Add libs and include_dirs")
+
 # set output path
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/src)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -138,8 +143,10 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 file(GLOB MAIN
   "src/*_main.cpp"
 
-  # "src/*_main.cu"
+  "src/*_main.cu"
 )
+
+message(STATUS "-> [Fin] Find file: *_main.cpp, *_main.cu")
 
 # read other file
 file(GLOB SOURCE
@@ -153,8 +160,12 @@ file(GLOB SOURCE
   "src/*.gs"
 )
 
+message(STATUS "-> [Fin] Find source file.")
+
 # target
-FILE(GLOB_RECURSE SRC_FILES "*.c" "*.cpp" "*.cu")
+file(GLOB_RECURSE SRC_FILES "*.c" "*.cpp" "*.cu")
+
+message(STATUS "-> [Fin] Target file.")
 
 foreach(MAIN_PATH ${MAIN})
   string(REGEX REPLACE ".+/(.+)\\..*" "\\1" MAIN_NAME ${MAIN_PATH})

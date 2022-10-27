@@ -216,7 +216,7 @@ auto dx(const Func &function, const Matrix<Dual<dVar>, m, n> &dx_,
       is_same_pkg(
           dx_, vag,
           [&]() {
-            Loop<int, m>([&](auto int ii) {
+            Loop<int, m>([&](auto ii) {
               Loop<int, n>([&](auto jj) {
                 seed(vag, 1.0, ii, jj);
                 res[ii][jj] = std::apply(function, variable.arg);

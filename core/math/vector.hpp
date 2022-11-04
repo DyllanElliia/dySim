@@ -22,12 +22,9 @@ public:
   Vector() {}
   Vector(const Type &num) {
     Loop<int, dim>([&](auto i) { a[i] = num; });
-    // for (auto &i : a) i = num;
   }
-  // template <Type... args>
   Vector(const std::array<Type, dim> &v) { a = v; }
   Vector(const std::initializer_list<Type> &v) {
-    // Loop<int, dim>([&](auto i) { a[i] = v[i]; });
     short i = 0;
     for (auto &obj : v)
       a[i++] = obj;
@@ -38,8 +35,6 @@ public:
   }
   Vector(std::function<void(Type &, int)> fun) {
     Loop<int, dim>([&](auto i) { fun(a[i], i); });
-    // int i = 0;
-    // for (auto &e : a) fun(e, i++);
   }
   template <std::size_t inDim>
   Vector(const Vector<Type, inDim> &v, const Type &vul = 0) {
@@ -68,12 +63,9 @@ public:
   void show() const { std::cout << *this << std::endl; }
   constexpr _DYM_FORCE_INLINE_ auto data() const { return a.data(); }
   _DYM_FORCE_INLINE_ void for_each(std::function<void(Type &)> func) {
-    // for (auto &e : a) func(e);
     Loop<int, dim>([&](auto i) { func(a[i]); });
   }
   _DYM_FORCE_INLINE_ void for_each(std::function<void(Type &, int)> func) {
-    // int i = 0;
-    // for (auto &e : a) func(e, i++);
     Loop<int, dim>([&](auto i) { func(a[i], i); });
   }
 
@@ -128,7 +120,6 @@ public:
   inline Type dot(const Vector &v) const {
     Type res = 0;
     Loop<int, dim>([&](auto i) { res += a[i] * v[i]; });
-    // for (int i = 0; i < dim; ++i) res += a[i] * v[i];
     return res;
   }
   template <typename... Vs> inline Vector<Type, dim> cross(Vs... vec) const;
@@ -187,13 +178,6 @@ constexpr _DYM_FORCE_INLINE_ Type normalized(const Vector<Type, dim> &v) {
   return v.normalize();
 }
 } // namespace vector
-
-// template <typename Type, std::size_t dim>
-// _DYM_FORCE_INLINE_ Type operator*(const Vector<Type, dim> &f, const
-// Vector<Type, dim> &s)
-// {
-//   return dot(f, s);
-// }
 
 template <typename Type, std::size_t dim>
 inline Vector<Type, dim> operator-(const Vector<Type, dim> &v) {

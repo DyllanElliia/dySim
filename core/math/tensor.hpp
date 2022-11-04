@@ -98,9 +98,6 @@ protected:
       result.for_each_i([&first, &second, &tranFun](ValueType &e, int i) {
         e = tranFun(first.a[i], second.a[i]);
       });
-      // std::transform(first.a.begin(), first.a.begin() + first.a.size(),
-      //                second.a.begin(), std::back_inserter(result.a),
-      //                tranFun());
       return result;
     }
     Tensor t1, t2;
@@ -124,19 +121,15 @@ protected:
             asdf.a.resize(t2.a.size() * t1sl);
             auto &aa = asdf.a, &t2a = t2.a;
             auto t2as = t2.a.size();
-            for (unsigned int jj = 0; jj < t2as; ++jj) {
-              for (unsigned int ii = 0; ii < t1sl; ++ii) {
+            for (unsigned int jj = 0; jj < t2as; ++jj)
+              for (unsigned int ii = 0; ii < t1sl; ++ii)
                 aa[ii + jj * t1sl] = t2a[jj];
-              }
-            }
             t2 = asdf;
-            // qprint("test:", t2);
           } else
-            throw "\033[1;31mTensor error: Tensors must be equal in "
-                  "shape!\033[0m";
+            throw "Tensors must be equal in shape!";
         }
     } catch (const char *str) {
-      std::cerr << str << '\n';
+      DYM_ERROR_cs("Tensor", str);
       exit(EXIT_FAILURE);
     }
     int t2len = t2.tsShapeSuffix[0];
@@ -144,10 +137,6 @@ protected:
     result.for_each_i([&t2len, &t1, &t2, &tranFun](ValueType &e, int i) {
       e = tranFun(t1.a[i], t2.a[i % t2len]);
     });
-    // for (int i = 0, ii = t2len; i < t1end; i += t2len, ii += t2len) {
-    //   std::transform(t1.a.begin() + i, t1.a.begin() + ii, t2.a.begin(),
-    //                  std::back_inserter(result.a), tranFun());
-    // }
     return result;
   }
 
@@ -209,11 +198,6 @@ public:
     a.assign(ts.a.begin(), ts.a.end());
     updateSuffix();
   }
-  // Tensor(ValueType v) {
-  //   tsShape = gi(1);
-  //   updateSuffix();
-  //   a.push_back(v);
-  // }
   Tensor(const std::vector<std::vector<ValueType>> &v) {
     if (v.size() != 1)
       tsShape.push_back(v.size());
@@ -253,13 +237,13 @@ public:
         break;
       default:
         qprint(newShape.size());
-        throw "\033[1;31mTensor error: function t can only be applied to "
+        throw "function t can only be applied to "
               "transposed tensor with dimensions up to 2!\nIf you want to "
-              "transpose this tensor, please use function "
-              "transpose(times)!\033[0m";
+              "transpose this tensor, please use function transpose(times)!";
       }
     } catch (const char *str) {
       std::cerr << str << '\n';
+      DYM_ERROR_cs("Tensor", str);
       exit(EXIT_FAILURE);
     }
     Tensor result(ValueType(0), newShape);
@@ -279,14 +263,14 @@ public:
       if (i1 > i2)
         std::swap(i1, i2);
       if (i1 + 1 != i2)
-        throw "\033[1;31mTensor error: function transpose only works when "
-              "both input parameters must be continuous!\033[0m";
+        throw "function transpose only works when both input parameters must "
+              "be continuous!";
       if (i2 >= tsShape.size())
-        throw "\033[1;31mTensor error: function transpose only works when "
-              "both input parameters are less than shape size!\033[0m";
+        throw "function transpose only works when both input parameters are "
+              "less than shape size!";
       im = newShape[i1], jm = newShape[i2];
     } catch (const char *str) {
-      std::cerr << str << '\n';
+      DYM_ERROR_cs("Tensor", str);
       exit(EXIT_FAILURE);
     }
     std::swap(newShape[i1], newShape[i2]);
@@ -313,8 +297,7 @@ public:
   virtual ValueType &operator[](const Index<shapeType> &index_) {
     try {
       if (index_.size() != tsShape.size())
-        throw "\033[1;31mTensor error: (Index)Index is not equal to Tensor "
-              "shape!\033[0m";
+        throw "(Index)Index is not equal to Tensor shape!";
       ull indexR = 0;
       int max_ = index_.size() - 1;
       for (int i = 0; i < max_; ++i) {
@@ -323,7 +306,7 @@ public:
       indexR += index_[max_] % tsShape[max_];
       return a[indexR];
     } catch (const char *str) {
-      std::cerr << str << '\n';
+      DYM_ERROR_cs("Tensor", str);
       return a[0];
     }
   }
@@ -332,8 +315,7 @@ public:
   ValueType &operator[](const Vector<shapeType, size> &index_) {
     try {
       if (size != tsShape.size())
-        throw "\033[1;31mTensor error: (Index)Index is not equal to Tensor "
-              "shape!\033[0m";
+        throw "(Index)Index is not equal to Tensor shape!";
       ull indexR = 0;
       constexpr int max_ = size - 1;
       for (int i = 0; i < max_; ++i) {
@@ -342,7 +324,7 @@ public:
       indexR += index_[max_] % tsShape[max_];
       return a[indexR];
     } catch (const char *str) {
-      std::cerr << str << '\n';
+      DYM_ERROR_cs("Tensor", str);
       return a[0];
     }
   }
@@ -350,12 +332,11 @@ public:
   virtual ValueType &operator[](const int &index_) {
     try {
       if (index_ >= tsShapeSuffix[0])
-        throw "\033[1;31mTensor error: (int)Index is larger than Tensor "
-              "shape\033[0m";
+        throw "(int)Index is larger than Tensor shape!";
 
       return a[index_];
     } catch (const char *str) {
-      std::cerr << str << '\n';
+      DYM_ERROR_cs("Tensor", str);
       return a[index_ % a.size()];
     }
   }
@@ -363,8 +344,7 @@ public:
   virtual ValueType operator[](const Index<shapeType> &index_) const {
     try {
       if (index_.size() != tsShape.size())
-        throw "\033[1;31mTensor error: (Index)Index is not equal to Tensor "
-              "shape!\033[0m";
+        throw "(Index)Index is not equal to Tensor shape!";
       ull indexR = 0;
       int max_ = index_.size() - 1;
       for (int i = 0; i < max_; ++i) {
@@ -373,7 +353,7 @@ public:
       indexR += index_[max_] % tsShape[max_];
       return a[indexR];
     } catch (const char *str) {
-      std::cerr << str << '\n';
+      DYM_ERROR_cs("Tensor", str);
       return a[0];
     }
   }
@@ -381,12 +361,11 @@ public:
   virtual ValueType operator[](const int &index_) const {
     try {
       if (index_ >= tsShapeSuffix[0])
-        throw "\033[1;31mTensor error: (int)Index is larger than Tensor "
-              "shape\033[0m";
+        throw "(int)Index is larger than Tensor shape!";
 
       return a[index_];
     } catch (const char *str) {
-      std::cerr << str << '\n';
+      DYM_ERROR_cs("Tensor", str);
       return a[index_ % a.size()];
     }
   }
@@ -626,16 +605,13 @@ public:
   virtual Tensor cut(const Index<shapeType> &from, const Index<shapeType> &to) {
     try {
       if (from.size() != to.size())
-        throw "\033[1;31mTensor error: The function cut accepts two Indexes of "
-              "equal length\033[0m";
+        throw "The function cut accepts two Indexes of equal length.";
       for (int i = 0; i < from.size(); ++i)
         if (from[i] >= to[i])
-          throw "\033[1;31mTensor error: The function cut accepts two Indexes "
-                "which Index_from's elements have to be less than Index_to's "
-                "elements\033[0m";
+          throw "The function cut accepts two Indexes which Index_from's "
+                "elements have to be less than Index_to's elements.";
     } catch (const char *str) {
-      // std::cout << index_.size() << " " << tsShape.size() << std::endl;
-      std::cerr << str << '\n';
+      DYM_ERROR_cs("Tensor", str);
       return Tensor();
     }
     Tensor<ValueType, useMathOp> result;
@@ -709,8 +685,7 @@ public:
   int getIndexInt(const Vector<shapeType, size> &index_) const {
     try {
       if (size != tsShape.size())
-        throw "\033[1;31mTensor error: (Index)Index is not equal to Tensor "
-              "shape!\033[0m";
+        throw "(Index)Index is not equal to Tensor shape!";
       ull indexR = 0;
       int max_ = size - 1;
       for (int i = 0; i < max_; ++i) {
@@ -719,7 +694,7 @@ public:
       indexR += index_[max_] % tsShape[max_];
       return indexR;
     } catch (const char *str) {
-      std::cerr << str << '\n';
+      DYM_ERROR_cs("Tensor", str);
       return 0;
     }
   }

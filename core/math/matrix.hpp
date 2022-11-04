@@ -24,10 +24,6 @@ public:
       i = num;
   }
   Matrix(const std::initializer_list<std::vector<Type>> &v) {
-    // Loop<int, m>(
-    //     [&](auto i) { Loop<int, n>([&](auto j) { a[i][j] = v[i][j]; }); });
-    // for (int i = 0; i < m; ++i)
-    //   for (int j = 0; j < n; ++j) a[i][j] = v[i][j];
     short i = 0, j = 0;
     for (auto &obji : v) {
       for (auto &objij : obji)
@@ -35,45 +31,30 @@ public:
       ++i, j = 0;
     }
   }
-  // template <typename... v_args>
   Matrix(const std::vector<std::vector<Type>> &v) {
     Loop<int, m>(
         [&](auto i) { Loop<int, n>([&](auto j) { a[i][j] = v[i][j]; }); });
-    // for (int i = 0; i < m; ++i)
-    //   for (int j = 0; j < n; ++j) a[i][j] = v[i][j];
   }
   Matrix(const std::vector<Vector<Type, m>> &v) {
     Loop<int, m>([&](auto i) { a[i] = v[i]; });
-    // Loop<int, m>(
-    //     [&](auto i) { Loop<int, n>([&](auto j) { a[i][j] = v[j][i]; }); });
-
-    // for (int i = 0; i < m; ++i) a[i] = v[i];
   }
   Matrix(std::function<void(Type &)> fun) {
     Loop<int, m>([&](auto i) { Loop<int, n>([&](auto j) { fun(a[i][j]); }); });
-    // for (int i = 0; i < m; ++i)
-    //   for (int j = 0; j < n; ++j) fun(a[i][j]);
   }
   Matrix(std::function<void(Type &, int, int)> fun) {
     Loop<int, m>(
         [&](auto i) { Loop<int, n>([&](auto j) { fun(a[i][j], i, j); }); });
-    // for (int i = 0; i < m; ++i)
-    //   for (int j = 0; j < n; ++j) fun(a[i][j], i, j);
   }
   Matrix(std::function<void(Vector<Type, n> &)> fun) {
     Loop<int, m>([&](auto i) { fun(a[i]); });
-    // for (auto &e : a) fun(e);
   }
   Matrix(std::function<void(Vector<Type, n> &, int)> fun) {
     Loop<int, m>([&](auto i) { fun(a[i], i); });
-    // int i = 0;
-    // for (auto &e : a) fun(e, i++);
   }
   template <std::size_t inRank_m, std::size_t inRank_n>
   Matrix(const Matrix<Type, inRank_m, inRank_n> &v, const Type &vul = 0) {
     constexpr int for_min = std::min(m, inRank_m);
     Loop<int, for_min>([&](auto i) { a[i] = v[i]; });
-    // for (int i = 0; i < for_min; ++i) a[i] = v[i];
     for (int i = for_min; i < m && i < n; ++i)
       a[i][i] = vul;
   }
@@ -103,9 +84,6 @@ public:
   for_each(std::function<void(Type &, int, int)> func) {
     Loop<int, m>(
         [&](auto i) { a[i].for_each([&](Type &e, int j) { func(e, i, j); }); });
-    // int i = 0;
-    // for (auto &v : a) v.for_each([&](Type &e, int j) { func(e, i, j); }),
-    // i++;
     return *this;
   }
 
@@ -116,7 +94,6 @@ public:
   Matrix operator=(const Matrix<Type, inRank_m, inRank_n> &v) {
     constexpr int for_min = std::min(m, inRank_m);
     Loop<int, for_min>([&](auto i) { a[i] = v[i]; });
-    // for (int i = 0; i < for_min; ++i) a[i] = v[i];
     return *this;
   }
   inline Matrix operator=(const Matrix &v) {
@@ -150,8 +127,6 @@ public:
     Matrix<cType, m, n> o;
     Loop<int, m>(
         [&](auto i) { Loop<int, n>([&](auto j) { o[i][j] = a[i][j]; }); });
-    // for (int i = 0; i < m; ++i)
-    //   for (int j = 0; j < n; ++j) o[i][j] = a[i][j];
     return o;
   }
 

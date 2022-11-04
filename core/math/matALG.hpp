@@ -21,6 +21,7 @@ template <typename Type, std::size_t m1, std::size_t n1, std::size_t m2,
           std::size_t n2>
 inline Matrix<Type, m1, n2> mul_std(Matrix<Type, m1, n1> &a,
                                     Matrix<Type, m2, n2> &b) {
+  // the worst mul.
   static_assert(n1 == m2,
                 "Left Matrix's col must be equal to Right Matrix's row!");
   Matrix<Type, m1, n2> o(0);
@@ -35,6 +36,7 @@ template <typename Type, std::size_t m1, std::size_t n1, std::size_t m2,
           std::size_t n2>
 inline Matrix<Type, m1, n2> mul_swap(Matrix<Type, m1, n1> &a,
                                      Matrix<Type, m2, n2> &b) {
+  // much more better than std.
   static_assert(n1 == m2,
                 "Left Matrix's col must be equal to Right Matrix's row!");
   Matrix<Type, m1, n2> o(0);
@@ -49,6 +51,7 @@ template <typename Type, std::size_t m1, std::size_t n1, std::size_t m2,
           std::size_t n2>
 inline Matrix<Type, m1, n2> mul_fast(Matrix<Type, m1, n1> &a,
                                      Matrix<Type, m2, n2> &b) {
+  // the best one, but the Matrix must be allowed to access ptr.
   static_assert(n1 == m2,
                 "Left Matrix's col must be equal to Right Matrix's row!");
   Matrix<Type, m1, n2> o(0);
@@ -111,12 +114,14 @@ _DYM_FORCE_INLINE_ Type tr(const Matrix<Type, m, n> &mat) {
 }
 
 } // namespace matrix
+
 namespace {
 template <typename Type> Type getFirst(Type t) { return t; }
 template <typename Type, typename... Vs> Type getFirst(Type t, Vs... vec) {
   return t;
 }
 } // namespace
+
 template <typename Type, std::size_t dim>
 template <typename... Vs>
 inline Vector<Type, dim> Vector<Type, dim>::cross(Vs... vec) const {

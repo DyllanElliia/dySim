@@ -158,14 +158,9 @@ inline void operator*=(Quaternion<Type> &q1, const Quaternion<Type> &q2) {
 template <typename Type = Real>
 _DYM_FORCE_INLINE_ Quaternion<Type> getQuaternion(const Type &theta,
                                                   const Vector<Type, 3> &u) {
-  return Quaternion<Type>(cos((Type)0.5 * theta), sin((Type)0.5 * theta) * u);
+  return Quaternion<Type>(cos((Type)0.5 * theta),
+                          sin((Type)0.5 * theta) * u.normalize());
 }
-
-// template <typename Type = Real>
-// _DYM_FORCE_INLINE_ Quaternion<Type> getQuaternion(
-//     const Type& theta, const std::array<Type, 3>& u) {
-//   return getQuaternion(theta, Vector<Type, 3>(u).normalize());
-// }
 
 namespace quaternion {
 template <typename Type>
@@ -187,5 +182,4 @@ Slerp(const Quaternion<Type> &q0, const Quaternion<Type> &q1, const Real &t) {
          sin(t * theta) * sintheta_inv * q1;
 }
 } // namespace quaternion
-
 } // namespace dym

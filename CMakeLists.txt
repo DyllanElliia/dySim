@@ -5,7 +5,7 @@ project(dyMath C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-option(CUDA_ENABLE "Use CUDA" OFF)
+option(CUDA_ENABLE "Use CUDA" ON)
 
 if(CUDA_ENABLE)
   enable_language(CUDA)
@@ -162,6 +162,8 @@ file(GLOB SOURCE
 
 message(STATUS "-> [Fin] Find source file.")
 
+message(STATUS "-> [run] Targetting file... it wil take a few minutes.")
+
 # target
 file(GLOB_RECURSE SRC_FILES "*.c" "*.cpp" "*.cu")
 
@@ -171,7 +173,8 @@ foreach(MAIN_PATH ${MAIN})
   string(REGEX REPLACE ".+/(.+)\\..*" "\\1" MAIN_NAME ${MAIN_PATH})
   string(REGEX REPLACE ".+\\.(.+)" "\\1" MAIN_TYPE ${MAIN_PATH})
   string(CONCAT MAIN_NAME ${MAIN_NAME} ".out")
-  message(STATUS "==> build ${MAIN_PATH} (Type: ${MAIN_TYPE}) as --> ${MAIN_NAME}")
+  message(STATUS "==> build ${MAIN_PATH} (Type: ${MAIN_TYPE}) as")
+  message(STATUS "    --> ${MAIN_NAME}")
   add_executable(${MAIN_NAME} ${MAIN_PATH} ${SOURCE})
 
   if(CUDA_ENABLE)

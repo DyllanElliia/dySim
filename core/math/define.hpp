@@ -94,4 +94,7 @@ typedef unsigned int uReali;
 
 namespace dym {
 const Real Pi = 3.1415926535897932385;
-}
+#define DYM_TEMPLATE_CHECK(T, TYPE)                                            \
+  template <typename T,                                                        \
+            std::enable_if_t<std::is_convertible<T, TYPE>::value, int> = 0>
+} // namespace dym

@@ -11,34 +11,36 @@
 namespace dym {
 // namespace real {
 template <typename Type, typename TypeS>
-_DYM_FORCE_INLINE_ Type clamp(const Type &v, const TypeS &min_v,
-                              const TypeS &max_v) {
+_DYM_GENERAL_ _DYM_FORCE_INLINE_ Type clamp(const Type &v, const TypeS &min_v,
+                                            const TypeS &max_v) {
   return v < (Type)min_v ? min_v : (v > (Type)max_v ? max_v : v);
 }
-template <typename Type> _DYM_FORCE_INLINE_ Type sqr(const Type &v) {
+template <typename Type>
+_DYM_GENERAL_ _DYM_FORCE_INLINE_ Type sqr(const Type &v) {
   return v * v;
 }
 template <typename Type>
-_DYM_FORCE_INLINE_ Type pow(const Type &v, const Real &s) {
+_DYM_GENERAL_ _DYM_FORCE_INLINE_ Type pow(const Type &v, const Real &s) {
   return std::pow(v, s);
 }
 
 template <typename Type, typename TypeS>
-_DYM_FORCE_INLINE_ Type min(const Type &v1, const TypeS &v2) {
+_DYM_GENERAL_ _DYM_FORCE_INLINE_ Type min(const Type &v1, const TypeS &v2) {
   return v1 < v2 ? v1 : v2;
 }
 template <typename Type, typename TypeS>
-_DYM_FORCE_INLINE_ Type max(const Type &v1, const TypeS &v2) {
+_DYM_GENERAL_ _DYM_FORCE_INLINE_ Type max(const Type &v1, const TypeS &v2) {
   return v1 > v2 ? v1 : v2;
 }
 
-template <typename Type> _DYM_FORCE_INLINE_ Type abs(const Type &v) {
+template <typename Type>
+_DYM_GENERAL_ _DYM_FORCE_INLINE_ Type abs(const Type &v) {
   return v > 0 ? v : -v;
 }
 
 #define _dym_real_use_std_(fun)                                                \
   template <typename Type>                                                     \
-  constexpr _DYM_FORCE_INLINE_ Type fun(const Type &v) {                       \
+  _DYM_GENERAL_ constexpr _DYM_FORCE_INLINE_ Type fun(const Type &v) {         \
     return std::fun(v);                                                        \
   }
 _dym_real_use_std_(sqrt);
@@ -71,7 +73,8 @@ _dym_real_use_std_(log1p);
 _dym_real_use_std_(logb);
 
 template <typename Type>
-_DYM_FORCE_INLINE_ Type lerp(const Type &v0, const Type &v1, const Real &t) {
+_DYM_GENERAL_ _DYM_FORCE_INLINE_ Type lerp(const Type &v0, const Type &v1,
+                                           const Real &t) {
   return (1 - t) * v0 + t * v1;
 }
 

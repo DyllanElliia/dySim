@@ -10,13 +10,13 @@
 #include "Index.hpp"
 #include <algorithm>
 
-#ifndef DYM_DEFAULT_THREAD
-#define DYM_DEFAULT_THREAD 1
-#endif
-
 #define _DYM_THREAD_CPU_DEFAULT_ 0
 #define _DYM_THREAD_CPU_OPENMP_ 1
 #define _DYM_THREAD_CPU_CPPSTD_ 2
+
+#ifndef DYM_DEFAULT_THREAD
+#define DYM_DEFAULT_THREAD _DYM_THREAD_CPU_OPENMP_
+#endif
 namespace dym {
 namespace {
 bool use_thread = true;
@@ -44,11 +44,14 @@ void Launch(Func &fun, const int begin_i, const int end_i,
     }
     case _DYM_THREAD_CPU_OPENMP_: {
 #ifdef DYM_USE_OPENMP
+      int step = (end_i - begin_i) / 100;
+      step = step > 1 ? step : 1;
 #pragma omp parallel for
-      for (unsigned int i = begin_i; i < end_i; ++i)
-        fun(i, i + 1);
-#else
-      qp_ctrl(tColor::RED, tType::BOLD, tType::UNDERLINE);
+      for (unsigned int i = begin_i; i < end_i; i += step) {
+        const auto fend = i + step;
+        fun(i, fend < end_i ? fend : end_i);
+      }
+#else qp_ctrl(tColor::RED, tType::BOLD, tType::UNDERLINE);
       qprint("Launch ERROR: Fault to Use OpenMP!");
       qp_ctrl();
 #endif // DYM_USE_OPENMP

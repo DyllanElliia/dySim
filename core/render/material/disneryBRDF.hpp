@@ -55,7 +55,7 @@ public:
     return true;
   }
 
-  virtual Vector3 BRDF_Evaluate(const Ray &r_in, const Ray &scattered,
+  virtual Vector3 BxDF_Evaluate(const Ray &r_in, const Ray &scattered,
                                 const HitRecord &rec,
                                 const ScatterRecord &srec) const override {
     const disBrdfMatPix pdfmat = std::any_cast<disBrdfMatPix>(srec.otherData);

@@ -33,7 +33,7 @@ public:
     return true;
   }
 
-  virtual Vector3 BRDF_Evaluate(const Ray &r_in, const Ray &scattered,
+  virtual Vector3 BxDF_Evaluate(const Ray &r_in, const Ray &scattered,
                                 const HitRecord &rec,
                                 const ScatterRecord &srec) const {
     Vector3 L = scattered.direction(), V = -r_in.direction();

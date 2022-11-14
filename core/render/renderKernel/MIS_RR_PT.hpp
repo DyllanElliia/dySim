@@ -34,7 +34,7 @@ public:
 
     if (srec.is_specular && !srec.pdf_ptr) {
       Ray scattered_ = srec.specular_ray;
-      return (Le + rec.mat_ptr->BRDF_Evaluate(r, scattered_, rec, srec) *
+      return (Le + rec.mat_ptr->BxDF_Evaluate(r, scattered_, rec, srec) *
                        render(scattered_, world, lights, RR, background)) /
              RR;
     }
@@ -48,7 +48,7 @@ public:
       matPdf = srec.pdf_ptr;
 
     Ray scattered = Ray(rec.p, matPdf->generate(), r.time());
-    auto Fr = rec.mat_ptr->BRDF_Evaluate(r, scattered, rec, srec);
+    auto Fr = rec.mat_ptr->BxDF_Evaluate(r, scattered, rec, srec);
     auto pdf_val = matPdf->value(scattered.direction());
     ColorRGB Li = render(scattered, world, lights, RR, background);
     return (Le + Fr * Li / pdf_val) / RR;

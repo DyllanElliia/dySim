@@ -99,7 +99,7 @@ ColorRGB ray_color_pdf(
   auto pdf_val = p->value(scattered.direction());
 
   return emitted +
-         rec.mat_ptr->BRDF_Evaluate(r, scattered, rec, srec) *
+         rec.mat_ptr->BxDF_Evaluate(r, scattered, rec, srec) *
              ray_color_pdf(scattered, world, lights, depth - 1, background) /
              pdf_val;
 }

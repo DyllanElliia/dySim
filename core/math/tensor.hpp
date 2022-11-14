@@ -30,7 +30,7 @@ template <typename T> constexpr _DYM_FORCE_INLINE_ bool is_calculated() {
 template <class T, bool useMathOp = true> class Tensor {
 protected:
   using ValueType = T;
-  using shapeType = int;
+  using shapeType = Reali;
 
   std::vector<ValueType> a;
   // Shape of the Tensor user want to create.
@@ -466,6 +466,52 @@ public:
   }
 
   virtual Tensor &
+  for_each_p(std::function<void(ValueType &, int i, int j)> func,
+             const Vector<shapeType, 2> patchSize,
+             const unsigned short use_thread_type = DYM_DEFAULT_THREAD) {
+    try {
+      if (tsShape.size() != 2) {
+        if (tsShape.size() > 2) {
+          for (unsigned int i = 2; i < tsShape.size(); ++i)
+            if (tsShape[i] != 1)
+              throw "\033[1;31mTensor error: Only 2-dimensions Tensors can use "
+                    "this function!\033[0m";
+        } else
+          throw "\033[1;31mTensor error: Only 2-dimensions Tensors can use "
+                "this function!\033[0m";
+      }
+    } catch (const char *str) {
+      std::cerr << str << '\n'
+                << "\033[1;31mYour Tensor's dimensions is " +
+                       std::to_string(tsShape.size()) + ".\033[0m\n";
+      exit(EXIT_FAILURE);
+    }
+    auto &ts = *this;
+    const auto ps2 = patchSize[0] * patchSize[1];
+    for (shapeType pi = 0; pi < tsShape[0] / patchSize[0] + 1; ++pi)
+      for (shapeType pj = 0; pj < tsShape[1] / patchSize[1] + 1; ++pj) {
+        const Vector<shapeType, 2> patchIndex{pi * patchSize[0],
+                                              pj * patchSize[1]};
+        auto forI = [&ts, &func, &patchSize, &patchIndex](
+                        const unsigned int ib, const unsigned int ie) {
+          for (shapeType pii = ib; pii < ie; ++pii) {
+            Vector<shapeType, 2> localIndex{pii % patchSize[0],
+                                            pii / patchSize[0]};
+            auto globalIndex = patchIndex + localIndex;
+            if (globalIndex[0] < ts.tsShape[0] &&
+                globalIndex[1] < ts.tsShape[1])
+              func(ts[ts.getIndexInt(globalIndex)], globalIndex[0],
+                   globalIndex[1]);
+          }
+        };
+        if (patchIndex[0] < ts.tsShape[0] && patchIndex[1] < ts.tsShape[1])
+          Launch(forI, 0, ps2, use_thread_type);
+      }
+
+    return *this;
+  }
+
+  virtual Tensor &
   for_each_i(std::function<void(ValueType &, int i, int j, int k)> func,
              const unsigned short use_thread_type = DYM_DEFAULT_THREAD) {
     auto &ts = *this;
@@ -500,74 +546,23 @@ public:
   virtual Tensor &
   for_each(std::function<void(ValueType *, int i)> func,
            const unsigned short use_thread_type = DYM_DEFAULT_THREAD) {
-    auto &ts = *this;
-    auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
-      const auto &step = ts.tsShapeSuffix[1];
-      for (unsigned int i = ib; i < ie; i += step) {
-        func(&(ts[i]), i / ts.tsShapeSuffix[1]);
-      }
-    };
-    try {
-      if (tsShape.size() < 2)
-        throw "\033[1;31mTensor error: Only >= 2-dimensions Tensors can use "
-              "this function!\033[0m";
-    } catch (const char *str) {
-      std::cerr << str << '\n'
-                << "\033[1;31mYour Tensor's dimensions is " +
-                       std::to_string(tsShape.size()) + ".\033[0m\n";
-      exit(EXIT_FAILURE);
-    }
-    Launch(forI, 0, tsShapeSuffix[0], use_thread_type);
-    return *this;
+    return for_each_i([&](ValueType &e, int i) { func(&e, i); },
+                      use_thread_type);
   }
 
   virtual Tensor &
   for_each(std::function<void(ValueType *, int i, int j)> func,
            const unsigned short use_thread_type = DYM_DEFAULT_THREAD) {
-    auto &ts = *this;
-    auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
-      for (unsigned int i = ib; i < ie; ++i) {
-        func(&(ts[i]), i / ts.tsShapeSuffix[1],
-             (i % ts.tsShapeSuffix[1]) / ts.tsShapeSuffix[2]);
-      }
-    };
-    try {
-      if (tsShape.size() < 2)
-        throw "\033[1;31mTensor error: Only >= 2-dimensions Tensors can use "
-              "this function!\033[0m";
-    } catch (const char *str) {
-      std::cerr << str << '\n'
-                << "\033[1;31mYour Tensor's dimensions is " +
-                       std::to_string(tsShape.size()) + ".\033[0m\n";
-      exit(EXIT_FAILURE);
-    }
-    Launch(forI, 0, tsShapeSuffix[0], use_thread_type);
-    return *this;
+    return for_each_i([&](ValueType &e, int i, int j) { func(&e, i, j); },
+                      use_thread_type);
   }
 
   virtual Tensor &
   for_each(std::function<void(ValueType *, int i, int j, int k)> func,
            const unsigned short use_thread_type = DYM_DEFAULT_THREAD) {
-    auto &ts = *this;
-    auto forI = [&ts, &func](const unsigned int ib, const unsigned int ie) {
-      for (unsigned int i = ib; i < ie; ++i) {
-        func(&(ts[i]), i / ts.tsShapeSuffix[1],
-             (i % ts.tsShapeSuffix[1]) / ts.tsShapeSuffix[2],
-             (i % ts.tsShapeSuffix[2]) / ts.tsShapeSuffix[3]);
-      }
-    };
-    try {
-      if (tsShape.size() < 3)
-        throw "\033[1;31mTensor error: Only >= 3-dimensions Tensors can use "
-              "this function!\033[0m";
-    } catch (const char *str) {
-      std::cerr << str << '\n'
-                << "\033[1;31mYour Tensor's dimensions is " +
-                       std::to_string(tsShape.size()) + ".\033[0m\n";
-      exit(EXIT_FAILURE);
-    }
-    Launch(forI, 0, tsShapeSuffix[0], use_thread_type);
-    return *this;
+    return for_each_i(
+        [&](ValueType &e, int i, int j, int k) { func(&e, i, j, k); },
+        use_thread_type);
   }
 
   virtual Tensor &

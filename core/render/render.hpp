@@ -19,6 +19,7 @@
 #include "object/box.hpp"
 #include "object/materialObject/constantMedium.hpp"
 #include "object/mesh.hpp"
+#include "object/skybox.hpp"
 #include "object/sphere.hpp"
 #include "object/transform.hpp"
 #include "object/triangle.hpp"

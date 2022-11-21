@@ -53,18 +53,17 @@ public:
 bool Transform3::hit(const Ray &r, Real t_min, Real t_max,
                      HitRecord &rec) const {
   auto origin = mat_inv * (r.origin() - offset);
-  auto direction = mat_inv * r.direction();
-
+  auto direction = (mat_inv * r.direction()).normalize();
   Ray tf_r(origin, direction, r.time());
 
-  if (!ptr->hit(tf_r, t_min, t_max, rec))
+  if (!ptr->hit(tf_r, 1e-6, infinity, rec))
     return false;
 
   rec.p = mat * rec.p + offset;
-  auto normal = mat_norm_it * rec.normal;
-  rec.set_face_normal(r, normal.normalize());
+  rec.normal = (mat_norm_it * rec.normal).normalize();
+  rec.t = (rec.p - r.origin())[0] / r.direction()[0];
 
-  return true;
+  return (rec.t > t_min && rec.t < t_max);
 }
 bool Transform3::bounding_box(aabb &output_box) const {
   output_box = bbox;

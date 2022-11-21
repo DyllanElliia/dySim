@@ -1,9 +1,12 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.2)
 
 # program name
 project(dyMath C CXX)
 
+# create compile file
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# use LTO
+# set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 option(CUDA_ENABLE "Use CUDA" ON)
 
@@ -21,7 +24,10 @@ if(CUDA_ENABLE)
   target_compile_features(dyMath_cuda PRIVATE cuda_std_17)
   set_target_properties(dyMath_cuda
     PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-  set_property(TARGET dyMath_cuda PROPERTY CUDA_ARCHITECTURES 70 75)
+  if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+    set(CMAKE_CUDA_ARCHITECTURES 70 75 80)
+  endif(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+  set_property(TARGET dyMath_cuda PROPERTY CUDA_ARCHITECTURES 70 75 80)
   set(dyMath_libs ${dyMath_libs} dyMath_cuda)
   add_definitions(-DDYM_USE_CUDA)
 endif(CUDA_ENABLE)
@@ -51,7 +57,7 @@ set(CMAKE_C_COMPILER "clang")
 set(CMAKE_CXX_COMPILER "clang++")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -o3   ${OpenMP_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w ${OpenMP_CXX_FLAGS}")
 
 # !!! link opengl (copy from the source of LearnOpenGL)
 # Begin:
@@ -162,7 +168,7 @@ file(GLOB SOURCE
 
 message(STATUS "-> [Fin] Find source file.")
 
-message(STATUS "-> [run] Targetting file... it wil take a few minutes.")
+message(STATUS "-> [Run] Targetting file... it wil take a few minutes.")
 
 # target
 file(GLOB_RECURSE SRC_FILES "*.c" "*.cpp" "*.cu")

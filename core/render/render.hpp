@@ -125,7 +125,7 @@ public:
       int samples_per_pixel, Real endValue,
       const std::function<ColorRGB(const Ray &r)> &background =
           [](const Ray &r) { return ColorRGB(0.f); },
-      const Real &max_color = 1.0, dym::Vector3i patchSize = {15, 15}) {
+      const Real &max_color = 1.0, dym::Vector3i patchSize = {50, 50}) {
     // auto viewMatrix = cam.getViewMatrix4_transform();
     // Matrix3 viewMatrix3 = viewMatrix;
     // viewMatrix = cam.getViewMatrix4_Perspective() * viewMatrix;

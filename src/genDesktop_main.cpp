@@ -1,7 +1,9 @@
+#include "render/BVH/bvhNode.hpp"
 #include <dyGraphic.hpp>
 #include <dyPicture.hpp>
 #include <dyRender.hpp>
 #include <memory>
+#include <string>
 
 namespace dym {
 namespace rt {
@@ -154,12 +156,65 @@ bool Transformtest::bounding_box(aabb &output_box) const {
 } // namespace rt
 } // namespace dym
 
-int main() {
+auto random_scene() {
+  dym::rt::HittableList world;
+
+  // auto ground_material =
+  //     std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({0.5, 0.5,
+  //     0.5}));
+  // world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0, -1000, 0}),
+  //                                             1000, ground_material));
+
+  auto rad = 0.04;
+  int size = 30;
+  for (int a = -size; a < size; a++) {
+    for (int b = -size; b < size; b++) {
+      auto choose_mat = dym::rt::random_real();
+      dym::rt::Point3 center({a + 0.9f * dym::rt::random_real(), rad,
+                              b + 0.9f * dym::rt::random_real()});
+
+      center = (center / 5);
+      center[1] = rad;
+
+      if ((center - dym::rt::Point3({0., rad, 0.})).length() > 0.35) {
+        std::shared_ptr<dym::rt::Material> sphere_material;
+
+        if (choose_mat < 0.3) {
+          // diffuse
+          auto albedo = dym::rt::vec_random() * dym::rt::vec_random();
+          sphere_material = std::make_shared<dym::rt::Lambertian>(albedo);
+          world.add(
+              std::make_shared<dym::rt::Sphere>(center, rad, sphere_material));
+        } else if (choose_mat < 0.7) {
+          // metal
+          auto albedo =
+              dym::rt::vec_random() * dym::rt::vec_random() / 2. + 0.35;
+          auto fuzz = dym::rt::random_real(0, 0.2);
+          sphere_material = std::make_shared<dym::rt::Metal>(albedo, fuzz);
+          world.add(
+              std::make_shared<dym::rt::Sphere>(center, rad, sphere_material));
+        } else {
+          // glass
+          auto albedo = dym::rt::vec_random() * dym::rt::vec_random() / 2 + 0.5;
+          auto fuzz = dym::rt::random_real(0, 0.1);
+          sphere_material =
+              std::make_shared<dym::rt::fuzzDielectric>(albedo, 1.5, fuzz);
+          world.add(
+              std::make_shared<dym::rt::Sphere>(center, rad, sphere_material));
+        }
+      }
+    }
+  }
+
+  return world;
+}
+
+int main(int argc, char *argv[]) {
   // NOTE: global setting:
   const auto aspect_ratio = 16.f / 9.f;
-  const int image_width = 1080;
+  const int image_width = 2560;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
-  const int scale_val = 1;
+  const int scale_val = 2;
   const int gui_width = image_width / scale_val;
   const int gui_height = image_height / scale_val;
   int samples_per_pixel = 3;
@@ -184,7 +239,7 @@ int main() {
   dym::rdt::Model loader("./PLYFiles/ply/Bunny10K.ply");
   dym::Quaternion rotate = dym::getQuaternion<Real>(dym::Pi, {0, 1, 0});
   dym::Matrix3 scalem = dym::matrix::identity<Real, 3>(3.5);
-  dym::Vector3 translation({0.4, 0, 0.55});
+  dym::Vector3 translation({-0.05, -0.07, 0});
 
   auto bunnyPtr =
       std::make_shared<dym::rt::Mesh>(loader.meshes[0], fuzzDieBunny_material);
@@ -192,18 +247,41 @@ int main() {
     v.normal = -v.normal;
   world.add(std::make_shared<dym::rt::Transformtest>(
       bunnyPtr, scalem * rotate.to_matrix(), translation));
+  world.addObject<dym::rt::BvhNode>(random_scene());
 
-  world.addObject<dym::rt::Sphere>(dym::rt::Point3{-.1, 0.3, 0.5}, 0.3,
-                                   fuzzDie_material);
+  // world.addObject<dym::rt::Sphere>(dym::rt::Point3{-.1, 0.3, 0.5}, 0.3,
+  //                                  fuzzDie_material);
+
+  // NOTE: SkyBox Texture
+  std::vector<std::string> faces{"right.jpg",  "left.jpg",  "top.jpg",
+                                 "bottom.jpg", "front.jpg", "back.jpg"};
+  for (auto &face : faces)
+    face = "./assets/skybox/" + face;
+
+  std::vector<std::shared_ptr<dym::rt::Material>> mat_ptrs;
+  for (auto &face : faces)
+    mat_ptrs.push_back(std::make_shared<dym::rt::DiffuseLight>(
+        std::make_shared<dym::rt::ImageTexture<3>>(face)));
+
+  dym::rt::Skybox skybox(mat_ptrs);
 
   // NOTE: Render & Camera
-  dym::rt::Point3 lookfrom({0.5, 0.5, -1.35});
-  dym::rt::Point3 lookat({0.5, 0.5, 0});
+  dym::rt::Point3 lookfrom({0, .5, -2});
+  dym::rt::Point3 lookat({0., 0.3, 0.});
   dym::Vector3 vup({0, 1, 0});
+  // dym::rt::Point3 lookfrom({0, 10, 0});
+  // dym::rt::Point3 lookat({0., 0.2, 0.});
+  // dym::Vector3 vup({1, 0, 0});
   auto dist_to_focus = (lookfrom - lookat).length();
-  auto aperture = 2.0;
 
-  dym::rt::RtRender render(image_width, image_height);
+  auto aperture = .2;
+  if (argc > 1) {
+    auto sa = std::string(argv[1]);
+    qprint("aperture <-", sa);
+    aperture = std::stod(sa);
+  }
+
+  dym::rt::RtRender<true> render(image_width, image_height);
 
   render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
                        dist_to_focus);
@@ -212,24 +290,30 @@ int main() {
 
   // NOTE: Run
   time.reStart();
+  int ccc = 0;
+  if (argc > 2) {
+    auto sa = std::string(argv[2]);
+    qprint("ccc <-", sa);
+    aperture = std::stoi(sa);
+  }
   gui.update([&] {
     dym::TimeLog patchTime;
 
-    render.render(samples_per_pixel, max_depth, [](const dym::rt::Ray &r) {
+    render.render(samples_per_pixel, max_depth, [&](const dym::rt::Ray &r) {
       dym::Vector3 unit_direction = r.direction().normalize();
       Real t = 0.5f * (unit_direction.y() + 1.f);
       return (1.f - t) * dym::rt::ColorRGB(1.f) +
              t * dym::rt::ColorRGB({0.5f, 0.7f, 1.0f});
+      // return skybox.sample(r);
     });
-
+    ccc++;
     qprint("fin render part time:", patchTime.getRecord());
     patchTime.reStart();
-    render.denoise();
+    // render.denoise();
     auto image = render.getFrame();
     // auto image = render.getFrameGBuffer("normal");
-    // dym::imwrite(image,
-    //              "./rt_out/desktop/frame_" + std::to_string(ccc - 1) +
-    //              ".jpg");
+    dym::imwrite(image,
+                 "./rt_out/desktop/frame_" + std::to_string(ccc) + ".jpg");
     gui.imshow(image);
   });
 

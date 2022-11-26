@@ -31,11 +31,11 @@ int main() {
   dym::Vector3 translation({0.4, 0, 0.55});
 
   world.add(std::make_shared<dym::rt::Transform3>(
-      std::make_shared<dym::rt::Mesh>(loader.meshes[0], whiteMetalSur(0.1)),
+      std::make_shared<dym::rt::Mesh>(loader.meshes[0], whiteMetalSur(0.01)),
       scalem * rotate.to_matrix(), translation));
 
   // Camera
-  dym::rt::Point3 lookfrom({0.5, 0.5, -1.35});
+  dym::rt::Point3 lookfrom({0., 0.5, -1.35});
   dym::rt::Point3 lookat({0.5, 0.5, 0});
   dym::Vector3 vup({0, 1, 0});
   auto dist_to_focus = (lookfrom - lookat).length();

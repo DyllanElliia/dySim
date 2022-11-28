@@ -59,18 +59,18 @@ auto cornell_box() {
       std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.73, .73, .73}));
   auto green =
       std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.12, .45, .15}));
-  auto light = std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB(20));
+  auto light = std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB(18));
 
-  objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 1, green));
-  objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 0, red));
+  objects.add(std::make_shared<dym::rt::yz_rect<true>>(0, 1, 0, 1, 1, green));
+  objects.add(std::make_shared<dym::rt::yz_rect<true>>(0, 1, 0, 1, 0, red));
 
-  objects.add(std::make_shared<dym::rt::xz_rect>(0, 1, 0, 1, 0, white));
-  objects.add(std::make_shared<dym::rt::xz_rect>(0, 1, 0, 1, 1, white));
-  objects.add(std::make_shared<dym::rt::xy_rect>(0, 1, 0, 1, 1, white));
+  objects.add(std::make_shared<dym::rt::xz_rect<true>>(0, 1, 0, 1, 0, white));
+  objects.add(std::make_shared<dym::rt::xz_rect<true>>(0, 1, 0, 1, 1, white));
+  objects.add(std::make_shared<dym::rt::xy_rect<true>>(0, 1, 0, 1, 1, white));
 
   Real begin = 0.35, end = 0.65;
-  objects.add(
-      std::make_shared<dym::rt::xz_rect>(begin, end, begin, end, 0.998, light));
+  objects.add(std::make_shared<dym::rt::xz_rect<true>>(begin, end, begin, end,
+                                                       0.998, light));
 
   return dym::rt::BvhNode(objects);
 }
@@ -90,7 +90,7 @@ int main(int argc, char const *argv[]) {
   dym::rt::HittableList world;
   dym::rt::HittableList lights;
   Real begin = 0.35, end = 0.65;
-  lights.add(std::make_shared<dym::rt::xz_rect>(
+  lights.add(std::make_shared<dym::rt::xz_rect<true>>(
       begin, end, begin, end, 0.998, std::shared_ptr<dym::rt::Material>()));
 
   world.add(std::make_shared<dym::rt::BvhNode>(cornell_box()));

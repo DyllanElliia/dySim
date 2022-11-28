@@ -53,15 +53,18 @@ public:
 bool Transform3::hit(const Ray &r, Real t_min, Real t_max,
                      HitRecord &rec) const {
   auto origin = mat_inv * (r.origin() - offset);
-  auto direction = (mat_inv * r.direction()).normalize();
+  auto direction = (mat_inv * r.direction());
+  auto scale_t = direction.length();
+  direction /= scale_t;
   Ray tf_r(origin, direction, r.time());
 
-  if (!ptr->hit(tf_r, 1e-6, infinity, rec))
+  if (!ptr->hit(tf_r, t_min * scale_t, t_max *= scale_t, rec))
     return false;
 
   rec.p = mat * rec.p + offset;
   rec.normal = (mat_norm_it * rec.normal).normalize();
-  rec.t = (rec.p - r.origin())[0] / r.direction()[0];
+  // rec.t = (rec.p - r.origin())[0] / r.direction()[0];
+  rec.t /= scale_t;
 
   return (rec.t > t_min && rec.t < t_max);
 }

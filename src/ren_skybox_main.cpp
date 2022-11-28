@@ -8,6 +8,72 @@ _DYM_FORCE_INLINE_ auto whiteMetalSur(Real fuzz = 0) {
 
   return white_surface;
 }
+
+namespace dym {
+namespace rt {
+class SkyboxT : public Hittable {
+public:
+  SkyboxT() {}
+  SkyboxT(const std::vector<shared_ptr<Material>> &mat_ptrs) {
+    if (mat_ptrs.size() < 6) {
+      DYM_WARNING_cs("SkyBox", "Skybox need 6 picture path for generate.");
+      return;
+    }
+    box_min = -1e7;
+    box_max = 1e7;
+    auto &p0 = box_min, &p1 = box_max;
+    HittableList side;
+
+    side.add(make_shared<xy_rect<true>>(p0.x(), p1.x(), p0.y(), p1.y(), p1.z(),
+                                        mat_ptrs[4]));
+    side.add(make_shared<xy_rect<false>>(p0.x(), p1.x(), p0.y(), p1.y(), p0.z(),
+                                         mat_ptrs[5]));
+
+    side.add(make_shared<xz_rect<false>>(p0.x(), p1.x(), p0.z(), p1.z(), p1.y(),
+                                         mat_ptrs[2]));
+    side.add(make_shared<xz_rect<true>>(p0.x(), p1.x(), p0.z(), p1.z(), p0.y(),
+                                        mat_ptrs[3]));
+
+    side.add(make_shared<yz_rect<false>>(p0.y(), p1.y(), p0.z(), p1.z(), p1.x(),
+                                         mat_ptrs[1]));
+    side.add(make_shared<yz_rect<true>>(p0.y(), p1.y(), p0.z(), p1.z(), p0.x(),
+                                        mat_ptrs[0]));
+
+    sides = BvhNode(side);
+  }
+  ~SkyboxT() {}
+
+  virtual bool hit(const Ray &r, Real t_min, Real t_max,
+                   HitRecord &rec) const override {
+    Ray ro = r;
+    ro.orig = 0.0;
+    return sides.hit(ro, t_min, t_max, rec);
+  }
+  virtual bool bounding_box(aabb &output_box) const override {
+    output_box = aabb(box_min, box_max);
+    return true;
+  }
+
+  _DYM_FORCE_INLINE_ ColorRGB sample(const Ray &r) {
+    HitRecord rec;
+    // if (!hit(ro, 1e-7, infinity, rec))
+    //   return 0.0;
+    hit(r, 1e-7, infinity, rec);
+    auto &hitMat = *(rec.mat_ptr);
+    ColorRGB Le = rec.mat_ptr->emitted(r, rec);
+
+    return Le;
+  }
+
+private:
+  // shared_ptr<Material> mat_ptrs[6];
+  Point3 box_min;
+  Point3 box_max;
+  BvhNode sides;
+};
+
+} // namespace rt
+} // namespace dym
 int main() {
   const auto aspect_ratio = 1.f / 1.f;
   const int image_width = 500;
@@ -43,7 +109,7 @@ int main() {
 
   dym::rt::RtRender render(image_width, image_height);
 
-  render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
+  render.cam.setCamera(lookfrom, lookat, vup, 80, aspect_ratio, aperture,
                        dist_to_focus);
 
   render.worlds.addObject<dym::rt::BvhNode>(world);
@@ -60,10 +126,16 @@ int main() {
     mat_ptrs.push_back(std::make_shared<dym::rt::DiffuseLight>(
         std::make_shared<dym::rt::ImageTexture<3>>(face)));
 
-  dym::rt::Skybox skybox(mat_ptrs);
+  dym::rt::SkyboxT skybox(mat_ptrs);
 
+  int ccc = 0;
   time.reStart();
   gui.update([&]() {
+    lookfrom[0] = 3 * dym ::sin(Real(ccc) / 10.);
+    lookfrom[2] = 3 * dym ::cos(Real(ccc) / 10.);
+    ccc++;
+    render.cam.setCamera(lookfrom, lookat, vup, 80, aspect_ratio, aperture,
+                         dist_to_focus);
     dym::TimeLog partTime;
     render.render(samples_per_pixel, max_depth, [&](const dym::rt::Ray &r) {
       // return dym::Vector3(0.8);

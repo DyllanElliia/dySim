@@ -1,4 +1,4 @@
-#include "render/BVH/bvhNode.hpp"
+
 #include <dyGraphic.hpp>
 #include <dyPicture.hpp>
 #include <dyRender.hpp>
@@ -137,15 +137,15 @@ bool Transformtest::hit(const Ray &r, Real t_min, Real t_max,
   auto direction = (mat_inv * r.direction()).normalize();
   Ray tf_r(origin, direction, r.time());
 
-  if (!ptr->hit(tf_r, 1e-6, infinity, rec))
+  if (!ptr->hit(tf_r, -infinity, infinity, rec))
     return false;
 
-  auto oldp = rec.p;
   rec.p = mat * rec.p + offset;
   rec.normal = (mat_norm_it * rec.normal).normalize();
-
   auto oldt = rec.t;
   rec.t = (rec.p - r.origin())[0] / r.direction()[0];
+  if (random_real() < 1e-5)
+    qprint(oldt / rec.t, (mat_inv * r.direction()).length());
 
   return (rec.t > t_min && rec.t < t_max);
 }
@@ -212,7 +212,7 @@ auto random_scene() {
 int main(int argc, char *argv[]) {
   // NOTE: global setting:
   const auto aspect_ratio = 16.f / 9.f;
-  const int image_width = 2560;
+  const int image_width = 200;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
   const int scale_val = 2;
   const int gui_width = image_width / scale_val;

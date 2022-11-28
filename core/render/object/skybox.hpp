@@ -17,20 +17,20 @@ public:
     auto &p0 = box_min, &p1 = box_max;
     HittableList side;
 
-    side.add(make_shared<xy_rect>(p0.x(), p1.x(), p0.y(), p1.y(), p1.z(),
-                                  mat_ptrs[0]));
-    side.add(make_shared<xy_rect>(p0.x(), p1.x(), p0.y(), p1.y(), p0.z(),
-                                  mat_ptrs[1]));
+    side.add(make_shared<xy_rect<true>>(p0.x(), p1.x(), p0.y(), p1.y(), p1.z(),
+                                        mat_ptrs[4]));
+    side.add(make_shared<xy_rect<false>>(p0.x(), p1.x(), p0.y(), p1.y(), p0.z(),
+                                         mat_ptrs[5]));
 
-    side.add(make_shared<xz_rect>(p0.x(), p1.x(), p0.z(), p1.z(), p1.y(),
-                                  mat_ptrs[2]));
-    side.add(make_shared<xz_rect>(p0.x(), p1.x(), p0.z(), p1.z(), p0.y(),
-                                  mat_ptrs[3]));
+    side.add(make_shared<xz_rect<false>>(p0.x(), p1.x(), p0.z(), p1.z(), p1.y(),
+                                         mat_ptrs[2]));
+    side.add(make_shared<xz_rect<true>>(p0.x(), p1.x(), p0.z(), p1.z(), p0.y(),
+                                        mat_ptrs[3]));
 
-    side.add(make_shared<yz_rect>(p0.y(), p1.y(), p0.z(), p1.z(), p1.x(),
-                                  mat_ptrs[4]));
-    side.add(make_shared<yz_rect>(p0.y(), p1.y(), p0.z(), p1.z(), p0.x(),
-                                  mat_ptrs[5]));
+    side.add(make_shared<yz_rect<false>>(p0.y(), p1.y(), p0.z(), p1.z(), p1.x(),
+                                         mat_ptrs[1]));
+    side.add(make_shared<yz_rect<true>>(p0.y(), p1.y(), p0.z(), p1.z(), p0.x(),
+                                        mat_ptrs[0]));
 
     sides = BvhNode(side);
   }

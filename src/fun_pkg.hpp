@@ -106,12 +106,12 @@ auto cornell_box() {
   auto green = lambertianSur(dym::rt::ColorRGB({.12, .45, .15}));
   auto light = std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB(20));
 
-  objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 1, green));
-  objects.add(std::make_shared<dym::rt::yz_rect>(0, 1, 0, 1, 0, red));
+  objects.add(std::make_shared<dym::rt::yz_rect<true>>(0, 1, 0, 1, 1, green));
+  objects.add(std::make_shared<dym::rt::yz_rect<true>>(0, 1, 0, 1, 0, red));
 
-  objects.add(std::make_shared<dym::rt::xz_rect>(0, 1, 0, 1, 0, white));
-  objects.add(std::make_shared<dym::rt::xz_rect>(0, 1, 0, 1, 1, white));
-  objects.add(std::make_shared<dym::rt::xy_rect>(0, 1, 0, 1, 1, white));
+  objects.add(std::make_shared<dym::rt::xz_rect<true>>(0, 1, 0, 1, 0, white));
+  objects.add(std::make_shared<dym::rt::xz_rect<true>>(0, 1, 0, 1, 1, white));
+  objects.add(std::make_shared<dym::rt::xy_rect<true>>(0, 1, 0, 1, 1, white));
 
   //   Real begin = 0.35, end = 0.65;
   //   objects.add(
@@ -145,15 +145,18 @@ auto cornell_box3() {
   objects.addObject<dym::rt::Box>(dym::Vector3{1.0, end + greenHeiOff, 0},
                                   dym::Vector3{1.5, 1, 1}, white);
 
-  objects.add(std::make_shared<dym::rt::xz_rect>(-.1, 2.1, -.1, 1.1, 0, white));
-  objects.add(std::make_shared<dym::rt::xz_rect>(-.1, 2.1, -.1, 1.1, 1, white));
-  objects.add(std::make_shared<dym::rt::xy_rect>(-.1, 2.1, -.1, 1.1, 1, white));
+  objects.add(
+      std::make_shared<dym::rt::xz_rect<true>>(-.1, 2.1, -.1, 1.1, 0, white));
+  objects.add(
+      std::make_shared<dym::rt::xz_rect<true>>(-.1, 2.1, -.1, 1.1, 1, white));
+  objects.add(
+      std::make_shared<dym::rt::xy_rect<true>>(-.1, 2.1, -.1, 1.1, 1, white));
 
   auto lightobj =
-      std::make_shared<dym::rt::yz_rect>(0, 1, begin, end, -.2, light);
+      std::make_shared<dym::rt::yz_rect<true>>(0, 1, begin, end, -.2, light);
   objects.add(lightobj);
   lights.add(lightobj);
-  lightobj = std::make_shared<dym::rt::yz_rect>(
+  lightobj = std::make_shared<dym::rt::yz_rect<true>>(
       begin + greenHeiOff, end + greenHeiOff, 0, 1, 1.1, light);
   objects.add(lightobj);
   lights.add(lightobj);

@@ -47,7 +47,7 @@ int main(int argc, char const *argv[]) {
     //                     dym::rt::ColorRGB{66, 0, 15} / 255. / 50., 0.2);
     auto mat = magicSur(dym::rt::ColorRGB{235, 172, 0} / 255.,
                         dym::rt::ColorRGB(0.), 0.2);
-    auto obj = std::make_shared<dym::rt::xz_rect>(-1, 1, -1, 1, hei, mat);
+    auto obj = std::make_shared<dym::rt::xz_rect<true>>(-1, 1, -1, 1, hei, mat);
     auto mobj = std::make_shared<dym::rt::Mask>(p, obj);
     magic.add(mobj);
     // lights.add(mobj);

@@ -8,6 +8,7 @@
 #pragma once
 #include "render/randomFun.hpp"
 #include "texture.hpp"
+#include <functional>
 
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -26,9 +27,12 @@ public:
 
   ImageTexture(
       const std::string filename, const Real &lightIntensity = 1.f,
-      std::function<ColorRGB(ColorRGBA &)> colorProcessFun =
-          [](ColorRGBA &c) -> ColorRGB { return c; })
-      : lightIntensity(lightIntensity), colorProcess(colorProcessFun) {
+      std::function<ColorRGB(ColorRGBA &)> colorProcessFunc =
+          [](ColorRGBA &c) -> ColorRGB { return c; },
+      std::function<Vector2(const Vector2 &)> uvMapFunc =
+          [](const Vector2 &uv) -> Vector2 { return uv; })
+      : lightIntensity(lightIntensity), colorProcess(colorProcessFunc),
+        uvMapF(uvMapFunc) {
     auto components_per_pixel = bytes_per_pixel;
     data = stbi_load(filename.c_str(), &width, &height, &components_per_pixel,
                      components_per_pixel);
@@ -51,8 +55,9 @@ public:
 
     // Clamp input texture coordinates to [0,1] x [1,0]
     auto ou = u, ov = v;
-    u = clamp(u, 0.0, 1.0);
-    v = 1.0 - clamp(v, 0.0, 1.0); // Flip V to image coordinates
+    auto uv = uvMapF({u, v});
+    u = clamp(uv[0], 0.0, 1.0);
+    v = 1.0 - clamp(uv[1], 0.0, 1.0); // Flip V to image coordinates
     // qprint("it1");
     auto i = static_cast<int>(u * width);
     auto j = static_cast<int>(v * height);
@@ -96,6 +101,7 @@ private:
   int bytes_per_scanline;
   Real lightIntensity;
   std::function<ColorRGB(ColorRGBA &)> colorProcess;
+  std::function<Vector2(const Vector2 &)> uvMapF;
 
 public:
   int width, height;

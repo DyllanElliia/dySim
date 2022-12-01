@@ -1,4 +1,5 @@
 
+#include "render/object/transform.hpp"
 #include <dyGraphic.hpp>
 #include <dyPicture.hpp>
 #include <dyRender.hpp>
@@ -212,7 +213,7 @@ auto random_scene() {
 int main(int argc, char *argv[]) {
   // NOTE: global setting:
   const auto aspect_ratio = 16.f / 9.f;
-  const int image_width = 200;
+  const int image_width = 2560;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
   const int scale_val = 2;
   const int gui_width = image_width / scale_val;
@@ -245,7 +246,7 @@ int main(int argc, char *argv[]) {
       std::make_shared<dym::rt::Mesh>(loader.meshes[0], fuzzDieBunny_material);
   for (auto &v : bunnyPtr->vertices)
     v.normal = -v.normal;
-  world.add(std::make_shared<dym::rt::Transformtest>(
+  world.add(std::make_shared<dym::rt::Transform3>(
       bunnyPtr, scalem * rotate.to_matrix(), translation));
   world.addObject<dym::rt::BvhNode>(random_scene());
 
@@ -300,11 +301,11 @@ int main(int argc, char *argv[]) {
     dym::TimeLog patchTime;
 
     render.render(samples_per_pixel, max_depth, [&](const dym::rt::Ray &r) {
-      dym::Vector3 unit_direction = r.direction().normalize();
-      Real t = 0.5f * (unit_direction.y() + 1.f);
-      return (1.f - t) * dym::rt::ColorRGB(1.f) +
-             t * dym::rt::ColorRGB({0.5f, 0.7f, 1.0f});
-      // return skybox.sample(r);
+      // dym::Vector3 unit_direction = r.direction().normalize();
+      // Real t = 0.5f * (unit_direction.y() + 1.f);
+      // return (1.f - t) * dym::rt::ColorRGB(1.f) +
+      //        t * dym::rt::ColorRGB({0.5f, 0.7f, 1.0f});
+      return skybox.sample(r);
     });
     ccc++;
     qprint("fin render part time:", patchTime.getRecord());

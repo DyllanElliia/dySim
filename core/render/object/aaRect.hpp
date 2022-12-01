@@ -16,8 +16,8 @@ public:
   xy_rect() {}
 
   xy_rect(Real _x0, Real _x1, Real _y0, Real _y1, Real _k,
-          shared_ptr<Material> mat)
-      : x0(_x0), x1(_x1), y0(_y0), y1(_y1), k(_k), mp(mat){};
+          shared_ptr<Material> mat, bool inv_v = false)
+      : x0(_x0), x1(_x1), y0(_y0), y1(_y1), k(_k), mp(mat), inv_v(inv_v){};
 
   virtual bool hit(const Ray &r, Real t_min, Real t_max,
                    HitRecord &rec) const override;
@@ -35,6 +35,7 @@ public:
 public:
   shared_ptr<Material> mp;
   Real x0, x1, y0, y1, k;
+  bool inv_v = false;
 };
 
 template <bool frontFace = true> class yz_rect : public Hittable {
@@ -42,8 +43,8 @@ public:
   yz_rect() {}
 
   yz_rect(Real _y0, Real _y1, Real _z0, Real _z1, Real _k,
-          shared_ptr<Material> mat)
-      : y0(_y0), y1(_y1), z0(_z0), z1(_z1), k(_k), mp(mat){};
+          shared_ptr<Material> mat, bool inv_v = false)
+      : y0(_y0), y1(_y1), z0(_z0), z1(_z1), k(_k), mp(mat), inv_v(inv_v){};
 
   virtual bool hit(const Ray &r, Real t_min, Real t_max,
                    HitRecord &rec) const override;
@@ -61,6 +62,7 @@ public:
 public:
   shared_ptr<Material> mp;
   Real y0, y1, z0, z1, k;
+  bool inv_v = false;
 };
 
 template <bool frontFace = true> class xz_rect : public Hittable {
@@ -68,8 +70,8 @@ public:
   xz_rect() {}
 
   xz_rect(Real _x0, Real _x1, Real _z0, Real _z1, Real _k,
-          shared_ptr<Material> mat)
-      : x0(_x0), x1(_x1), z0(_z0), z1(_z1), k(_k), mp(mat){};
+          shared_ptr<Material> mat, bool inv_v = false)
+      : x0(_x0), x1(_x1), z0(_z0), z1(_z1), k(_k), mp(mat), inv_v(inv_v){};
 
   virtual bool hit(const Ray &r, Real t_min, Real t_max,
                    HitRecord &rec) const override;
@@ -87,6 +89,7 @@ public:
 public:
   shared_ptr<Material> mp;
   Real x0, x1, z0, z1, k;
+  bool inv_v = false;
 };
 
 template <bool frontFace>
@@ -103,6 +106,8 @@ bool xy_rect<frontFace>::hit(const Ray &r, Real t_min, Real t_max,
   rec.v = (y - y0) / (y1 - y0);
   if constexpr (!frontFace)
     rec.u = 1 - rec.u;
+  if (inv_v)
+    rec.v = 1 - rec.v;
   rec.t = t;
   Vector3 outward_normal({0, 0, 1});
   if constexpr (!frontFace)
@@ -128,6 +133,9 @@ bool xz_rect<frontFace>::hit(const Ray &r, Real t_min, Real t_max,
   rec.v = (z - z0) / (z1 - z0);
   if constexpr (!frontFace)
     rec.u = 1 - rec.u;
+  if (inv_v)
+    rec.v = 1 - rec.v;
+
   rec.t = t;
   Vector3 outward_normal({0, 1, 0});
   if constexpr (!frontFace)
@@ -153,6 +161,8 @@ bool yz_rect<frontFace>::hit(const Ray &r, Real t_min, Real t_max,
   rec.v = (y - y0) / (y1 - y0);
   if constexpr (!frontFace)
     rec.u = 1 - rec.u;
+  if (inv_v)
+    rec.v = 1 - rec.v;
   rec.t = t;
   Vector3 outward_normal({1, 0, 0});
   if constexpr (!frontFace)

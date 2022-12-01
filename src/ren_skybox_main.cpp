@@ -25,14 +25,14 @@ public:
     HittableList side;
 
     side.add(make_shared<xy_rect<true>>(p0.x(), p1.x(), p0.y(), p1.y(), p1.z(),
-                                        mat_ptrs[4]));
+                                        mat_ptrs[5]));
     side.add(make_shared<xy_rect<false>>(p0.x(), p1.x(), p0.y(), p1.y(), p0.z(),
-                                         mat_ptrs[5]));
+                                         mat_ptrs[4]));
 
     side.add(make_shared<xz_rect<false>>(p0.x(), p1.x(), p0.z(), p1.z(), p1.y(),
                                          mat_ptrs[2]));
-    side.add(make_shared<xz_rect<true>>(p0.x(), p1.x(), p0.z(), p1.z(), p0.y(),
-                                        mat_ptrs[3]));
+    side.add(make_shared<xz_rect<false>>(p0.x(), p1.x(), p0.z(), p1.z(), p0.y(),
+                                         mat_ptrs[3], true));
 
     side.add(make_shared<yz_rect<false>>(p0.y(), p1.y(), p0.z(), p1.z(), p1.x(),
                                          mat_ptrs[1]));
@@ -131,8 +131,10 @@ int main() {
   int ccc = 0;
   time.reStart();
   gui.update([&]() {
-    lookfrom[0] = 3 * dym ::sin(Real(ccc) / 10.);
+    lookfrom[0] = 0.5;
+    lookfrom[1] = 3 * dym ::sin(Real(ccc) / 10.);
     lookfrom[2] = 3 * dym ::cos(Real(ccc) / 10.);
+    vup = {1, 0, 0};
     ccc++;
     render.cam.setCamera(lookfrom, lookat, vup, 80, aspect_ratio, aperture,
                          dist_to_focus);

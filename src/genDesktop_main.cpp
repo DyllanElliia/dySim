@@ -221,7 +221,7 @@ int main(int argc, char *argv[]) {
   int samples_per_pixel = 3;
   const int max_depth = 20;
 
-  // NOTE: GUI
+  // NOTE: GUI 试试
   dym::GUI gui("gendp");
   gui.init(gui_width, gui_height);
   dym::TimeLog time;

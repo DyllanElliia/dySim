@@ -49,8 +49,6 @@ public:
 
   _DYM_FORCE_INLINE_ ColorRGB sample(const Ray &r) {
     HitRecord rec;
-    // if (!hit(ro, 1e-7, infinity, rec))
-    //   return 0.0;
     hit(r, 1e-7, infinity, rec);
     auto &hitMat = *(rec.mat_ptr);
     ColorRGB Le = rec.mat_ptr->emitted(r, rec);
@@ -59,7 +57,6 @@ public:
   }
 
 private:
-  // shared_ptr<Material> mat_ptrs[6];
   Point3 box_min;
   Point3 box_max;
   BvhNode sides;

@@ -1,5 +1,4 @@
 #include "fun_pkg.hpp"
-#include "render/object/transform.hpp"
 
 int main(int argc, char const *argv[]) {
   const auto aspect_ratio = 5.f / 3.f;
@@ -140,10 +139,12 @@ int main(int argc, char const *argv[]) {
   render.worlds.addObject<dym::rt::BvhNode>(world);
   render.lights = lights;
 
+  render.registRenderKernel<dym::rt::MIS_RR_PT<false>>();
+
   time.reStart();
   gui.update([&]() {
     dym::TimeLog partTime;
-    render.render<dym::rt::MIS_RR_PT>(
+    render.render(
         samples_per_pixel, 0.85,
         [](const dym::rt::Ray &r) {
           auto nd = -dym::Vector3{-.5, -1, 1}.normalize();

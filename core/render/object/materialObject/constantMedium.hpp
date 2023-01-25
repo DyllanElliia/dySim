@@ -41,7 +41,7 @@ public:
 bool ConstantMedium::hit(const Ray &r, Real t_min, Real t_max,
                          HitRecord &rec) const {
   // Print occasional samples when debugging. To enable, set enableDebug true.
-  const bool enableDebug = true;
+  const bool enableDebug = false;
   const bool debugging = enableDebug && random_real() < 1e-4;
 
   HitRecord rec1, rec2;

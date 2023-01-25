@@ -165,6 +165,8 @@ int main(int argc, char const *argv[]) {
   render.worlds.addObject<dym::rt::BvhNode>(world);
   render.lights = lights;
 
+  render.registRenderKernel<dym::rt::MIS_RR_PT<false>>();
+
   // GUI
   dym::GUI gui("rt");
   gui.init(image_width, image_height);
@@ -187,13 +189,12 @@ int main(int argc, char const *argv[]) {
     // render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
     //                      dist_to_focus);
     dym::TimeLog partTime;
-    render.render<dym::rt::MIS_RR_PT>(
-        samples_per_pixel, max_depth, [](const dym::rt::Ray &r) {
-          dym::Vector3 unit_direction = r.direction().normalize();
-          Real t = 0.5f * (unit_direction.y() + 1.f);
-          return (1.f - t) * dym::rt::ColorRGB(1.f) +
-                 t * dym::rt::ColorRGB({0.5f, 0.7f, 1.0f});
-        });
+    render.render(samples_per_pixel, max_depth, [](const dym::rt::Ray &r) {
+      dym::Vector3 unit_direction = r.direction().normalize();
+      Real t = 0.5f * (unit_direction.y() + 1.f);
+      return (1.f - t) * dym::rt::ColorRGB(1.f) +
+             t * dym::rt::ColorRGB({0.5f, 0.7f, 1.0f});
+    });
 
     qprint("fin render part time:", partTime.getRecord());
     partTime.reStart();

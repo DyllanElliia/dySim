@@ -44,6 +44,7 @@
 // RenderKernel
 #include "renderKernel/MIS_RR_PT.hpp"
 #include "renderKernel/rKernel.hpp"
+#include <memory>
 
 namespace dym {
 namespace rt {
@@ -116,56 +117,28 @@ public:
         imageP(Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>>(
             0, dym::gi(image_width, image_height))),
         image_GBuffer(
-            Tensor<GBuffer, false>(0, dym::gi(image_width, image_height))) {
+            Tensor<GBuffer, false>(0, dym::gi(image_width, image_height))),
+        renderKernel(std::make_shared<RKernel<cameraUseFocus>>()) {
     init_svgf(image.shape());
   }
 
-  template <class RenderKernel = RKernel>
+  template <class rk = RKernel<cameraUseFocus>> bool registRenderKernel() {
+    renderKernel = std::make_shared<rk>();
+    return true;
+  }
+
+  template <class EmptyClass = char>
   void render(
       int samples_per_pixel, Real endValue,
       const std::function<ColorRGB(const Ray &r)> &background =
           [](const Ray &r) { return ColorRGB(0.f); },
       const Real &max_color = 1.0, dym::Vector3i patchSize = {50, 50}) {
-    // auto viewMatrix = cam.getViewMatrix4_transform();
-    // Matrix3 viewMatrix3 = viewMatrix;
-    // viewMatrix = cam.getViewMatrix4_Perspective() * viewMatrix;
-    RenderKernel rk;
-
-    image.for_each_p(
-        [&](dym::Vector<Real, dym::PIC_RGB> &color, int i, int j) {
-          auto color_pre = color;
-          GBuffer gbuffer;
-          color = 0.f;
-          auto u = (Real)i / (image_width - 1);
-          auto v = (Real)j / (image_height - 1);
-          dym::rt::Ray r = cam.get_ray(u, v);
-          gbuffer = rk.renderGBuffer(r, worlds);
-          for (int samples = 0; samples < samples_per_pixel; samples++) {
-            color_pre = color;
-            color += rk.render(r, worlds,
-                               std::make_shared<dym::rt::HittableList>(lights),
-                               endValue, background);
-            dym::Loop<int, 3>([&](auto pi) {
-              if (dym::isnan(color[pi]))
-                color[pi] = color_pre[pi] * (samples + 1) / samples;
-            });
-          }
-          // auto pos4 = viewMatrix * Vector4(gbuffer.position, 1);
-          // gbuffer.position = pos4 / pos4[3];
-          // gbuffer.normal = viewMatrix3 * gbuffer.normal;
-          image_GBuffer[image.getIndexInt(gi(i, j))] = gbuffer;
-          color = color * (1.f / Real(samples_per_pixel));
-          color = dym::sqrt(color) * max_color;
-          dym::Loop<int, 3>([&](auto pi) {
-            if (dym::isnan(color[pi]))
-              color[pi] = 0;
-            if (dym::isinf(color[pi]))
-              color[pi] = color_pre[pi];
-            if (color[pi] > max_color)
-              color[pi] = max_color;
-          });
-        },
-        patchSize);
+    RtMessage<cameraUseFocus> rm("RenderMessage", aspect_ratio, image_width,
+                                 image_height, image, image_GBuffer, worlds,
+                                 lights, cam);
+    renderKernel->runKernel(rm, samples_per_pixel, endValue, background,
+                            max_color, patchSize);
+    // renderKernel->test();
   }
 
   Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> &
@@ -244,6 +217,7 @@ private:
   Tensor<dym::Vector<Real, dym::PIC_RGB>> image;
   Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> imageP;
   Tensor<GBuffer, false> image_GBuffer;
+  std::shared_ptr<RKernel<cameraUseFocus>> renderKernel;
 
 public:
   HittableList worlds;

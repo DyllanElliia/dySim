@@ -151,11 +151,11 @@ int main(int argc, char const *argv[]) {
   //   auto worlds = dym::rt::BvhNode(world);
 
   // Camera
-  dym::rt::Point3 lookfrom({0.5, 0.5, -1.35});
-  dym::rt::Point3 lookat({0.5, 0.5, 0});
+  dym::rt::Point3 lookfrom({0.5, 0.5, -1.1});
+  dym::rt::Point3 lookat({0.5, 0.5, 0.2});
   dym::Vector3 vup({0, 1, 0});
   auto dist_to_focus = (lookfrom - lookat).length();
-  auto aperture = 2.0;
+  auto aperture = .0;
 
   dym::rt::RtRender render(image_width, image_height);
 
@@ -165,7 +165,7 @@ int main(int argc, char const *argv[]) {
   render.worlds.addObject<dym::rt::BvhNode>(world);
   render.lights = lights;
 
-  render.registRenderKernel<dym::rt::MIS_RR_PT<false>>();
+  render.registRenderKernel<dym::rt::MIS_RR_PT>();
 
   // GUI
   dym::GUI gui("rt");

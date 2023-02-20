@@ -6,8 +6,8 @@
 
 namespace dym {
 namespace rt {
-template <bool cameraUseFocus = false>
-class MIS_RR_PT : public RKernel<cameraUseFocus> {
+
+class MIS_RR_PT : public RKernel {
 public:
   virtual bool endCondition(Real &value) { return random_real() > value; }
 

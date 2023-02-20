@@ -134,6 +134,9 @@ int main(int argc, char const *argv[]) {
   world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.2, 0.2, 0.8}),
                                               0.1, whiteMetalSur()));
 
+  world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.5, 0.5, 150}),
+                                              100, earthSur()));
+
   auto mat = earthSur();
   auto mat2 = whiteMetalSur(0.8);
   dym::Vector3 tnormal({0, 0, -1});
@@ -151,11 +154,11 @@ int main(int argc, char const *argv[]) {
   //   auto worlds = dym::rt::BvhNode(world);
 
   // Camera
-  dym::rt::Point3 lookfrom({0.5, 0.5, -1.35});
-  dym::rt::Point3 lookat({0.5, 0.5, 0});
+  dym::rt::Point3 lookfrom({0.5, 0.5, -1.1});
+  dym::rt::Point3 lookat({0.5, 0.5, 0.2});
   dym::Vector3 vup({0, 1, 0});
   auto dist_to_focus = (lookfrom - lookat).length();
-  auto aperture = 2.0;
+  auto aperture = .0;
 
   dym::rt::RtRender render(image_width, image_height);
 
@@ -171,6 +174,19 @@ int main(int argc, char const *argv[]) {
   Real t = 0.4, t_inv = 1 - t;
   dym::TimeLog time;
   int ccc = 1;
+
+  std::string whichGB = "objId";
+  if (argc > 1) {
+    auto sa = std::string(argv[1]);
+    qprint("GBuffer <-", sa);
+    whichGB = sa;
+  }
+  int ma = 255;
+  if (argc > 2) {
+    auto sa = std::string(argv[2]);
+    qprint("max <-", sa);
+    ma = std::stod(sa);
+  }
 
   time.reStart();
   gui.update([&]() {
@@ -188,7 +204,7 @@ int main(int argc, char const *argv[]) {
     ccc++;
     time.record();
     time.reStart();
-    auto image = render.getFrameGBuffer("objId", 255);
+    auto image = render.getFrameGBuffer(whichGB, ma);
     // auto image = render.getFrame();
     dym::imwrite(image,
                  "./rt_out/sample/5/frame_" + std::to_string(ccc - 1) + ".jpg");

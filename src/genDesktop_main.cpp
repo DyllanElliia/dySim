@@ -282,7 +282,7 @@ int main(int argc, char *argv[]) {
     aperture = std::stod(sa);
   }
 
-  dym::rt::RtRender<true> render(image_width, image_height);
+  dym::rt::RtRender render(image_width, image_height);
 
   render.cam.setCamera(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
                        dist_to_focus);

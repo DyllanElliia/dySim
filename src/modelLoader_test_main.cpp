@@ -201,8 +201,8 @@ int main(int argc, char const *argv[]) {
   auto dist_to_focus = (lookfrom - lookat).length();
   auto aperture = 2.0;
 
-  dym::rt::Camera<false> cam(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
-                             dist_to_focus);
+  dym::rt::Camera cam(lookfrom, lookat, vup, 40, aspect_ratio, aperture,
+                      dist_to_focus);
 
   // GUI
   dym::GUI gui("rt");

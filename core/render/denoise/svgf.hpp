@@ -32,9 +32,9 @@ std::vector<Real> variance;
 std::array<std::vector<Vector3>, 2> temp;
 
 // A-Trous Filter
-void ATrousFilter(Tensor<dym::Vector<Real, dym::PIC_RGB>>& image_onlyForForeach,
-                  std::vector<Vector3>& colorin, std::vector<Vector3>& colorout,
-                  std::vector<Real>& variance, Tensor<GBuffer, false>& gBuffer,
+void ATrousFilter(Tensor<dym::Vector<Real, dym::PIC_RGB>> &image_onlyForForeach,
+                  std::vector<Vector3> &colorin, std::vector<Vector3> &colorout,
+                  std::vector<Real> &variance, Tensor<GBuffer, false> &gBuffer,
                   int level, bool is_last, Real sigma_c, Real sigma_n,
                   Real sigma_x, bool blur_variance, bool addcolor) {
   auto res = image_onlyForForeach.shape();
@@ -57,7 +57,7 @@ void ATrousFilter(Tensor<dym::Vector<Real, dym::PIC_RGB>>& image_onlyForForeach,
       Vector2i({-1, 1}),  Vector2i({0, 1}),  Vector2i({1, 1})};
 
   image_onlyForForeach.for_each_i(
-      [&](dym::Vector<Real, dym::PIC_RGB>& color_no_use, int x, int y) {
+      [&](dym::Vector<Real, dym::PIC_RGB> &color_no_use, int x, int y) {
         int p = image_onlyForForeach.getIndexInt(gi(x, y));
         int step = 1 << level;
 
@@ -101,8 +101,8 @@ void ATrousFilter(Tensor<dym::Vector<Real, dym::PIC_RGB>>& image_onlyForForeach,
               // Load pixel q data
               Real lq = 0.2126 * colorin[q][0] + 0.7152 * colorin[q][1] +
                         0.0722 * colorin[q][2];
-              Vector3& pq = gBuffer[q].position;
-              Vector3& nq = gBuffer[q].normal;
+              Vector3 &pq = gBuffer[q].position;
+              Vector3 &nq = gBuffer[q].normal;
 
               // Edge-stopping weights
               Real wl = dym::exp(-(Vector3(lp) - Vector3(lq)).length() /
@@ -138,11 +138,11 @@ void ATrousFilter(Tensor<dym::Vector<Real, dym::PIC_RGB>>& image_onlyForForeach,
       });
 }
 
-_DYM_FORCE_INLINE_ bool isReprjValid(const Index<int>& res,
-                                     const Vector2i& curr_coord,
-                                     const Vector2i& prev_coord,
-                                     Tensor<GBuffer, false>& curr_gbuffer,
-                                     std::vector<GBuffer>& prev_gbuffer) {
+_DYM_FORCE_INLINE_ bool isReprjValid(const Index<int> &res,
+                                     const Vector2i &curr_coord,
+                                     const Vector2i &prev_coord,
+                                     Tensor<GBuffer, false> &curr_gbuffer,
+                                     std::vector<GBuffer> &prev_gbuffer) {
   int p = curr_gbuffer.getIndexInt(curr_coord);
   int q = curr_gbuffer.getIndexInt(prev_coord);
   // reject if the pixel is outside the screen
@@ -161,16 +161,16 @@ _DYM_FORCE_INLINE_ bool isReprjValid(const Index<int>& res,
 
 // TODO: back projection
 void BackProjection(
-    std::vector<Real>& variance_out, std::vector<int>& history_length,
-    std::vector<int>& history_length_update,
-    std::vector<Vector2>& moment_history, std::vector<Vector3>& color_history,
-    std::vector<Vector2>& moment_acc, std::vector<Vector3>& color_acc,
-    Tensor<dym::Vector<Real, dym::PIC_RGB>>& current_color,
-    Tensor<GBuffer, false>& current_gbuffer, std::vector<GBuffer>& prev_gbuffer,
+    std::vector<Real> &variance_out, std::vector<int> &history_length,
+    std::vector<int> &history_length_update,
+    std::vector<Vector2> &moment_history, std::vector<Vector3> &color_history,
+    std::vector<Vector2> &moment_acc, std::vector<Vector3> &color_acc,
+    Tensor<dym::Vector<Real, dym::PIC_RGB>> &current_color,
+    Tensor<GBuffer, false> &current_gbuffer, std::vector<GBuffer> &prev_gbuffer,
     Real color_alpha_min, Real moment_alpha_min) {
-  const auto& res = current_color.shape();
+  const auto &res = current_color.shape();
 
-  current_color.for_each_i([&](dym::Vector<Real, dym::PIC_RGB>& color, int x,
+  current_color.for_each_i([&](dym::Vector<Real, dym::PIC_RGB> &color, int x,
                                int y) {
     int p = current_color.getIndexInt(gi(x, y));
     int N = history_length[p];
@@ -197,8 +197,8 @@ void BackProjection(
       viewspace_position /= viewspace_position[3];
       Real clipx = viewspace_position[0] /** tanf(PI / 4)*/;
       Real clipy = viewspace_position[1] /** tanf(PI / 4)*/;
-      Real ndcx = clipx * 0.5 + 0.5;
-      Real ndcy = clipy * 0.5 + 0.5;
+      Real ndcx = -clipx * 0.5 + 0.5;
+      Real ndcy = -clipy * 0.5 + 0.5;
       Real prevx = ndcx * res[0] - 0.5;
       Real prevy = ndcy * res[1] - 0.5;
       // TODO: debug the viewspace_position
@@ -334,17 +334,17 @@ void BackProjection(
 }
 
 // Estimate variance spatially
-void EstimateVariance(Tensor<dym::Vector<Real, dym::PIC_RGB>>& image,
-                      std::vector<Real>& variacne,
-                      std::vector<Vector3>& color) {
-  image.for_each_i([&](dym::Vector<Real, dym::PIC_RGB>& color, int x, int y) {
+void EstimateVariance(Tensor<dym::Vector<Real, dym::PIC_RGB>> &image,
+                      std::vector<Real> &variacne,
+                      std::vector<Vector3> &color) {
+  image.for_each_i([&](dym::Vector<Real, dym::PIC_RGB> &color, int x, int y) {
     int p = image.getIndexInt(gi(x, y));
     // TODO
     variacne[p] = 10.0;
   });
 }
 
-}  // namespace
+} // namespace
 
 void init_svgf(Index<int> shape) {
   const int pixelcount = shape[0] * shape[1];
@@ -375,14 +375,14 @@ Real svgf_op_sigmal = 0.45f;
 Real svgf_op_sigmax = 0.35f;
 Real svgf_op_sigman = 0.2f;
 int svgf_op_atrous_nlevel =
-    5;  // How man levels of A-trous filter used in denoising?
+    5; // How man levels of A-trous filter used in denoising?
 int svgf_op_history_level =
-    1;  // Which level of A-trous output is sent to history buffer?
+    1; // Which level of A-trous output is sent to history buffer?
 bool svgf_op_sepcolor = false;
 bool svgf_op_addcolor = false;
 
-void denoise_svgf(Tensor<dym::Vector<Real, dym::PIC_RGB>>& input,
-                  Tensor<GBuffer, false>& gbuffer) {
+void denoise_svgf(Tensor<dym::Vector<Real, dym::PIC_RGB>> &input,
+                  Tensor<GBuffer, false> &gbuffer) {
   Real color_alpha = svgf_op_temporal_enable ? svgf_op_color_alpha : 1.0;
   Real moment_alpha = svgf_op_temporal_enable ? svgf_op_moment_alpha : 1.0;
   if (svgf_op_temporal_enable) {
@@ -402,8 +402,8 @@ void denoise_svgf(Tensor<dym::Vector<Real, dym::PIC_RGB>>& input,
   }
   if (svgf_op_atrous_nlevel != 0 && svgf_op_atrous_nlevel) {
     for (int level = 1; level <= svgf_op_atrous_nlevel; level++) {
-      auto& src = (level == 1) ? color_history : temp[level % 2];
-      auto& dst =
+      auto &src = (level == 1) ? color_history : temp[level % 2];
+      auto &dst =
           (level == svgf_op_atrous_nlevel) ? output : temp[(level + 1) % 2];
       ATrousFilter(input, src, dst, variance, gbuffer, level,
                    (level == svgf_op_atrous_nlevel), svgf_op_sigmal,
@@ -427,5 +427,5 @@ void denoise_svgf(Tensor<dym::Vector<Real, dym::PIC_RGB>>& input,
   }
 }
 
-}  // namespace rt
-}  // namespace dym
+} // namespace rt
+} // namespace dym

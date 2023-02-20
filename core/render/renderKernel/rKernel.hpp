@@ -1,12 +1,10 @@
 #pragma once
 
 #include "../render.hpp"
-#include "dyMath.hpp"
-#include <functional>
 
 namespace dym {
 namespace rt {
-template <bool cameraUseFocus = false> struct RtMessage {
+struct RtMessage {
 
   std::string name;
   const Real aspect_ratio;
@@ -16,18 +14,18 @@ template <bool cameraUseFocus = false> struct RtMessage {
   Tensor<GBuffer, false> &image_GBuffer;
   HittableList &worlds;
   HittableList &lights;
-  Camera<cameraUseFocus> &cam;
+  Camera &cam;
   RtMessage(std::string name, const Real aspect_ratio, const int image_width,
             const int image_height,
             Tensor<dym::Vector<Real, dym::PIC_RGB>> &image,
             Tensor<GBuffer, false> &image_GBuffer, HittableList &worlds,
-            HittableList &lights, Camera<cameraUseFocus> &cam)
+            HittableList &lights, Camera &cam)
       : name(name), aspect_ratio(aspect_ratio), image_width(image_width),
         image_height(image_height), image(image), image_GBuffer(image_GBuffer),
         worlds(worlds), lights(lights), cam(cam) {}
 };
 
-template <bool cameraUseFocus = false> class RKernel {
+class RKernel {
 public:
   RKernel(){};
   ~RKernel(){};
@@ -91,10 +89,18 @@ public:
     return Le + Fr * Li / pdf_val;
   }
   virtual void test() { qprint("test"); }
+  virtual bool render_preProcessing(RtMessage &rm) { return true; }
+  virtual bool render_postProcessing(RtMessage &rm) { return true; }
   virtual void
-  runKernel(RtMessage<cameraUseFocus> &rm, int samples_per_pixel, Real endValue,
+  runKernel(RtMessage &rm, int samples_per_pixel, Real endValue,
             const std::function<ColorRGB(const Ray &r)> &background,
             const Real &max_color, dym::Vector3i patchSize) {
+    if (!render_preProcessing(rm)) {
+      DYM_WARNING_cs(
+          "Render Kernel " + rm.name,
+          "Rendering data preprocessing problem, terminate rendering.");
+      return;
+    }
     rm.image.for_each_p(
         [&](dym::Vector<Real, dym::PIC_RGB> &color, int i, int j) {
           auto color_pre = color;
@@ -130,6 +136,12 @@ public:
           });
         },
         patchSize);
+    if (!render_postProcessing(rm)) {
+      DYM_WARNING_cs(
+          "Render Kernel " + rm.name,
+          "Rendering data post-processing problem, terminate rendering.");
+      return;
+    }
   }
 };
 

@@ -107,7 +107,7 @@ ColorRGB ray_color_pdf(
              pdf_val;
 }
 
-template <bool cameraUseFocus = false> class RtRender {
+class RtRender {
 public:
   RtRender(const int &image_width, const int &image_height)
       : image_width(image_width), image_height(image_height),
@@ -118,11 +118,13 @@ public:
             0, dym::gi(image_width, image_height))),
         image_GBuffer(
             Tensor<GBuffer, false>(0, dym::gi(image_width, image_height))),
-        renderKernel(std::make_shared<RKernel<cameraUseFocus>>()) {
+        renderKernel(std::make_shared<RKernel>()) {
     init_svgf(image.shape());
+    svgf_viewMatrix =
+        cam.getViewMatrix4_Perspective() * cam.getViewMatrix4_transform();
   }
 
-  template <class rk = RKernel<cameraUseFocus>> bool registRenderKernel() {
+  template <class rk = RKernel> bool registRenderKernel() {
     renderKernel = std::make_shared<rk>();
     return true;
   }
@@ -133,9 +135,8 @@ public:
       const std::function<ColorRGB(const Ray &r)> &background =
           [](const Ray &r) { return ColorRGB(0.f); },
       const Real &max_color = 1.0, dym::Vector3i patchSize = {50, 50}) {
-    RtMessage<cameraUseFocus> rm("RenderMessage", aspect_ratio, image_width,
-                                 image_height, image, image_GBuffer, worlds,
-                                 lights, cam);
+    RtMessage rm("RenderMessage", aspect_ratio, image_width, image_height,
+                 image, image_GBuffer, worlds, lights, cam);
     renderKernel->runKernel(rm, samples_per_pixel, endValue, background,
                             max_color, patchSize);
     // renderKernel->test();
@@ -152,9 +153,9 @@ public:
 
   Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> &
   getFrameGBuffer(std::string GBuffer_type, Real posScale = 255) {
-    auto viewMatrix = cam.getViewMatrix4_transform();
-    Matrix3 viewMatrix3 = viewMatrix;
-    viewMatrix = cam.getViewMatrix4_Perspective() * viewMatrix;
+    auto viewMatrix =
+        cam.getViewMatrix4_Perspective() * cam.getViewMatrix4_transform();
+    Matrix3 viewMatrix3 = cam.getViewMatrix4_Rotate();
     switch (hash_(GBuffer_type.c_str())) {
     case hash_compile_time("normal"):
       imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB> &e, int i) {
@@ -167,7 +168,7 @@ public:
     case hash_compile_time("position"):
       imageP.for_each_i([&](dym::Vector<dym::Pixel, dym::PIC_RGB> &e, int i) {
         auto pix = viewMatrix * Vector4(image_GBuffer[i].position, 1.0);
-        pix = dym::clamp((1.0 + pix / pix[3]) / 2 * posScale, 0.0, 255.99);
+        pix = dym::clamp((1 + pix / pix[3]) / 2 * posScale, 0.0, 255.99);
         e = Vector3(pix).cast<dym::Pixel>();
         e[2] = 255;
       });
@@ -217,12 +218,12 @@ private:
   Tensor<dym::Vector<Real, dym::PIC_RGB>> image;
   Tensor<dym::Vector<dym::Pixel, dym::PIC_RGB>> imageP;
   Tensor<GBuffer, false> image_GBuffer;
-  std::shared_ptr<RKernel<cameraUseFocus>> renderKernel;
+  std::shared_ptr<RKernel> renderKernel;
 
 public:
   HittableList worlds;
   HittableList lights;
-  Camera<cameraUseFocus> cam;
+  Camera cam;
 };
 
 } // namespace rt

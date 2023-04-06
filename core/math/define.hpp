@@ -51,14 +51,18 @@
 
 #define _DYM_LAMBDA_ _DYM_GENERAL_
 
+#define _DYM_FORCE_INLINE_ inline __attribute__((always_inline))
+#define _DYM_AUTO_INLINE_ inline
+#define _DYM_NEVER_INLINE_ __attribute__((noinline))
+
 #define DYM_ERROR(errorString) __DYM_ERROR_CALL(errorString, __FILE__, __LINE__)
 
 #define DYM_ERROR_cs(className, errorString)                                   \
   __DYM_ERROR_CALL(std::string(className) + " Error: " + errorString,          \
                    __FILE__, __LINE__)
 
-inline void __DYM_ERROR_CALL(std::string err, const char *file,
-                             const int line) {
+_DYM_NEVER_INLINE_ void __DYM_ERROR_CALL(std::string err, const char *file,
+                                         const int line) {
   qp_ctrl(tColor::RED, tType::BOLD, tType::UNDERLINE);
   qprint(err, "\n--- error in file <", file, ">, line", line, ".\n");
   qp_ctrl();
@@ -69,8 +73,8 @@ inline void __DYM_ERROR_CALL(std::string err, const char *file,
   __DYM_WARNING_CALL(std::string(className) + " Warning: " + wString,          \
                      __FILE__, __LINE__)
 
-inline void __DYM_WARNING_CALL(std::string err, const char *file,
-                               const int line) {
+_DYM_NEVER_INLINE_ void __DYM_WARNING_CALL(std::string err, const char *file,
+                                           const int line) {
   qp_ctrl(tColor::YELLOW, tType::BOLD, tType::UNDERLINE);
   qprint(err, "\n--- warning in file <", file, ">, line", line, ".\n");
   qp_ctrl();
@@ -85,8 +89,6 @@ inline void __DYM_WARNING_CALL(std::string err, const char *file,
     exit(EXIT_FAILURE);                                                        \
   }
 
-#define _DYM_FORCE_INLINE_ inline __attribute__((always_inline))
-
 typedef float lReal;
 typedef double Real;
 typedef int Reali;
@@ -94,7 +96,9 @@ typedef unsigned int uReali;
 
 namespace dym {
 const Real Pi = 3.1415926535897932385;
+#define PI Pi
 #define DYM_TEMPLATE_CHECK(T, TYPE)                                            \
   template <typename T,                                                        \
             std::enable_if_t<std::is_convertible<T, TYPE>::value, int> = 0>
+#define _DYM_TEMPLATE_CHECK_(T, TYPE) DYM_TEMPLATE_CHECK(T, TYPE)
 } // namespace dym

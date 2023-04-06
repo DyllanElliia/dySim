@@ -46,7 +46,7 @@ _DYM_FORCE_INLINE_ Vector3 vec_random(const Real &min = 0.0,
       {random_real(min, max), random_real(min, max), random_real(min, max)});
 }
 
-Vector3 random_in_unit_sphere() {
+_DYM_AUTO_INLINE_ Vector3 random_in_unit_sphere() {
   while (true) {
     auto p = vec_random(-1, 1);
     if (p.length_sqr() < 1)
@@ -67,7 +67,7 @@ _DYM_FORCE_INLINE_ Vector3 random_in_hemisphere(const Vector3 &normal) {
     return -in_unit_sphere;
 }
 
-Vector3 random_in_unit_disk() {
+_DYM_AUTO_INLINE_ Vector3 random_in_unit_disk() {
   while (true) {
     auto p = Vector3({random_real(-1, 1), random_real(-1, 1), 0});
     if (p.length_sqr() >= 1)
@@ -157,7 +157,7 @@ _DYM_FORCE_INLINE_ Real SchlickFresnel(const Real &u) {
 _DYM_FORCE_INLINE_ Real smithG_GGX(const Real &NdotV, const Real &alphaG) {
   Real a = alphaG * alphaG;
   Real b = NdotV * NdotV;
-  return NdotV / (NdotV + sqrt(a + b - a * b));
+  return 1. / (NdotV + sqrt(a + b - a * b));
 }
 
 _DYM_FORCE_INLINE_ Real smithG_GGX_aniso(const Real &NdotV, const Real &dotVX,

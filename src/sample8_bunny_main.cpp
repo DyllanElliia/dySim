@@ -5,78 +5,87 @@
  * @LastEditTime: 2022-05-23 15:50:02
  * @Description:
  */
-#include <dyGraphic.hpp>
-#include <dyPicture.hpp>
-#include <dyRender.hpp>
-#include <memory>
-_DYM_FORCE_INLINE_ auto earthSur() {
-  auto earth_texture =
-      std::make_shared<dym::rt::ImageTexture<3>>("image/earthmap.jpg");
-  auto earth_surface = std::make_shared<dym::rt::Lambertian>(earth_texture);
+#include "fun_pkg.hpp"
+// #include <dyGraphic.hpp>
+// #include <dyPicture.hpp>
+// #include <dyRender.hpp>
+// #include <memory>
+// _DYM_FORCE_INLINE_ auto earthSur() {
+//   auto earth_texture =
+//       std::make_shared<dym::rt::ImageTexture<3>>("image/earthmap.jpg");
+//   auto earth_surface = std::make_shared<dym::rt::Lambertian>(earth_texture);
 
-  return earth_surface;
-}
-_DYM_FORCE_INLINE_ auto whiteSur() {
-  auto white_texture =
-      std::make_shared<dym::rt::SolidColor>(dym::rt::ColorRGB(0.8f));
-  auto white_surface = std::make_shared<dym::rt::Lambertian>(white_texture);
+//   return earth_surface;
+// }
+// _DYM_FORCE_INLINE_ auto whiteSur() {
+//   auto white_texture =
+//       std::make_shared<dym::rt::SolidColor>(dym::rt::ColorRGB(0.8f));
+//   auto white_surface = std::make_shared<dym::rt::Lambertian>(white_texture);
 
-  return white_surface;
-}
-_DYM_FORCE_INLINE_ auto whiteMetalSur(Real fuzz = 0) {
-  auto white_surface = std::make_shared<dym::rt::Metal>(
-      dym::rt::ColorRGB({0.8, 1.0, 0.8}), fuzz);
+//   return white_surface;
+// }
+// _DYM_FORCE_INLINE_ auto whiteMetalSur(Real fuzz = 0) {
+//   auto white_surface = std::make_shared<dym::rt::Metal>(
+//       dym::rt::ColorRGB({0.8, 1.0, 0.8}), fuzz);
 
-  return white_surface;
-}
-_DYM_FORCE_INLINE_ auto whiteGalssSur() {
-  auto white_surface = std::make_shared<dym::rt::Dielectric>(1.5);
+//   return white_surface;
+// }
+// _DYM_FORCE_INLINE_ auto whiteGalssSur() {
+//   auto white_surface = std::make_shared<dym::rt::Dielectric>(1.5);
 
-  return white_surface;
-}
+//   return white_surface;
+// }
 
-_DYM_FORCE_INLINE_ auto blueConSur() {
-  auto blue_surface = std::make_shared<dym::rt::Dielectric>(1.5);
+// _DYM_FORCE_INLINE_ auto blueConSur() {
+//   auto blue_surface = std::make_shared<dym::rt::Dielectric>(1.5);
 
-  return blue_surface;
-}
+//   return blue_surface;
+// }
 
-_DYM_FORCE_INLINE_ auto lightEarthSur() {
-  auto earth_texture =
-      std::make_shared<dym::rt::ImageTexture<3>>("image/earthmap.jpg", 3);
-  auto earth_surface = std::make_shared<dym::rt::DiffuseLight>(earth_texture);
+// _DYM_FORCE_INLINE_ auto lightEarthSur() {
+//   auto earth_texture =
+//       std::make_shared<dym::rt::ImageTexture<3>>("image/earthmap.jpg", 3);
+//   auto earth_surface =
+//   std::make_shared<dym::rt::DiffuseLight>(earth_texture);
 
-  return earth_surface;
-}
+//   return earth_surface;
+// }
 
-auto cornell_box() {
-  dym::rt::HittableList objects;
-  Real fuzz = 0.2;
-  auto red =
-      std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.65, .05, .05}));
-  auto white =
-      std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.73, .73, .73}));
-  auto green =
-      std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.12, .45, .15}));
-  auto light = std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB(18));
+// auto cornell_box() {
+//   dym::rt::HittableList objects;
+//   Real fuzz = 0.2;
+//   auto red =
+//       std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.65, .05,
+//       .05}));
+//   auto white =
+//       std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.73, .73,
+//       .73}));
+//   auto green =
+//       std::make_shared<dym::rt::Lambertian>(dym::rt::ColorRGB({.12, .45,
+//       .15}));
+//   auto light =
+//   std::make_shared<dym::rt::DiffuseLight>(dym::rt::ColorRGB(18));
 
-  objects.add(std::make_shared<dym::rt::yz_rect<true>>(0, 1, 0, 1, 1, green));
-  objects.add(std::make_shared<dym::rt::yz_rect<true>>(0, 1, 0, 1, 0, red));
+//   objects.add(std::make_shared<dym::rt::yz_rect<true>>(0, 1, 0, 1, 1,
+//   green)); objects.add(std::make_shared<dym::rt::yz_rect<true>>(0, 1, 0, 1,
+//   0, red));
 
-  objects.add(std::make_shared<dym::rt::xz_rect<true>>(0, 1, 0, 1, 0, white));
-  objects.add(std::make_shared<dym::rt::xz_rect<true>>(0, 1, 0, 1, 1, white));
-  objects.add(std::make_shared<dym::rt::xy_rect<true>>(0, 1, 0, 1, 1, white));
+//   objects.add(std::make_shared<dym::rt::xz_rect<true>>(0, 1, 0, 1, 0,
+//   white)); objects.add(std::make_shared<dym::rt::xz_rect<true>>(0, 1, 0, 1,
+//   1, white)); objects.add(std::make_shared<dym::rt::xy_rect<true>>(0, 1, 0,
+//   1, 1, white));
 
-  Real begin = 0.35, end = 0.65;
-  objects.add(std::make_shared<dym::rt::xz_rect<true>>(begin, end, begin, end,
-                                                       0.998, light));
+//   Real begin = 0.35, end = 0.65;
+//   objects.add(std::make_shared<dym::rt::xz_rect<true>>(begin, end, begin,
+//   end,
+//                                                        0.998, light));
 
-  return dym::rt::BvhNode(objects);
-}
+//   return dym::rt::BvhNode(objects);
+// }
 
 int main(int argc, char const *argv[]) {
   const auto aspect_ratio = 1.f / 1.f;
-  const int image_width = 1200;
+  const int image_width = 800;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
   int samples_per_pixel = 3;
   const int max_depth = 50;
@@ -106,15 +115,25 @@ int main(int argc, char const *argv[]) {
   dym::Vector3 translation({0.4, 0, 0.55});
 
   world.add(std::make_shared<dym::rt::Transform3>(
-      std::make_shared<dym::rt::Mesh>(loader.meshes[0], whiteMetalSur(0.1)),
+      std::make_shared<dym::rt::Mesh>(loader.meshes[0],
+                                      magicSur(0.8, 0.1, 0.1)),
+      scalem * rotate.to_matrix(), translation));
+  scalem = dym::matrix::identity<Real, 3>(2.5);
+  translation = {0.2, 0, 0.3};
+  world.add(std::make_shared<dym::rt::Transform3>(
+      std::make_shared<dym::rt::Mesh>(loader.meshes[0], lambertianSur(0.8)),
+      scalem * rotate.to_matrix(), translation));
+  translation = {0.8, 0, 0.3};
+  world.add(std::make_shared<dym::rt::Transform3>(
+      std::make_shared<dym::rt::Mesh>(loader.meshes[0], metalSur(0.8, 0.1)),
       scalem * rotate.to_matrix(), translation));
 
   // Camera
-  dym::rt::Point3 lookfrom({0.5, 0.5, -1.35});
-  dym::rt::Point3 lookat({0.5, 0.5, 0});
+  dym::rt::Point3 lookfrom({0.5, 0.5, -1.});
+  dym::rt::Point3 lookat({0.5, 0.5, 0.5});
   dym::Vector3 vup({0, 1, 0});
   auto dist_to_focus = (lookfrom - lookat).length();
-  auto aperture = 2.0;
+  auto aperture = .0;
 
   dym::rt::RtRender render(image_width, image_height);
 

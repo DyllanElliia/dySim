@@ -113,10 +113,9 @@ auto cornell_box() {
   objects.add(std::make_shared<dym::rt::xz_rect<true>>(0, 1, 0, 1, 1, white));
   objects.add(std::make_shared<dym::rt::xy_rect<true>>(0, 1, 0, 1, 1, white));
 
-  //   Real begin = 0.35, end = 0.65;
-  //   objects.add(
-  //       std::make_shared<dym::rt::xz_rect>(begin, end, begin, end, 0.998,
-  //       light));
+  Real begin = 0.35, end = 0.65;
+  objects.add(std::make_shared<dym::rt::xz_rect<true>>(begin, end, begin, end,
+                                                       0.998, light));
 
   return dym::rt::BvhNode(objects);
 }

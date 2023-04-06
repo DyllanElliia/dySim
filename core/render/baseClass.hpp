@@ -8,7 +8,10 @@
 #pragma once
 // #include "BVH/aabb.hpp"
 // #include "pdf/pdf.hpp"
+#include "dyMath.hpp"
+#include "math/define.hpp"
 #include "ray.hpp"
+#include "render/randomFun.hpp"
 #include "texture/solidColor.hpp"
 
 namespace dym {
@@ -18,38 +21,6 @@ const std::size_t PIC_GRAY = 1;
 const std::size_t PIC_RGB = 3;
 #endif
 namespace rt {
-
-class aabb;
-
-class Hittable {
-public:
-  virtual bool hit(const Ray &r, Real t_min, Real t_max,
-                   HitRecord &rec) const = 0;
-  virtual bool bounding_box(aabb &output_box) const = 0;
-
-  virtual Real pdf_value(const Point3 &o, const Vector3 &v) const {
-    return 0.0;
-  }
-  virtual Vector3 random(const Vector3 &o) const { return Vector3({1, 0, 0}); }
-};
-
-class Material {
-public:
-  virtual bool scatter(const Ray &r_in, const HitRecord &rec,
-                       ScatterRecord &srec) const {
-    return false;
-  }
-
-  virtual Vector3 BxDF_Evaluate(const Ray &r_in, const Ray &scattered,
-                                const HitRecord &rec,
-                                const ScatterRecord &srec) const {
-    return 1.;
-  }
-
-  virtual ColorRGB emitted(const Ray &r_in, const HitRecord &rec) const {
-    return ColorRGB(0.f);
-  }
-};
 
 class onb {
 public:
@@ -81,6 +52,43 @@ public:
   Vector3 axis[3];
 };
 
+class aabb;
+
+class Hittable {
+public:
+  virtual bool hit(const Ray &r, Real t_min, Real t_max,
+                   HitRecord &rec) const = 0;
+  virtual bool bounding_box(aabb &output_box) const = 0;
+
+  virtual Real pdf_value(const Point3 &o, const Vector3 &v) const {
+    return 0.0;
+  }
+  virtual Vector3 random(const Vector3 &o) const { return Vector3({1, 0, 0}); }
+  virtual Photon random_photon() const { return Photon(); }
+};
+
+class Material {
+public:
+  virtual bool scatter(const Ray &r_in, const HitRecord &rec,
+                       ScatterRecord &srec) const {
+    return false;
+  }
+
+  virtual Vector3 BxDF_Evaluate(const Ray &r_in, const Ray &scattered,
+                                const HitRecord &rec,
+                                const ScatterRecord &srec) const {
+    return 1.;
+  }
+
+  virtual ColorRGB emitted(const Ray &r_in, const HitRecord &rec) const {
+    return ColorRGB(0.f);
+  }
+
+  virtual Ray gen_photon_r(const Point3 &p, const Vector3 &n) {
+    return Ray(p, n);
+  }
+};
+
 class GBuffer {
 public:
   Vector3 normal;
@@ -96,6 +104,12 @@ public:
     return output;
   }
 };
+
+_DYM_FORCE_INLINE_ Photon gen_photon(shared_ptr<Material> mp,
+                                     const Point3 &random_point,
+                                     const Vector3 &normal) {
+  return Photon(mp->gen_photon_r(random_point, normal), mp);
+}
 } // namespace rt
 } // namespace dym
 

@@ -8,6 +8,7 @@
 #pragma once
 
 #include "../baseClass.hpp"
+#include "render/ray.hpp"
 
 namespace dym {
 namespace rt {
@@ -31,6 +32,7 @@ public:
 
   virtual Real pdf_value(const Point3 &origin, const Vector3 &v) const override;
   virtual Vector3 random(const Point3 &origin) const override;
+  virtual Photon random_photon() const override;
 
 public:
   shared_ptr<Material> mp;
@@ -58,6 +60,7 @@ public:
 
   virtual Real pdf_value(const Point3 &origin, const Vector3 &v) const override;
   virtual Vector3 random(const Point3 &origin) const override;
+  virtual Photon random_photon() const override;
 
 public:
   shared_ptr<Material> mp;
@@ -85,6 +88,7 @@ public:
 
   virtual Real pdf_value(const Point3 &origin, const Vector3 &v) const override;
   virtual Vector3 random(const Point3 &origin) const override;
+  virtual Photon random_photon() const override;
 
 public:
   shared_ptr<Material> mp;
@@ -228,5 +232,24 @@ Vector3 yz_rect<frontFace>::random(const Point3 &origin) const {
   auto random_point = Point3({k, random_real(y0, y1), random_real(z0, z1)});
   return random_point - origin;
 }
+
+template <bool frontFace> Photon xy_rect<frontFace>::random_photon() const {
+  auto random_point = Point3({random_real(x0, x1), random_real(y0, y1), k});
+  const Vector3 n{0, 0, frontFace ? 1 : -1};
+  return gen_photon(mp, random_point, n);
+}
+
+template <bool frontFace> Photon xz_rect<frontFace>::random_photon() const {
+  auto random_point = Point3({random_real(x0, x1), k, random_real(z0, z1)});
+  const Vector3 n{0, frontFace ? 1 : -1, 0};
+  return gen_photon(mp, random_point, n);
+}
+
+template <bool frontFace> Photon yz_rect<frontFace>::random_photon() const {
+  auto random_point = Point3({k, random_real(y0, y1), random_real(z0, z1)});
+  const Vector3 n{frontFace ? 1 : -1, 0, 0};
+  return gen_photon(mp, random_point, n);
+}
+
 } // namespace rt
 } // namespace dym

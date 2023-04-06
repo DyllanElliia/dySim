@@ -47,6 +47,15 @@ struct HitRecord {
   }
 };
 
+class Photon {
+public:
+  Ray r;
+  shared_ptr<Material> mat_ptr;
+  Photon(const Ray &r, shared_ptr<Material> mat_ptr) : r(r), mat_ptr(mat_ptr) {}
+  Photon() {}
+  ~Photon() {}
+};
+
 struct ScatterRecord {
   Ray specular_ray;
   Real is_specular;

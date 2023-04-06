@@ -77,7 +77,7 @@ public:
     //       Vector4((lower_left_corner + 0.5 * (horizontal + vertical)),
     //       1))[2];
     Real n = focus_dist;
-    qprint(n);
+    // qprint(n);
     if (f < n)
       f = 2 * n;
     params.f = f;
@@ -99,19 +99,19 @@ public:
                   {0, 0, 1, 0},
                   {0, 0, 0, 1},
               });
-    qprint(M_persp);
-    qprint(Matrix4({
-               {1, 0, 0, 0},
-               {0, 1, 0, 0},
-               {0, 0, (n + f) / n, 1 / n},
-               {0, 0, -f, 0},
-           }) *
-           Matrix4({
-               {1 / (h * aspect_ratio), 0, 0, 0},
-               {0, 1 / h, 0, 0},
-               {0, 0, 1, 0},
-               {0, 0, 0, 1},
-           }));
+    // qprint(M_persp);
+    // qprint(Matrix4({
+    //            {1, 0, 0, 0},
+    //            {0, 1, 0, 0},
+    //            {0, 0, (n + f) / n, 1 / n},
+    //            {0, 0, -f, 0},
+    //        }) *
+    //        Matrix4({
+    //            {1 / (h * aspect_ratio), 0, 0, 0},
+    //            {0, 1 / h, 0, 0},
+    //            {0, 0, 1, 0},
+    //            {0, 0, 0, 1},
+    //        }));
   }
 
   _DYM_FORCE_INLINE_ Ray get_ray(const Real &s, const Real &t) const {

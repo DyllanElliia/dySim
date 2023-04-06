@@ -7,6 +7,7 @@
  */
 #pragma once
 #include "../baseClass.hpp"
+#include "render/randomFun.hpp"
 namespace dym {
 namespace rt {
 class DiffuseLight : public Material {
@@ -21,6 +22,9 @@ public:
   virtual ColorRGB emitted(const Ray &r_in,
                            const HitRecord &rec) const override {
     return emit->value(rec.u, rec.v, rec.p);
+  }
+  virtual Ray gen_photon_r(const Point3 &p, const Vector3 &n) override {
+    return Ray(p, random_in_hemisphere(n));
   }
 
 public:

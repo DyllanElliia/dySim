@@ -157,7 +157,7 @@ _DYM_FORCE_INLINE_ Real SchlickFresnel(const Real &u) {
 _DYM_FORCE_INLINE_ Real smithG_GGX(const Real &NdotV, const Real &alphaG) {
   Real a = alphaG * alphaG;
   Real b = NdotV * NdotV;
-  return 1. / (NdotV + sqrt(a + b - a * b));
+  return 2. / (1. + sqrt(a + b - a * b));
 }
 
 _DYM_FORCE_INLINE_ Real smithG_GGX_aniso(const Real &NdotV, const Real &dotVX,

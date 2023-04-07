@@ -128,7 +128,7 @@ int main(int argc, char const *argv[]) {
                                               0.1, earthSur()));
 
   world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.2, 0.2, 0.2}),
-                                              0.1, whiteMetalSur(0.8)));
+                                              0.1, whiteMetalSur(0.05)));
   world.add(std::make_shared<dym::rt::Sphere>(dym::rt::Point3({0.8, 0.2, 0.2}),
                                               0.1, whiteGalssSur()));
 
@@ -156,7 +156,7 @@ int main(int argc, char const *argv[]) {
   dym::rt::Point3 lookat({0.5, 0.5, 0});
   dym::Vector3 vup({0, 1, 0});
   auto dist_to_focus = (lookfrom - lookat).length();
-  auto aperture = 2.0;
+  auto aperture = .0;
 
   dym::rt::RtRender render(image_width, image_height);
 

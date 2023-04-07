@@ -15,41 +15,48 @@ namespace {
 bool useParallel = true;
 }
 class BvhNode : public Hittable {
- public:
+public:
   BvhNode() {}
 
-  BvhNode(HittableList& list) : BvhNode(list.objects, 0, list.objects.size()) {}
+  BvhNode(HittableList &list) : BvhNode(list.objects, 0, list.objects.size()) {}
 
-  BvhNode(std::vector<shared_ptr<Hittable>>& src_objects, size_t start,
-          size_t end, const Real& isrlevel = 1);
+  BvhNode(std::vector<shared_ptr<Hittable>> &src_objects, size_t start,
+          size_t end, const Real &isrlevel = 1);
 
-  virtual bool hit(const Ray& r, Real t_min, Real t_max,
-                   HitRecord& rec) const override;
+  virtual bool hit(const Ray &r, Real t_min, Real t_max,
+                   HitRecord &rec) const override;
 
-  virtual bool bounding_box(aabb& output_box) const override;
+  virtual bool bounding_box(aabb &output_box) const override;
 
- public:
+public:
   shared_ptr<Hittable> left;
   shared_ptr<Hittable> right;
   aabb box;
 };
 
-bool BvhNode::hit(const Ray& r, Real t_min, Real t_max, HitRecord& rec) const {
-  if (!box.hit(r, t_min, t_max)) return false;
+bool BvhNode::hit(const Ray &r, Real t_min, Real t_max, HitRecord &rec) const {
+  if (!box.hit(r, t_min, t_max))
+    return false;
   // qprint("in BVH");
-  bool hit_left = left->hit(r, t_min, t_max, rec);
-  bool hit_right = right->hit(r, t_min, hit_left ? rec.t : t_max, rec);
+  bool hit_left, hit_right;
+  if (random_real() < .5) {
+    hit_left = left->hit(r, t_min, t_max, rec);
+    hit_right = right->hit(r, t_min, hit_left ? rec.t : t_max, rec);
+  } else {
+    hit_right = right->hit(r, t_min, t_max, rec);
+    hit_left = left->hit(r, t_min, hit_right ? rec.t : t_max, rec);
+  }
 
   return hit_left || hit_right;
 }
 
-bool BvhNode::bounding_box(aabb& output_box) const {
+bool BvhNode::bounding_box(aabb &output_box) const {
   output_box = box;
   return true;
 }
 namespace {
-inline bool box_compare(const shared_ptr<Hittable>& a,
-                        const shared_ptr<Hittable>& b, const int& axis) {
+inline bool box_compare(const shared_ptr<Hittable> &a,
+                        const shared_ptr<Hittable> &b, const int &axis) {
   aabb box_a;
   aabb box_b;
 
@@ -59,27 +66,27 @@ inline bool box_compare(const shared_ptr<Hittable>& a,
   return box_a.min()[axis] < box_b.min()[axis];
 }
 
-_DYM_FORCE_INLINE_ bool box_x_compare(const shared_ptr<Hittable>& a,
-                                      const shared_ptr<Hittable>& b) {
+_DYM_FORCE_INLINE_ bool box_x_compare(const shared_ptr<Hittable> &a,
+                                      const shared_ptr<Hittable> &b) {
   return box_compare(a, b, 0);
 }
 
-_DYM_FORCE_INLINE_ bool box_y_compare(const shared_ptr<Hittable>& a,
-                                      const shared_ptr<Hittable>& b) {
+_DYM_FORCE_INLINE_ bool box_y_compare(const shared_ptr<Hittable> &a,
+                                      const shared_ptr<Hittable> &b) {
   return box_compare(a, b, 1);
 }
 
-_DYM_FORCE_INLINE_ bool box_z_compare(const shared_ptr<Hittable>& a,
-                                      const shared_ptr<Hittable>& b) {
+_DYM_FORCE_INLINE_ bool box_z_compare(const shared_ptr<Hittable> &a,
+                                      const shared_ptr<Hittable> &b) {
   return box_compare(a, b, 2);
 }
 
-}  // namespace
+} // namespace
 
-BvhNode::BvhNode(std::vector<shared_ptr<Hittable>>& src_objects, size_t start,
-                 size_t end, const Real& isrlevel) {
+BvhNode::BvhNode(std::vector<shared_ptr<Hittable>> &src_objects, size_t start,
+                 size_t end, const Real &isrlevel) {
   auto objects =
-      src_objects;  // Create a modifiable array of the source scene objects
+      src_objects; // Create a modifiable array of the source scene objects
 
   int axis = random_real(0, 2);
   auto comparator = (axis == 0)   ? box_x_compare
@@ -114,7 +121,8 @@ BvhNode::BvhNode(std::vector<shared_ptr<Hittable>>& src_objects, size_t start,
 #pragma omp parallel for
       for (int ii = 0; ii < 32; ++ii) {
         int bi = start + ii * delStep, ei = start + (ii + 1) * delStep;
-        if (ei > end) ei = end;
+        if (ei > end)
+          ei = end;
         bvhNode_subList[ii] = make_shared<BvhNode>(objects, bi, ei, 0.8);
       }
       for (int ii = 16; ii > 0; ii /= 2) {
@@ -133,7 +141,7 @@ BvhNode::BvhNode(std::vector<shared_ptr<Hittable>>& src_objects, size_t start,
           bvhNode_subList[jj] = it;
         }
       }
-      auto& copyNode = bvhNode_subList[0];
+      auto &copyNode = bvhNode_subList[0];
       left = copyNode->left;
       right = copyNode->right;
       box = copyNode->box;
@@ -151,5 +159,5 @@ BvhNode::BvhNode(std::vector<shared_ptr<Hittable>>& src_objects, size_t start,
 
   box = surrounding_box(box_left, box_right);
 }
-}  // namespace rt
-}  // namespace dym
+} // namespace rt
+} // namespace dym

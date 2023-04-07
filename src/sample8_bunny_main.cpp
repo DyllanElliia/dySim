@@ -85,7 +85,7 @@
 
 int main(int argc, char const *argv[]) {
   const auto aspect_ratio = 1.f / 1.f;
-  const int image_width = 800;
+  const int image_width = 500;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
   int samples_per_pixel = 3;
   const int max_depth = 50;
@@ -115,8 +115,7 @@ int main(int argc, char const *argv[]) {
   dym::Vector3 translation({0.4, 0, 0.55});
 
   world.add(std::make_shared<dym::rt::Transform3>(
-      std::make_shared<dym::rt::Mesh>(loader.meshes[0],
-                                      magicSur(0.8, 0.1, 0.1)),
+      std::make_shared<dym::rt::Mesh>(loader.meshes[0], magicSur(0.8, 0., 0.1)),
       scalem * rotate.to_matrix(), translation));
   scalem = dym::matrix::identity<Real, 3>(2.5);
   translation = {0.2, 0, 0.3};

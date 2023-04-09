@@ -39,13 +39,15 @@ bool BvhNode::hit(const Ray &r, Real t_min, Real t_max, HitRecord &rec) const {
     return false;
   // qprint("in BVH");
   bool hit_left, hit_right;
-  if (random_real() < .5) {
-    hit_left = left->hit(r, t_min, t_max, rec);
-    hit_right = right->hit(r, t_min, hit_left ? rec.t : t_max, rec);
-  } else {
-    hit_right = right->hit(r, t_min, t_max, rec);
-    hit_left = left->hit(r, t_min, hit_right ? rec.t : t_max, rec);
-  }
+  hit_left = left->hit(r, t_min, t_max, rec);
+  hit_right = right->hit(r, t_min, hit_left ? rec.t : t_max, rec);
+  // if (random_real() < .5) {
+  //   hit_left = left->hit(r, t_min, t_max, rec);
+  //   hit_right = right->hit(r, t_min, hit_left ? rec.t : t_max, rec);
+  // } else {
+  //   hit_right = right->hit(r, t_min, t_max, rec);
+  //   hit_left = left->hit(r, t_min, hit_right ? rec.t : t_max, rec);
+  // }
 
   return hit_left || hit_right;
 }

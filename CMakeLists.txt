@@ -1,10 +1,20 @@
 cmake_minimum_required(VERSION 3.2)
 
+# set compiler argument
+set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_C_COMPILER "clang")
+set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
 # program name
 project(dyMath C CXX)
 
 # create compile file
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# std::string & std::__cxx11
+set(_GLIBCXX_USE_CXX11_ABI 0)
 # use LTO
 # set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
@@ -12,16 +22,18 @@ option(CUDA_ENABLE "Use CUDA" ON)
 
 if(CUDA_ENABLE)
   enable_language(CUDA)
-  set(CMAKE_CUDA_STANDARD 17)
-  set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-extended-lambda --expt-relaxed-constexpr -Xcompiler")
-  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -w")
+  if(NOT DEFINED CMAKE_CUDA_STANDARD)
+    set(CMAKE_CUDA_COMPILER "nvcc")
+    set(CMAKE_CUDA_STANDARD 17)
+    set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-extended-lambda --expt-relaxed-constexpr -Xcompiler -w")
+  endif()
   find_package(CUDA REQUIRED)
   message(STATUS "-> CUDA included at ${CUDA_INCLUDE_DIRS}")
   file(GLOB CUDA_SOURCE "core/math/cuda/*")
   message(STATUS "-> CUDA_SOURCE ${CUDA_SOURCE}")
   add_library(dyMath_cuda STATIC ${CUDA_SOURCE})
-  target_compile_features(dyMath_cuda PRIVATE cuda_std_17)
+  # target_compile_features(dyMath_cuda PRIVATE cuda_std_17)
   set_target_properties(dyMath_cuda
     PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
   if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
@@ -51,13 +63,8 @@ if(OPENMP_ENABLE)
   endif(OpenMP_FOUND)
 endif(OPENMP_ENABLE)
 
-# set compiler argument
-set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_C_COMPILER "clang")
-set(CMAKE_CXX_COMPILER "clang++")
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -w ${OpenMP_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -o2 -g -w ${OpenMP_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 
 # !!! link opengl (copy from the source of LearnOpenGL)
 # Begin:
@@ -171,7 +178,8 @@ message(STATUS "-> [Fin] Find source file.")
 message(STATUS "-> [Run] Targetting file... it wil take a few minutes.")
 
 # target
-file(GLOB_RECURSE SRC_FILES "*.c" "*.cpp" "*.cu")
+# file(GLOB_RECURSE SRC_FILES "*.c" "*.cpp" "*.cu")
+file(GLOB SRC_FILES "*.c" "*.cpp" "*.cu")
 
 message(STATUS "-> [Fin] Target file.")
 
@@ -186,13 +194,18 @@ foreach(MAIN_PATH ${MAIN})
   if(CUDA_ENABLE)
     if(${MAIN_TYPE} STREQUAL "cu")
       message(STATUS "    -> use nvcc")
+      # cuda_add_executable(${MAIN_NAME} ${MAIN_PATH} ${SOURCE})
+      target_compile_features(${MAIN_NAME} PRIVATE cuda_std_17)
       set_property(TARGET ${MAIN_NAME} PROPERTY CUDA_SEPARABLE_COMPILATION ON)
       set_property(TARGET ${MAIN_NAME} PROPERTY CUDA_ARCHITECTURES 70 75)
+    else()
+      # add_executable(${MAIN_NAME} ${MAIN_PATH} ${SOURCE})
+      # target_compile_options(${MAIN_NAME} PUBLIC -stdlib=libc++)
     endif()
 
     # target_compile_features(dyMath_cuda PRIVATE cuda_std_17 cxx_std_20)
   endif(CUDA_ENABLE)
-
+  
   target_link_libraries(${MAIN_NAME} ${dyMath_libs})
 endforeach(MAIN_PATH)
 

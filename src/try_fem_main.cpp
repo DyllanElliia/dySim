@@ -148,7 +148,7 @@ int main(int argc, char const *argv[]) {
   dym::rt::Point3 lookat({0.5, 0.5, -0.1});
   dym::Vector3 vup({0, 1, 0});
   auto dist_to_focus = (lookfrom - lookat).length();
-  auto aperture = 2.0;
+  auto aperture = .0;
   dym::rt::RtRender render(500, 500);
   render.cam.setCamera(lookfrom, lookat, vup, 40, 1.f, aperture, dist_to_focus);
 

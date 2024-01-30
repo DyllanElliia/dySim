@@ -1,10 +1,18 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.5)
 
 # set compiler argument
 set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_C_COMPILER "clang")
-set(CMAKE_CXX_COMPILER "clang++")
-set(CMAKE_CXX_STANDARD 20)
+option(USE_GCC "Use GCC" OFF)
+if(USE_GCC)
+  message(STATUS "-> Use GCC")
+  set(CMAKE_C_COMPILER "gcc")
+  set(CMAKE_CXX_COMPILER "g++")
+else()
+  message(STATUS "-> Use Clang")
+  set(CMAKE_C_COMPILER "clang")
+  set(CMAKE_CXX_COMPILER "clang++")
+endif(USE_GCC)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # program name
@@ -14,7 +22,7 @@ project(dyMath C CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # std::string & std::__cxx11
-set(_GLIBCXX_USE_CXX11_ABI 0)
+# set(_GLIBCXX_USE_CXX11_ABI 0)
 # use LTO
 # set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
@@ -53,18 +61,33 @@ set(dyMath_libs ${dyMath_libs} ${CMAKE_THREAD_LIBS_INIT})
 
 option(OPENMP_ENABLE "Use OpenMP" ON)
 
-if(OPENMP_ENABLE)
-  find_package(OpenMP REQUIRED)
+if(USE_GCC)
 
-  if(OpenMP_FOUND)
-    add_definitions(-DDYM_USE_OPENMP)
-    set(dyMath_libs ${dyMath_libs} OpenMP::OpenMP_CXX)
-    message(STATUS "-> OpenMP included at ${OpenMP_CXX_INCLUDE_DIRS} ${OpenMP_C_INCLUDE_DIRS}")
-  endif(OpenMP_FOUND)
-endif(OPENMP_ENABLE)
+else()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -o2 -g -w ${OpenMP_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+  if(OPENMP_ENABLE)
+    find_package(OpenMP REQUIRED)
+
+    if(OpenMP_FOUND)
+      add_definitions(-DDYM_USE_OPENMP)
+      set(dyMath_libs ${dyMath_libs} OpenMP::OpenMP_CXX)
+      message(STATUS "-> OpenMP included at ${OpenMP_CXX_INCLUDE_DIRS} ${OpenMP_C_INCLUDE_DIRS}")
+    endif(OpenMP_FOUND)
+  endif(OPENMP_ENABLE)
+
+endif(USE_GCC)
+
+
+
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -w")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+
+if(USE_GCC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -w")
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -o3 -g -w ${OpenMP_CXX_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -lc++ -lc++abi")
+endif(USE_GCC)
 
 # !!! link opengl (copy from the source of LearnOpenGL)
 # Begin:

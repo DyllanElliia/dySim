@@ -1,11 +1,10 @@
 
-#include "math/define.hpp"
-#include "render/randomFun.hpp"
-#include "render/ray.hpp"
-#include <dyGraphic.hpp>
-#include <dyMath.hpp>
-#include <dyPicture.hpp>
+
+// #include <dyMath.hpp>
+// #include <dyPicture.hpp>
 #include <dyRender.hpp>
+
+// #include <dyGraphic.hpp>
 
 namespace dym {
 namespace rt {

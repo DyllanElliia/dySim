@@ -7,6 +7,10 @@
  */
 #pragma once
 
+#ifndef _GLIBCXX_USE_CXX11_ABI
+#define _GLIBCXX_USE_CXX11_ABI 0
+#endif
+
 #include <algorithm>
 #include <array>
 #include <cmath>

@@ -14,7 +14,7 @@ struct RtMessage {
   Tensor<GBuffer, false> &image_GBuffer;
   HittableList &worlds;
   HittableList &lights;
-  Camera &cam;
+  Camera cam;
   RtMessage(std::string name, const Real aspect_ratio, const int image_width,
             const int image_height,
             Tensor<dym::Vector<Real, dym::PIC_RGB>> &image,

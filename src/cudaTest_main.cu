@@ -21,7 +21,7 @@ struct S1_t {
       glm::vec3 vnxm{1,1,1};
       printf("%d, %d\n",sizeof(lkfj),sizeof(vnxm));
         // note the "*this" capture specification
-        const auto lam1 = [=] __device__  (){
+         auto lam1 = [=] __device__  (){
             dym::Vector3 fsfd(vnxm);
             dym::Vector3 tryF([=](int i){return (Real)i;});
             Real f=1e-3;
@@ -37,6 +37,7 @@ struct S1_t {
                 printf("test success\n");
                             printv(tryF[2]);
             auto autoTest=1; 
+            tryF[1]=123;
             // std::cout<<"?";
             tryF*=tryF+fsfd;
             printf("1 %f, %f, %f\n",fsfd[0],fsfd[1],fsfd[2]);
@@ -46,14 +47,16 @@ struct S1_t {
             printf("coord: %d---%f, %d, %f, %f\n",i*100+j,v[0],autoTest,asdf[0],asdf[1]);
             
             // printf("str: %s\n",std::string("is string").c_str());
+            // lkfj=tryF;
             return i*100+j;
         };
+        qprint(lkfj);
         // Kernel launch succeeds
         foo <<<2, 4 >>>(lam1);
             cudaError_t cudaerr = cudaDeviceSynchronize();
-    if (cudaerr != cudaSuccess)
-        printf("kernel launch failed with error: %s.\n",cudaGetErrorString(cudaerr));
-               
+        if (cudaerr != cudaSuccess)
+            printf("kernel launch failed with error: %s.\n",cudaGetErrorString(cudaerr));
+        qprint(lkfj);
     } 
 };
 int main(void) {
@@ -62,3 +65,4 @@ int main(void) {
     s1.doit();
     printf("end\n");
 }
+

@@ -1,7 +1,7 @@
 /*
  * @Author: DyllanElliia
  * @Date: 2021-09-15 14:41:40
- * @LastEditTime: 2022-07-05 16:03:56
+ * @LastEditTime: 2023-08-26 16:35:43
  * @LastEditors: DyllanElliia
  * @Description: based-modulus
  */

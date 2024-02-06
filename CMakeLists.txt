@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 # set compiler argument
 set(CMAKE_BUILD_TYPE Release)
-option(USE_GCC "Use GCC" OFF)
+option(USE_GCC "Use GCC" ON)
 if(USE_GCC)
   message(STATUS "-> Use GCC")
   set(CMAKE_C_COMPILER "gcc")
@@ -15,8 +15,7 @@ endif(USE_GCC)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# program name
-project(dyMath C CXX)
+
 
 # create compile file
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -27,6 +26,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 option(CUDA_ENABLE "Use CUDA" ON)
+
+
+# program name
+project(dyMath C CXX CUDA)
 
 if(CUDA_ENABLE)
   enable_language(CUDA)
@@ -52,6 +55,7 @@ if(CUDA_ENABLE)
   add_definitions(-DDYM_USE_CUDA)
 endif(CUDA_ENABLE)
 
+
 # add package
 # find_package(OpenCL REQUIRED)
 find_package(Threads)
@@ -61,9 +65,9 @@ set(dyMath_libs ${dyMath_libs} ${CMAKE_THREAD_LIBS_INIT})
 
 option(OPENMP_ENABLE "Use OpenMP" ON)
 
-if(USE_GCC)
+# if(USE_GCC)
 
-else()
+# else()
 
   if(OPENMP_ENABLE)
     find_package(OpenMP REQUIRED)
@@ -75,7 +79,7 @@ else()
     endif(OpenMP_FOUND)
   endif(OPENMP_ENABLE)
 
-endif(USE_GCC)
+# endif(USE_GCC)
 
 
 
@@ -83,7 +87,7 @@ endif(USE_GCC)
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 
 if(USE_GCC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -w")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -w ${OpenMP_CXX_FLAGS}")
 else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -o3 -g -w ${OpenMP_CXX_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -lc++ -lc++abi")

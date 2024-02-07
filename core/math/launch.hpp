@@ -74,7 +74,6 @@ void Launch(Func &fun, const int begin_i, const int end_i,
 }
 
 namespace detail {
-
 template <class T, T... inds, class F>
 constexpr _DYM_GENERAL_ _DYM_FORCE_INLINE_ void
 loop(std::integer_sequence<T, inds...>, F &&f) {

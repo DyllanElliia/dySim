@@ -48,7 +48,7 @@ public:
   //   }
 
   DYM_TEMPLATE_CHECK(F, std::function<void(Type &, int)>)
-  Vector(const F &fun) {
+  _DYM_GENERAL_ Vector(const F &fun) {
     Loop<int, dim>([&](auto i) { fun(a[i], i); });
   }
   DYM_TEMPLATE_CHECK(F, std::function<Type(int)>)
@@ -80,8 +80,11 @@ public:
   }
 
   void show() const { std::cout << *this << std::endl; }
-  constexpr _DYM_FORCE_INLINE_ auto data() const { return a.data(); }
-  _DYM_FORCE_INLINE_ void for_each(std::function<void(Type &)> func) {
+  constexpr _DYM_GENERAL_ _DYM_FORCE_INLINE_ auto data() const {
+    return a.data();
+  }
+  _DYM_GENERAL_ _DYM_FORCE_INLINE_ void
+  for_each(std::function<void(Type &)> func) {
     // for (auto &e : a) func(e);
     Loop<int, dim>([&](auto i) { func(a[i]); });
   }
@@ -107,6 +110,10 @@ public:
   _dym_vector_xyzw_(y, 1);
   _dym_vector_xyzw_(z, 2);
   _dym_vector_xyzw_(w, 3);
+  _dym_vector_xyzw_(r, 0);
+  _dym_vector_xyzw_(g, 1);
+  _dym_vector_xyzw_(b, 2);
+  _dym_vector_xyzw_(alpha, 3);
 
   template <std::size_t inDim>
   _DYM_GENERAL_ inline Vector operator=(const Vector<Type, inDim> &v) {

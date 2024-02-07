@@ -10,31 +10,32 @@
 namespace dym {
 // namespace vector {
 template <typename Type, typename TypeS, std::size_t dim>
-_DYM_FORCE_INLINE_ Vector<Type, dim> clamp(const Vector<Type, dim> &v,
-                                           const Vector<Type, dim> &min_v,
-                                           const Vector<Type, dim> &max_v) {
+_DYM_GENERAL_ _DYM_FORCE_INLINE_ Vector<Type, dim>
+clamp(const Vector<Type, dim> &v, const Vector<Type, dim> &min_v,
+      const Vector<Type, dim> &max_v) {
   return Vector<Type, dim>(
       [&](Type &e, int i) { e = clamp(v[i], min_v[i], max_v[i]); });
 }
 template <typename Type, std::size_t dim>
-_DYM_FORCE_INLINE_ Vector<Type, dim> pow(const Vector<Type, dim> &v,
-                                         const Real &s) {
+_DYM_GENERAL_ _DYM_FORCE_INLINE_ Vector<Type, dim>
+pow(const Vector<Type, dim> &v, const Real &s) {
   return Vector<Type, dim>([&](Type &e, int i) { e = pow(v[i], s); });
 }
 template <typename Type, std::size_t dim>
-_DYM_FORCE_INLINE_ Vector<Type, dim> min(const Vector<Type, dim> &v1,
-                                         const Vector<Type, dim> &v2) {
+_DYM_GENERAL_ _DYM_FORCE_INLINE_ Vector<Type, dim>
+min(const Vector<Type, dim> &v1, const Vector<Type, dim> &v2) {
   return Vector<Type, dim>([&](Type &e, int i) { e = min(v1[i], v2[i]); });
 }
 template <typename Type, std::size_t dim>
-_DYM_FORCE_INLINE_ Vector<Type, dim> max(const Vector<Type, dim> &v1,
-                                         const Vector<Type, dim> &v2) {
+_DYM_GENERAL_ _DYM_FORCE_INLINE_ Vector<Type, dim>
+max(const Vector<Type, dim> &v1, const Vector<Type, dim> &v2) {
   return Vector<Type, dim>([&](Type &e, int i) { e = max(v1[i], v2[i]); });
 }
 
 #define _dym_vector_use_std_(fun)                                              \
   template <typename Type, std::size_t dim>                                    \
-  _DYM_FORCE_INLINE_ Vector<Type, dim> fun(const Vector<Type, dim> &a) {       \
+  _DYM_GENERAL_ _DYM_FORCE_INLINE_ Vector<Type, dim> fun(                      \
+      const Vector<Type, dim> &a) {                                            \
     return Vector<Type, dim>([&](Type &e, int i) { e = fun(a[i]); });          \
   }
 _dym_vector_use_std_(sqr);
@@ -69,20 +70,20 @@ _dym_vector_use_std_(log1p);
 _dym_vector_use_std_(logb);
 
 template <typename Type, std::size_t dim>
-_DYM_FORCE_INLINE_ Vector<Type, dim>
+_DYM_GENERAL_ _DYM_FORCE_INLINE_ Vector<Type, dim>
 lerp(const Vector<Type, dim> &v0, const Vector<Type, dim> &v1, const Real &t) {
   return (1 - t) * v0 + t * v1;
 }
 
 template <typename Type, std::size_t dim>
-_DYM_FORCE_INLINE_ Vector<Type, dim>
+_DYM_GENERAL_ _DYM_FORCE_INLINE_ Vector<Type, dim>
 Nlerp(const Vector<Type, dim> &v0, const Vector<Type, dim> &v1, const Real &t) {
   Vector<Type, dim> r = lerp(v0, v1, t);
   return r.normalize();
 }
 
 template <typename Type, std::size_t dim>
-_DYM_FORCE_INLINE_ Vector<Type, dim>
+_DYM_GENERAL_ _DYM_FORCE_INLINE_ Vector<Type, dim>
 Slerp(const Vector<Type, dim> &v0, const Vector<Type, dim> &v1, const Real &t) {
   Type theta = 1 / cos(v0.dot(v1)), sintheta_inv = 1 / sin(theta);
   return sin((1 - t) * theta) * sintheta_inv * v0 +

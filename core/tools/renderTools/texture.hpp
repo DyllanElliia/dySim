@@ -13,21 +13,24 @@ struct _texType_ {
   std::string normal = "texture_normal";
   std::string height = "texture_height";
 };
-} // namespace
+}  // namespace
 _texType_ TexType;
 
 class Texture {
-public:
+ public:
   Texture() {}
   Texture(const std::string &path, const std::string &type = TexType.diffuse,
-          bool gamma = false, bool flipTexture = false)
-      : type(type) {
+          bool gamma = false, bool flipTexture = false,
+          bool autoFreeData_ = true)
+      : type(type), autoFreeData(autoFreeData_) {
     load(path, gamma, flipTexture);
   }
-  ~Texture() {}
+  ~Texture() { freeHostData(); }
   unsigned int id;
   std::string type;
   std::string path;
+  unsigned char *data;
+  bool autoFreeData;
 
   unsigned int load(const std::string &path, bool gamma = false,
                     bool flipTexture = false) {
@@ -35,8 +38,7 @@ public:
     unsigned int textureID;
     glGenTextures(1, &textureID);
     int width, height, nrComponents;
-    unsigned char *data =
-        stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
+    data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
     if (data) {
       GLenum format;
       if (nrComponents == 1)
@@ -57,18 +59,24 @@ public:
                       GL_LINEAR_MIPMAP_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-      stbi_image_free(data);
+      // stbi_image_free(data);
     } else {
       DYM_WARNING_cs("Texture", std::string("Texture failed to load at path: " +
                                             std::string(path))
                                     .c_str());
-      stbi_image_free(data);
+      // stbi_image_free(data);
     }
+    if (autoFreeData) freeHostData();
     stbi_set_flip_vertically_on_load(false);
     id = textureID;
     this->path = path;
     return textureID;
   }
+  void freeHostData() {
+    if (!data) return;
+    stbi_image_free(data);
+    data = nullptr;
+  }
 };
-} // namespace rdt
-} // namespace dym
+}  // namespace rdt
+}  // namespace dym

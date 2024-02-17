@@ -12,6 +12,7 @@
 
 template <typename T>
 __global__ void foo(T in) { printf("-> value = %d\n", in()); }
+__global__ void test() { printf("success\n"); }
 struct S1_t {
     int xxx;
     __host__ __device__ S1_t(void) : xxx(10) { };
@@ -23,13 +24,13 @@ struct S1_t {
         // note the "*this" capture specification
          auto lam1 = [=] __device__  (){
             dym::Vector3 fsfd(vnxm);
-            dym::Vector3 tryF([=](int i){return (Real)i;});
+            dym::Vector3 tryF([=](int i)  {return (Real)i;});
             Real f=1e-3;
             auto printv=[&]_DYM_GENERAL_(Real i){printf("%f = %f\n",i,fsfd[0]);};
             auto a111=lkfj;
-            auto a11i=lkfj.cast<int>();
+            auto a11i=lkfj.cast<int>(); 
 
-            // fsfd+=1.;
+            fsfd+=1.;
             glm::vec3 v={1,2,3};
             int i = blockIdx.x+1;
             int j = threadIdx.x+1;
@@ -48,6 +49,9 @@ struct S1_t {
             
             // printf("str: %s\n",std::string("is string").c_str());
             // lkfj=tryF;
+
+            dym::Vector3 fjxoa{1,2,5};
+            printf("a %f, %f, %f\n",fjxoa[0],fjxoa[1],fjxoa[2]);
             return i*100+j;
         };
         qprint(lkfj);
@@ -56,6 +60,12 @@ struct S1_t {
             cudaError_t cudaerr = cudaDeviceSynchronize();
         if (cudaerr != cudaSuccess)
             printf("kernel launch failed with error: %s.\n",cudaGetErrorString(cudaerr));
+        qprint(lkfj);
+        // test <<<2, 4 >>>();
+        //      cudaerr = cudaDeviceSynchronize();
+        // if (cudaerr != cudaSuccess)
+        //     printf("kernel launch failed with error: %s.\n",cudaGetErrorString(cudaerr));
+        qprint(cudaGetErrorString(cudaGetLastError()));
         qprint(lkfj);
     } 
 };

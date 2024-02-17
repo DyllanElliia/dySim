@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 # set compiler argument
 set(CMAKE_BUILD_TYPE Release)
-option(USE_GCC "Use GCC" ON)
+option(USE_GCC "Use GCC" OFF)
 if(USE_GCC)
   message(STATUS "-> Use GCC")
   set(CMAKE_C_COMPILER "gcc")
